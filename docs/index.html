@@ -7,138 +7,177 @@
 		<div id="nanohead"><div id="nanotitle">Circa+Plastic API documentation<span id="navigation_panel">
     <span><a href="../index.html">home</a></span>
     <span id="selected">docs</span>
-    <span><a href="http://github.com/paulhodge/circa">github home</a></span>
+    <span><a href="http://github.com/andyfischer/circa">github home</a></span>
     <span></span>
     </div></div></div>
 <div id="credit_link">This page was created with a modified version of <a href="http://code.google.com/p/nanodoc/">nanodoc</a></div>		<div id="nanobody">
-<div id="packages"><div id="packagestitle">Packages</div><div id="nanobutton"><ul><li><a href="javascript:showPackageContents('circa builtins_contents')">Circa builtins</a></li><li><a href="javascript:showPackageContents('plastic top level_contents')">Plastic top level</a></li><li><a href="javascript:showPackageContents('gl namespace_contents')">gl namespace</a></li><li><a href="javascript:showPackageContents('image namespace_contents')">image namespace</a></li><li><a href="javascript:showPackageContents('text namespace_contents')">text namespace</a></li><li><a href="javascript:showPackageContents('tweak namespace_contents')">tweak namespace</a></li></ul></div></div>
+<div id="packages"><div id="packagestitle">Packages</div><div id="nanobutton"><ul><li><a href="javascript:showPackageContents('circa builtins_contents')">Circa builtins</a></li><li><a href="javascript:showPackageContents('&nbsp;&nbsp;color_contents')">&nbsp;&nbsp;color</a></li><li><a href="javascript:showPackageContents('&nbsp;&nbsp;comparison_contents')">&nbsp;&nbsp;comparison</a></li><li><a href="javascript:showPackageContents('&nbsp;&nbsp;file i/o_contents')">&nbsp;&nbsp;file i/o</a></li><li><a href="javascript:showPackageContents('&nbsp;&nbsp;internal debugging_contents')">&nbsp;&nbsp;internal debugging</a></li><li><a href="javascript:showPackageContents('&nbsp;&nbsp;logical_contents')">&nbsp;&nbsp;logical</a></li><li><a href="javascript:showPackageContents('&nbsp;&nbsp;math_contents')">&nbsp;&nbsp;math</a></li><li><a href="javascript:showPackageContents('&nbsp;&nbsp;metaprogramming_contents')">&nbsp;&nbsp;metaprogramming</a></li><li><a href="javascript:showPackageContents('plastic top level_contents')">Plastic top level</a></li><li><a href="javascript:showPackageContents('box2d bindings_contents')">box2d bindings</a></li><li><a href="javascript:showPackageContents('gl namespace_contents')">gl namespace</a></li><li><a href="javascript:showPackageContents('ide namespace_contents')">ide namespace</a></li><li><a href="javascript:showPackageContents('image namespace_contents')">image namespace</a></li><li><a href="javascript:showPackageContents('text namespace_contents')">text namespace</a></li><li><a href="javascript:showPackageContents('tweak namespace_contents')">tweak namespace</a></li></ul></div></div>
 <div style="display:none" class="package_contents" id="circa builtins_contents"><div id="modulestitle">Circa builtins</div><div id="nanobutton"><div class="package_contents_bar" style="float:left">
-<ul><li><a href="javascript:showSubContents('abs_sub')">abs</a></li>
-<li><a href="javascript:showSubContents('add_f_sub')">add_f</a></li>
-<li><a href="javascript:showSubContents('add_i_sub')">add_i</a></li>
-<li><a href="javascript:showSubContents('add_s_sub')">add_s</a></li>
-<li><a href="javascript:showSubContents('add_v_sub')">add_v</a></li>
-<li><a href="javascript:showSubContents('and_sub')">and</a></li>
-<li><a href="javascript:showSubContents('any_true_sub')">any_true</a></li>
-<li><a href="javascript:showSubContents('apply_feedback_sub')">apply_feedback</a></li>
-<li><a href="javascript:showSubContents('arccos_sub')">arccos</a></li>
-<li><a href="javascript:showSubContents('arcsin_sub')">arcsin</a></li>
-<li><a href="javascript:showSubContents('arctan_sub')">arctan</a></li>
+<ul><li><a href="javascript:showSubContents('approach_sub')">approach</a></li>
 <li><a href="javascript:showSubContents('assert_sub')">assert</a></li>
-<li><a href="javascript:showSubContents('average_sub')">average</a></li>
-<li><a href="javascript:showSubContents('branch_mirror_sub')">branch_mirror</a></li>
-<li><a href="javascript:showSubContents('ceil_sub')">ceil</a></li>
+<li><a href="javascript:showSubContents('blank_list_sub')">blank_list</a></li>
+<li><a href="javascript:showSubContents('cast_sub')">cast</a></li>
 <li><a href="javascript:showSubContents('changed_sub')">changed</a></li>
 <li><a href="javascript:showSubContents('concat_sub')">concat</a></li>
-<li><a href="javascript:showSubContents('cos_sub')">cos</a></li>
-<li><a href="javascript:showSubContents('div_f_sub')">div_f</a></li>
-<li><a href="javascript:showSubContents('div_i_sub')">div_i</a></li>
-<li><a href="javascript:showSubContents('equals_sub')">equals</a></li>
-<li><a href="javascript:showSubContents('file_changed_sub')">file_changed</a></li>
+<li><a href="javascript:showSubContents('cond_sub')">cond</a></li>
+<li><a href="javascript:showSubContents('cycle_sub')">cycle</a></li>
+<li><a href="javascript:showSubContents('cycle_elements_sub')">cycle_elements</a></li>
+<li><a href="javascript:showSubContents('delta_sub')">delta</a></li>
+<li><a href="javascript:showSubContents('errored_sub')">errored</a></li>
+<li><a href="javascript:showSubContents('expand_rect_sub')">expand_rect</a></li>
 <li><a href="javascript:showSubContents('filter_sub')">filter</a></li>
-<li><a href="javascript:showSubContents('floor_sub')">floor</a></li>
-<li><a href="javascript:showSubContents('freeze_sub')">freeze</a></li>
 <li><a href="javascript:showSubContents('get_field_sub')">get_field</a></li>
-<li><a href="javascript:showSubContents('greater_than_eq_f_sub')">greater_than_eq_f</a></li>
-<li><a href="javascript:showSubContents('greater_than_eq_i_sub')">greater_than_eq_i</a></li>
-<li><a href="javascript:showSubContents('greater_than_f_sub')">greater_than_f</a></li>
-<li><a href="javascript:showSubContents('greater_than_i_sub')">greater_than_i</a></li>
-<li><a href="javascript:showSubContents('if_expr_sub')">if_expr</a></li>
+<li><a href="javascript:showSubContents('get_index_from_branch_sub')">get_index_from_branch</a></li>
+<li><a href="javascript:showSubContents('get_state_field_sub')">get_state_field</a></li>
 <li><a href="javascript:showSubContents('include_sub')">include</a></li>
-<li><a href="javascript:showSubContents('length_sub')">length</a></li>
-<li><a href="javascript:showSubContents('less_than_eq_f_sub')">less_than_eq_f</a></li>
-<li><a href="javascript:showSubContents('less_than_eq_i_sub')">less_than_eq_i</a></li>
-<li><a href="javascript:showSubContents('less_than_f_sub')">less_than_f</a></li>
-<li><a href="javascript:showSubContents('less_than_i_sub')">less_than_i</a></li>
-<li><a href="javascript:showSubContents('lift_closure_sub')">lift_closure</a></li>
+<li><a href="javascript:showSubContents('is_bool_sub')">is_bool</a></li>
+<li><a href="javascript:showSubContents('is_float_sub')">is_float</a></li>
+<li><a href="javascript:showSubContents('is_int_sub')">is_int</a></li>
+<li><a href="javascript:showSubContents('is_list_sub')">is_list</a></li>
+<li><a href="javascript:showSubContents('is_null_sub')">is_null</a></li>
+<li><a href="javascript:showSubContents('is_string_sub')">is_string</a></li>
 <li><a href="javascript:showSubContents('list_sub')">list</a></li>
-<li><a href="javascript:showSubContents('load_script_sub')">load_script</a></li>
-<li><a href="javascript:showSubContents('log_sub')">log</a></li>
-<li><a href="javascript:showSubContents('map_sub')">map</a></li>
 </ul></div><div class="package_contents_bar" style="float:right">
-<ul><li><a href="javascript:showSubContents('max_sub')">max</a></li>
-<li><a href="javascript:showSubContents('min_sub')">min</a></li>
-<li><a href="javascript:showSubContents('mod_f_sub')">mod_f</a></li>
-<li><a href="javascript:showSubContents('mod_i_sub')">mod_i</a></li>
-<li><a href="javascript:showSubContents('mult_f_sub')">mult_f</a></li>
-<li><a href="javascript:showSubContents('mult_i_sub')">mult_i</a></li>
-<li><a href="javascript:showSubContents('mult_s_sub')">mult_s</a></li>
-<li><a href="javascript:showSubContents('mult_v_sub')">mult_v</a></li>
-<li><a href="javascript:showSubContents('neg_f_sub')">neg_f</a></li>
-<li><a href="javascript:showSubContents('neg_i_sub')">neg_i</a></li>
-<li><a href="javascript:showSubContents('not_sub')">not</a></li>
-<li><a href="javascript:showSubContents('not_equals_sub')">not_equals</a></li>
-<li><a href="javascript:showSubContents('or_sub')">or</a></li>
-<li><a href="javascript:showSubContents('path_sub')">path</a></li>
-<li><a href="javascript:showSubContents('pow_sub')">pow</a></li>
+<ul><li><a href="javascript:showSubContents('once_sub')">once</a></li>
+<li><a href="javascript:showSubContents('overloaded_function_sub')">overloaded_function</a></li>
 <li><a href="javascript:showSubContents('print_sub')">print</a></li>
-<li><a href="javascript:showSubContents('rand_f_sub')">rand_f</a></li>
+<li><a href="javascript:showSubContents('rand_sub')">rand</a></li>
 <li><a href="javascript:showSubContents('rand_i_sub')">rand_i</a></li>
-<li><a href="javascript:showSubContents('rand_range_sub')">rand_range</a></li>
-<li><a href="javascript:showSubContents('range_sub')">range</a></li>
-<li><a href="javascript:showSubContents('read_text_file_sub')">read_text_file</a></li>
+<li><a href="javascript:showSubContents('random_element_sub')">random_element</a></li>
+<li><a href="javascript:showSubContents('random_norm_vector_sub')">random_norm_vector</a></li>
 <li><a href="javascript:showSubContents('receive_sub')">receive</a></li>
-<li><a href="javascript:showSubContents('remainder_f_sub')">remainder_f</a></li>
-<li><a href="javascript:showSubContents('remainder_i_sub')">remainder_i</a></li>
+<li><a href="javascript:showSubContents('receive_last_sub')">receive_last</a></li>
+<li><a href="javascript:showSubContents('rect_sub')">rect</a></li>
+<li><a href="javascript:showSubContents('rect_intersects_rect_sub')">rect_intersects_rect</a></li>
 <li><a href="javascript:showSubContents('repeat_sub')">repeat</a></li>
-<li><a href="javascript:showSubContents('round_sub')">round</a></li>
+<li><a href="javascript:showSubContents('resize_sub')">resize</a></li>
+<li><a href="javascript:showSubContents('rpath_sub')">rpath</a></li>
+<li><a href="javascript:showSubContents('seed_sub')">seed</a></li>
 <li><a href="javascript:showSubContents('send_sub')">send</a></li>
 <li><a href="javascript:showSubContents('set_sub')">set</a></li>
 <li><a href="javascript:showSubContents('set_union_sub')">set_union</a></li>
-<li><a href="javascript:showSubContents('sin_sub')">sin</a></li>
-<li><a href="javascript:showSubContents('sqr_sub')">sqr</a></li>
-<li><a href="javascript:showSubContents('sqrt_sub')">sqrt</a></li>
-<li><a href="javascript:showSubContents('sub_f_sub')">sub_f</a></li>
-<li><a href="javascript:showSubContents('sub_i_sub')">sub_i</a></li>
-<li><a href="javascript:showSubContents('sub_s_sub')">sub_s</a></li>
-<li><a href="javascript:showSubContents('sub_v_sub')">sub_v</a></li>
-<li><a href="javascript:showSubContents('tan_sub')">tan</a></li>
+<li><a href="javascript:showSubContents('to_rect_sub')">to_rect</a></li>
 <li><a href="javascript:showSubContents('to_string_sub')">to_string</a></li>
-<li><a href="javascript:showSubContents('typeof_sub')">typeof</a></li>
-<li><a href="javascript:showSubContents('write_text_file_sub')">write_text_file</a></li>
+<li><a href="javascript:showSubContents('toggle_sub')">toggle</a></li>
+<li><a href="javascript:showSubContents('trace_sub')">trace</a></li>
 </ul></div></div></div>
-<div style="display:none" class="package_contents" id="plastic top level_contents"><div id="modulestitle">Plastic top level</div><div id="nanobutton"><div class="package_contents_bar" style="float:left">
-<ul><li><a href="javascript:showSubContents('alternate_over_time_sub')">alternate_over_time</a></li>
-<li><a href="javascript:showSubContents('approach_sub')">approach</a></li>
-<li><a href="javascript:showSubContents('background_sub')">background</a></li>
-<li><a href="javascript:showSubContents('draggable_rect_sub')">draggable_rect</a></li>
-<li><a href="javascript:showSubContents('draw_box_sub')">draw_box</a></li>
-<li><a href="javascript:showSubContents('draw_image_sub')">draw_image</a></li>
-<li><a href="javascript:showSubContents('draw_mesh_sub')">draw_mesh</a></li>
-<li><a href="javascript:showSubContents('draw_text_sub')">draw_text</a></li>
-<li><a href="javascript:showSubContents('draw_text_centered_sub')">draw_text_centered</a></li>
-<li><a href="javascript:showSubContents('draw_thick_line_sub')">draw_thick_line</a></li>
-<li><a href="javascript:showSubContents('elapsed_sub')">elapsed</a></li>
-<li><a href="javascript:showSubContents('expand_rect_sub')">expand_rect</a></li>
-<li><a href="javascript:showSubContents('key_down_sub')">key_down</a></li>
-<li><a href="javascript:showSubContents('key_pressed_char_sub')">key_pressed_char</a></li>
-<li><a href="javascript:showSubContents('key_pressed_code_sub')">key_pressed_code</a></li>
-<li><a href="javascript:showSubContents('linear_fadein_sub')">linear_fadein</a></li>
-<li><a href="javascript:showSubContents('load_mesh_sub')">load_mesh</a></li>
-<li><a href="javascript:showSubContents('load_texture_sub')">load_texture</a></li>
-<li><a href="javascript:showSubContents('magnitude_sub')">magnitude</a></li>
-<li><a href="javascript:showSubContents('mouse_clicked_anywhere_sub')">mouse_clicked_anywhere</a></li>
-<li><a href="javascript:showSubContents('mouse_clicked_region_sub')">mouse_clicked_region</a></li>
+<div style="display:none" class="package_contents" id="&nbsp;&nbsp;color_contents"><div id="modulestitle">&nbsp;&nbsp;color</div><div id="nanobutton"><div class="package_contents_bar" style="float:left">
+<ul><li><a href="javascript:showSubContents('blend_color_sub')">blend_color</a></li>
+<li><a href="javascript:showSubContents('hsv_to_rgb_sub')">hsv_to_rgb</a></li>
 </ul></div><div class="package_contents_bar" style="float:right">
-<ul><li><a href="javascript:showSubContents('mouse_in_sub')">mouse_in</a></li>
-<li><a href="javascript:showSubContents('mouse_over_sub')">mouse_over</a></li>
-<li><a href="javascript:showSubContents('mouse_pressed_sub')">mouse_pressed</a></li>
-<li><a href="javascript:showSubContents('mouse_wheel_down_anywhere_sub')">mouse_wheel_down_anywhere</a></li>
-<li><a href="javascript:showSubContents('mouse_wheel_down_region_sub')">mouse_wheel_down_region</a></li>
-<li><a href="javascript:showSubContents('mouse_wheel_up_anywhere_sub')">mouse_wheel_up_anywhere</a></li>
-<li><a href="javascript:showSubContents('mouse_wheel_up_region_sub')">mouse_wheel_up_region</a></li>
+<ul><li><a href="javascript:showSubContents('random_color_sub')">random_color</a></li>
+</ul></div></div></div>
+<div style="display:none" class="package_contents" id="&nbsp;&nbsp;comparison_contents"><div id="modulestitle">&nbsp;&nbsp;comparison</div><div id="nanobutton"><div class="package_contents_bar" style="float:left">
+<ul><li><a href="javascript:showSubContents('equals_sub')">equals</a></li>
+<li><a href="javascript:showSubContents('greater_than_sub')">greater_than</a></li>
+<li><a href="javascript:showSubContents('greater_than_eq_sub')">greater_than_eq</a></li>
+<li><a href="javascript:showSubContents('less_than_sub')">less_than</a></li>
+</ul></div><div class="package_contents_bar" style="float:right">
+<ul><li><a href="javascript:showSubContents('less_than_eq_sub')">less_than_eq</a></li>
+<li><a href="javascript:showSubContents('not_equals_sub')">not_equals</a></li>
+</ul></div></div></div>
+<div style="display:none" class="package_contents" id="&nbsp;&nbsp;file i/o_contents"><div id="modulestitle">&nbsp;&nbsp;file i/o</div><div id="nanobutton"><div class="package_contents_bar" style="float:left">
+<ul><li><a href="javascript:showSubContents('file_changed_sub')">file_changed</a></li>
+<li><a href="javascript:showSubContents('load_script_sub')">load_script</a></li>
+<li><a href="javascript:showSubContents('read_text_file_sub')">read_text_file</a></li>
+</ul></div><div class="package_contents_bar" style="float:right">
+<ul><li><a href="javascript:showSubContents('write_text_file_sub')">write_text_file</a></li>
+</ul></div></div></div>
+<div style="display:none" class="package_contents" id="&nbsp;&nbsp;internal debugging_contents"><div id="modulestitle">&nbsp;&nbsp;internal debugging</div><div id="nanobutton"><div class="package_contents_bar" style="float:left">
+<ul><li><a href="javascript:showSubContents('dump_parse_sub')">dump_parse</a></li>
+<li><a href="javascript:showSubContents('dump_scope_state_sub')">dump_scope_state</a></li>
+<li><a href="javascript:showSubContents('test_oracle_sub')">test_oracle</a></li>
+</ul></div><div class="package_contents_bar" style="float:right">
+<ul><li><a href="javascript:showSubContents('test_spy_sub')">test_spy</a></li>
+</ul></div></div></div>
+<div style="display:none" class="package_contents" id="&nbsp;&nbsp;logical_contents"><div id="modulestitle">&nbsp;&nbsp;logical</div><div id="nanobutton"><div class="package_contents_bar" style="float:left">
+<ul><li><a href="javascript:showSubContents('and_sub')">and</a></li>
+<li><a href="javascript:showSubContents('any_true_sub')">any_true</a></li>
+<li><a href="javascript:showSubContents('not_sub')">not</a></li>
+</ul></div><div class="package_contents_bar" style="float:right">
+<ul><li><a href="javascript:showSubContents('or_sub')">or</a></li>
+</ul></div></div></div>
+<div style="display:none" class="package_contents" id="&nbsp;&nbsp;math_contents"><div id="modulestitle">&nbsp;&nbsp;math</div><div id="nanobutton"><div class="package_contents_bar" style="float:left">
+<ul><li><a href="javascript:showSubContents('abs_sub')">abs</a></li>
+<li><a href="javascript:showSubContents('add_sub')">add</a></li>
+<li><a href="javascript:showSubContents('arccos_sub')">arccos</a></li>
+<li><a href="javascript:showSubContents('arcsin_sub')">arcsin</a></li>
+<li><a href="javascript:showSubContents('arctan_sub')">arctan</a></li>
+<li><a href="javascript:showSubContents('average_sub')">average</a></li>
+<li><a href="javascript:showSubContents('ceil_sub')">ceil</a></li>
+<li><a href="javascript:showSubContents('cos_sub')">cos</a></li>
+<li><a href="javascript:showSubContents('decrement_sub')">decrement</a></li>
+<li><a href="javascript:showSubContents('div_sub')">div</a></li>
+<li><a href="javascript:showSubContents('div_i_sub')">div_i</a></li>
+<li><a href="javascript:showSubContents('floor_sub')">floor</a></li>
+<li><a href="javascript:showSubContents('increment_sub')">increment</a></li>
+<li><a href="javascript:showSubContents('length_sub')">length</a></li>
+<li><a href="javascript:showSubContents('log_sub')">log</a></li>
+<li><a href="javascript:showSubContents('magnitude_sub')">magnitude</a></li>
+<li><a href="javascript:showSubContents('max_sub')">max</a></li>
+<li><a href="javascript:showSubContents('min_sub')">min</a></li>
+</ul></div><div class="package_contents_bar" style="float:right">
+<ul><li><a href="javascript:showSubContents('mod_sub')">mod</a></li>
+<li><a href="javascript:showSubContents('mult_sub')">mult</a></li>
+<li><a href="javascript:showSubContents('neg_sub')">neg</a></li>
 <li><a href="javascript:showSubContents('norm_sub')">norm</a></li>
 <li><a href="javascript:showSubContents('perpendicular_sub')">perpendicular</a></li>
 <li><a href="javascript:showSubContents('point_distance_sub')">point_distance</a></li>
 <li><a href="javascript:showSubContents('polar_sub')">polar</a></li>
-<li><a href="javascript:showSubContents('random_color_sub')">random_color</a></li>
-<li><a href="javascript:showSubContents('random_location_sub')">random_location</a></li>
-<li><a href="javascript:showSubContents('random_norm_vector_sub')">random_norm_vector</a></li>
-<li><a href="javascript:showSubContents('recent_key_presses_sub')">recent_key_presses</a></li>
-<li><a href="javascript:showSubContents('rect_intersects_rect_sub')">rect_intersects_rect</a></li>
+<li><a href="javascript:showSubContents('pow_sub')">pow</a></li>
+<li><a href="javascript:showSubContents('range_sub')">range</a></li>
+<li><a href="javascript:showSubContents('remainder_sub')">remainder</a></li>
 <li><a href="javascript:showSubContents('rotate_point_sub')">rotate_point</a></li>
-<li><a href="javascript:showSubContents('to_rect_sub')">to_rect</a></li>
-<li><a href="javascript:showSubContents('toggle_sub')">toggle</a></li>
+<li><a href="javascript:showSubContents('round_sub')">round</a></li>
+<li><a href="javascript:showSubContents('sin_sub')">sin</a></li>
+<li><a href="javascript:showSubContents('sqr_sub')">sqr</a></li>
+<li><a href="javascript:showSubContents('sqrt_sub')">sqrt</a></li>
+<li><a href="javascript:showSubContents('sub_sub')">sub</a></li>
+<li><a href="javascript:showSubContents('tan_sub')">tan</a></li>
+</ul></div></div></div>
+<div style="display:none" class="package_contents" id="&nbsp;&nbsp;metaprogramming_contents"><div id="modulestitle">&nbsp;&nbsp;metaprogramming</div><div id="nanobutton"><div class="package_contents_bar" style="float:left">
+<ul><li><a href="javascript:showSubContents('branch_ref_sub')">branch_ref</a></li>
+<li><a href="javascript:showSubContents('format_source_for_graph_sub')">format_source_for_graph</a></li>
+<li><a href="javascript:showSubContents('get_statement_count_sub')">get_statement_count</a></li>
+</ul></div><div class="package_contents_bar" style="float:right">
+<ul><li><a href="javascript:showSubContents('lookup_branch_ref_sub')">lookup_branch_ref</a></li>
+</ul></div></div></div>
+<div style="display:none" class="package_contents" id="plastic top level_contents"><div id="modulestitle">Plastic top level</div><div id="nanobutton"><div class="package_contents_bar" style="float:left">
+<ul><li><a href="javascript:showSubContents('alternate_over_time_sub')">alternate_over_time</a></li>
+<li><a href="javascript:showSubContents('background_sub')">background</a></li>
+<li><a href="javascript:showSubContents('draggable_rect_sub')">draggable_rect</a></li>
+<li><a href="javascript:showSubContents('draw_image_sub')">draw_image</a></li>
+<li><a href="javascript:showSubContents('draw_mesh_sub')">draw_mesh</a></li>
+<li><a href="javascript:showSubContents('draw_text_sub')">draw_text</a></li>
+<li><a href="javascript:showSubContents('draw_text_centered_sub')">draw_text_centered</a></li>
+<li><a href="javascript:showSubContents('elapsed_sub')">elapsed</a></li>
+<li><a href="javascript:showSubContents('every_sub')">every</a></li>
+<li><a href="javascript:showSubContents('key_down_sub')">key_down</a></li>
+<li><a href="javascript:showSubContents('key_pressed_sub')">key_pressed</a></li>
+<li><a href="javascript:showSubContents('linear_fadein_sub')">linear_fadein</a></li>
+<li><a href="javascript:showSubContents('load_mesh_sub')">load_mesh</a></li>
+<li><a href="javascript:showSubContents('load_sound_sub')">load_sound</a></li>
+</ul></div><div class="package_contents_bar" style="float:right">
+<ul><li><a href="javascript:showSubContents('load_sound_int_sub')">load_sound_int</a></li>
+<li><a href="javascript:showSubContents('load_texture_sub')">load_texture</a></li>
+<li><a href="javascript:showSubContents('load_user_script_sub')">load_user_script</a></li>
+<li><a href="javascript:showSubContents('mouse_clicked_sub')">mouse_clicked</a></li>
+<li><a href="javascript:showSubContents('mouse_in_sub')">mouse_in</a></li>
+<li><a href="javascript:showSubContents('mouse_location_sub')">mouse_location</a></li>
+<li><a href="javascript:showSubContents('mouse_over_sub')">mouse_over</a></li>
+<li><a href="javascript:showSubContents('mouse_pressed_sub')">mouse_pressed</a></li>
+<li><a href="javascript:showSubContents('mouse_wheel_down_sub')">mouse_wheel_down</a></li>
+<li><a href="javascript:showSubContents('mouse_wheel_up_sub')">mouse_wheel_up</a></li>
+<li><a href="javascript:showSubContents('play_sound_sub')">play_sound</a></li>
+<li><a href="javascript:showSubContents('random_location_sub')">random_location</a></li>
+<li><a href="javascript:showSubContents('recent_key_presses_sub')">recent_key_presses</a></li>
+</ul></div></div></div>
+<div style="display:none" class="package_contents" id="box2d bindings_contents"><div id="modulestitle">box2d bindings</div><div id="nanobutton"><div class="package_contents_bar" style="float:left">
+<ul><li><a href="javascript:showSubContents('body_sub')">body</a></li>
+<li><a href="javascript:showSubContents('body_int_sub')">body_int</a></li>
+<li><a href="javascript:showSubContents('gravity_sub')">gravity</a></li>
+</ul></div><div class="package_contents_bar" style="float:right">
+<ul><li><a href="javascript:showSubContents('step_sub')">step</a></li>
 </ul></div></div></div>
 <div style="display:none" class="package_contents" id="gl namespace_contents"><div id="modulestitle">gl namespace</div><div id="nanobutton"><div class="package_contents_bar" style="float:left">
 <ul><li><a href="javascript:showSubContents('_use_program_sub')">_use_program</a></li>
@@ -146,426 +185,631 @@
 <li><a href="javascript:showSubContents('clear_program_sub')">clear_program</a></li>
 <li><a href="javascript:showSubContents('line_loop_sub')">line_loop</a></li>
 <li><a href="javascript:showSubContents('line_strip_sub')">line_strip</a></li>
+<li><a href="javascript:showSubContents('lines_sub')">lines</a></li>
 <li><a href="javascript:showSubContents('load_program_sub')">load_program</a></li>
 </ul></div><div class="package_contents_bar" style="float:right">
-<ul><li><a href="javascript:showSubContents('points_sub')">points</a></li>
+<ul><li><a href="javascript:showSubContents('pie_sub')">pie</a></li>
+<li><a href="javascript:showSubContents('points_sub')">points</a></li>
 <li><a href="javascript:showSubContents('set_uniform_sub')">set_uniform</a></li>
 <li><a href="javascript:showSubContents('triangles_sub')">triangles</a></li>
 <li><a href="javascript:showSubContents('use_program_sub')">use_program</a></li>
 </ul></div></div></div>
+<div style="display:none" class="package_contents" id="ide namespace_contents"><div id="modulestitle">ide namespace</div><div id="nanobutton"><div class="package_contents_bar" style="float:left">
+<ul><li><a href="javascript:showSubContents('get_time_sub')">get_time</a></li>
+<li><a href="javascript:showSubContents('paused_sub')">paused</a></li>
+<li><a href="javascript:showSubContents('quit_sub')">quit</a></li>
+<li><a href="javascript:showSubContents('reload_runtime_sub')">reload_runtime</a></li>
+</ul></div><div class="package_contents_bar" style="float:right">
+<ul><li><a href="javascript:showSubContents('reset_state_sub')">reset_state</a></li>
+<li><a href="javascript:showSubContents('script_filename_sub')">script_filename</a></li>
+</ul></div></div></div>
 <div style="display:none" class="package_contents" id="image namespace_contents"><div id="modulestitle">image namespace</div><div id="nanobutton"><div class="package_contents_bar" style="float:left">
 <ul><li><a href="javascript:showSubContents('_load_sub')">_load</a></li>
 <li><a href="javascript:showSubContents('draw_sub')">draw</a></li>
-<li><a href="javascript:showSubContents('draw_clip_p_sub')">draw_clip_p</a></li>
+<li><a href="javascript:showSubContents('draw_clip_sub')">draw_clip</a></li>
 </ul></div><div class="package_contents_bar" style="float:right">
-<ul><li><a href="javascript:showSubContents('draw_clip_resized_sub')">draw_clip_resized</a></li>
-<li><a href="javascript:showSubContents('load_sub')">load</a></li>
+<ul><li><a href="javascript:showSubContents('load_sub')">load</a></li>
 </ul></div></div></div>
 <div style="display:none" class="package_contents" id="text namespace_contents"><div id="modulestitle">text namespace</div><div id="nanobutton"><div class="package_contents_bar" style="float:left">
 <ul><li><a href="javascript:showSubContents('draw_rendered_text_sub')">draw_rendered_text</a></li>
+<li><a href="javascript:showSubContents('get_metrics_sub')">get_metrics</a></li>
 <li><a href="javascript:showSubContents('load_font_sub')">load_font</a></li>
+<li><a href="javascript:showSubContents('load_font_internal_sub')">load_font_internal</a></li>
 </ul></div><div class="package_contents_bar" style="float:right">
 <ul><li><a href="javascript:showSubContents('render_text_sub')">render_text</a></li>
+<li><a href="javascript:showSubContents('render_text_internal_sub')">render_text_internal</a></li>
 </ul></div></div></div>
 <div style="display:none" class="package_contents" id="tweak namespace_contents"><div id="modulestitle">tweak namespace</div><div id="nanobutton"><div class="package_contents_bar" style="float:left">
 <ul><li><a href="javascript:showSubContents('button_sub')">button</a></li>
 </ul></div><div class="package_contents_bar" style="float:right">
 <ul></ul></div></div></div>
 
-<div style="display:none" class="moduledetail" id="abs_sub"><div id="moduledetailtitle">abs</div><div id="detailcontent">
-<span class="detail_declaration">abs(number n) :: number</span>
-<p><span class="detail_comments">Absolute value</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="add_i_sub"><div id="moduledetailtitle">add_i</div><div id="detailcontent">
-<span class="detail_declaration">add_i(int...) :: int</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="add_f_sub"><div id="moduledetailtitle">add_f</div><div id="detailcontent">
-<span class="detail_declaration">add_f(number...) :: number</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="and_sub"><div id="moduledetailtitle">and</div><div id="detailcontent">
-<span class="detail_declaration">and(bool a, bool b) :: bool</span>
-<p><span class="detail_comments">Return whether a and b are both true</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="any_true_sub"><div id="moduledetailtitle">any_true</div><div id="detailcontent">
-<span class="detail_declaration">any_true(List l) :: bool</span>
-<p><span class="detail_comments">Return whether any of the items in l are true</span>
-</div></div>
 <div style="display:none" class="moduledetail" id="assert_sub"><div id="moduledetailtitle">assert</div><div id="detailcontent">
 <span class="detail_declaration">assert(bool condition)</span>
 <p><span class="detail_comments">Raises a runtime error if condition is false</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="average_sub"><div id="moduledetailtitle">average</div><div id="detailcontent">
-<span class="detail_declaration">average(number...) :: number</span>
-<p><span class="detail_comments">Returns the average of all inputs.</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="branch_mirror_sub"><div id="moduledetailtitle">branch_mirror</div><div id="detailcontent">
-<span class="detail_declaration">branch_mirror(Branch branch) :: BranchMirror</span>
+<div style="display:none" class="moduledetail" id="cast_sub"><div id="moduledetailtitle">cast</div><div id="detailcontent">
+<span class="detail_declaration">cast +throws (any) -> any</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="changed_sub"><div id="moduledetailtitle">changed</div><div id="detailcontent">
-<span class="detail_declaration">changed(state any, any input) :: bool</span>
+<span class="detail_declaration">changed(state any, any input) -> bool</span>
 <p><span class="detail_comments">Stateful function, returns whether the given input has changed since the last call.</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="concat_sub"><div id="moduledetailtitle">concat</div><div id="detailcontent">
-<span class="detail_declaration">concat(any...) :: string</span>
+<span class="detail_declaration">concat(any...) -> string</span>
 <p><span class="detail_comments">Concatenate each input (converting to a string if necessary).</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="div_f_sub"><div id="moduledetailtitle">div_f</div><div id="detailcontent">
-<span class="detail_declaration">div_f(number, number) :: number</span>
-<p><span class="detail_comments">No description provided</span>
+<div style="display:none" class="moduledetail" id="cond_sub"><div id="moduledetailtitle">cond</div><div id="detailcontent">
+<span class="detail_declaration">cond(bool condition, any pos, any neg) -> any</span>
+<p><span class="detail_comments">If 'condition' is true, returns 'pos'. Otherwise returns 'neg'.</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="div_i_sub"><div id="moduledetailtitle">div_i</div><div id="detailcontent">
-<span class="detail_declaration">div_i(int, int) :: int</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="equals_sub"><div id="moduledetailtitle">equals</div><div id="detailcontent">
-<span class="detail_declaration">equals(any, any) :: bool</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="not_equals_sub"><div id="moduledetailtitle">not_equals</div><div id="detailcontent">
-<span class="detail_declaration">not_equals(any, any) :: bool</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="apply_feedback_sub"><div id="moduledetailtitle">apply_feedback</div><div id="detailcontent">
-<span class="detail_declaration">apply_feedback(Branch branch)::Branch</span>
-<p><span class="detail_comments">Experimental, creates terms to apply feedback in the given branch</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="file_changed_sub"><div id="moduledetailtitle">file_changed</div><div id="detailcontent">
-<span class="detail_declaration">file_changed(state FileSignature, string filename) :: bool</span>
+<div style="display:none" class="moduledetail" id="errored_sub"><div id="moduledetailtitle">errored</div><div id="detailcontent">
+<span class="detail_declaration">errored(any) -> bool</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="filter_sub"><div id="moduledetailtitle">filter</div><div id="detailcontent">
-<span class="detail_declaration">filter(List, List) :: List</span>
+<span class="detail_declaration">filter(Indexable, Indexable) -> List</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="get_field_sub"><div id="moduledetailtitle">get_field</div><div id="detailcontent">
-<span class="detail_declaration">get_field(any, any...) :: any</span>
+<span class="detail_declaration">get_field(any, any...) -> any</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="greater_than_eq_i_sub"><div id="moduledetailtitle">greater_than_eq_i</div><div id="detailcontent">
-<span class="detail_declaration">greater_than_eq_i(int, int) :: bool</span>
+<div style="display:none" class="moduledetail" id="get_index_from_branch_sub"><div id="moduledetailtitle">get_index_from_branch</div><div id="detailcontent">
+<span class="detail_declaration">get_index_from_branch(any, int) -> any</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="greater_than_eq_f_sub"><div id="moduledetailtitle">greater_than_eq_f</div><div id="detailcontent">
-<span class="detail_declaration">greater_than_eq_f(number, number) :: bool</span>
+<div style="display:none" class="moduledetail" id="get_state_field_sub"><div id="moduledetailtitle">get_state_field</div><div id="detailcontent">
+<span class="detail_declaration">get_state_field(any container, any default_value) -> any</span>
 <p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="greater_than_i_sub"><div id="moduledetailtitle">greater_than_i</div><div id="detailcontent">
-<span class="detail_declaration">greater_than_i(int, int) :: bool</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="greater_than_f_sub"><div id="moduledetailtitle">greater_than_f</div><div id="detailcontent">
-<span class="detail_declaration">greater_than_f(number, number) :: bool</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="if_expr_sub"><div id="moduledetailtitle">if_expr</div><div id="detailcontent">
-<span class="detail_declaration">if_expr(bool condition, any pos, any neg) :: any</span>
-<p><span class="detail_comments">If 'condition' is true, returns 'pos'. Otherwise returns 'neg'. This function will probably get some special syntax in the future.</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="include_sub"><div id="moduledetailtitle">include</div><div id="detailcontent">
-<span class="detail_declaration">include(state FileSignature, string filename) :: Branch</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="load_script_sub"><div id="moduledetailtitle">load_script</div><div id="detailcontent">
-<span class="detail_declaration">load_script(state FileSignature, string filename) :: Branch</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="length_sub"><div id="moduledetailtitle">length</div><div id="detailcontent">
-<span class="detail_declaration">length(List) :: int</span>
-<p><span class="detail_comments">Return the number of items in the given list</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="less_than_eq_i_sub"><div id="moduledetailtitle">less_than_eq_i</div><div id="detailcontent">
-<span class="detail_declaration">less_than_eq_i(int, int) :: bool</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="less_than_eq_f_sub"><div id="moduledetailtitle">less_than_eq_f</div><div id="detailcontent">
-<span class="detail_declaration">less_than_eq_f(number, number) :: bool</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="less_than_i_sub"><div id="moduledetailtitle">less_than_i</div><div id="detailcontent">
-<span class="detail_declaration">less_than_i(int, int) :: bool</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="less_than_f_sub"><div id="moduledetailtitle">less_than_f</div><div id="detailcontent">
-<span class="detail_declaration">less_than_f(number, number) :: bool</span>
+<span class="detail_declaration">include(string filename)</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="list_sub"><div id="moduledetailtitle">list</div><div id="detailcontent">
-<span class="detail_declaration">list(any...) :: List</span>
+<span class="detail_declaration">list(any...) -> List</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="repeat_sub"><div id="moduledetailtitle">repeat</div><div id="detailcontent">
-<span class="detail_declaration">repeat(any, int) :: List</span>
+<span class="detail_declaration">repeat(any, int) -> List</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="log_sub"><div id="moduledetailtitle">log</div><div id="detailcontent">
-<span class="detail_declaration">log(number) :: number</span>
-<p><span class="detail_comments">Natural log function</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="map_sub"><div id="moduledetailtitle">map</div><div id="detailcontent">
-<span class="detail_declaration">map(any, List) :: List</span>
+<div style="display:none" class="moduledetail" id="blank_list_sub"><div id="moduledetailtitle">blank_list</div><div id="detailcontent">
+<span class="detail_declaration">blank_list(int) -> List</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="max_sub"><div id="moduledetailtitle">max</div><div id="detailcontent">
-<span class="detail_declaration">max(number, number) :: number</span>
-<p><span class="detail_comments">Maximum of two numbers</span>
+<div style="display:none" class="moduledetail" id="resize_sub"><div id="moduledetailtitle">resize</div><div id="detailcontent">
+<span class="detail_declaration">resize(List, int) -> List</span>
+<p><span class="detail_comments">No description provided</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="send_sub"><div id="moduledetailtitle">send</div><div id="detailcontent">
-<span class="detail_declaration">send(string channel, any)</span>
+<span class="detail_declaration">send(string inbox_name, any)</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="receive_sub"><div id="moduledetailtitle">receive</div><div id="detailcontent">
-<span class="detail_declaration">receive(string channel)::List</span>
+<span class="detail_declaration">receive(string inbox_name) -> List</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="freeze_sub"><div id="moduledetailtitle">freeze</div><div id="detailcontent">
-<span class="detail_declaration">freeze(any) :: any</span>
+<div style="display:none" class="moduledetail" id="overloaded_function_sub"><div id="moduledetailtitle">overloaded_function</div><div id="detailcontent">
+<span class="detail_declaration">overloaded_function(Function...) -> Function</span>
 <p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="lift_closure_sub"><div id="moduledetailtitle">lift_closure</div><div id="detailcontent">
-<span class="detail_declaration">lift_closure(Branch) :: Branch</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="min_sub"><div id="moduledetailtitle">min</div><div id="detailcontent">
-<span class="detail_declaration">min(number, number) :: number</span>
-<p><span class="detail_comments">Minimum of two numbers.</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="mod_i_sub"><div id="moduledetailtitle">mod_i</div><div id="detailcontent">
-<span class="detail_declaration">mod_i(int, int) :: int</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="mod_f_sub"><div id="moduledetailtitle">mod_f</div><div id="detailcontent">
-<span class="detail_declaration">mod_f(number, number) :: number</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="mult_i_sub"><div id="moduledetailtitle">mult_i</div><div id="detailcontent">
-<span class="detail_declaration">mult_i(int, int) :: int</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="mult_f_sub"><div id="moduledetailtitle">mult_f</div><div id="detailcontent">
-<span class="detail_declaration">mult_f(number, number) :: number</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="neg_i_sub"><div id="moduledetailtitle">neg_i</div><div id="detailcontent">
-<span class="detail_declaration">neg_i(int)::int</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="neg_f_sub"><div id="moduledetailtitle">neg_f</div><div id="detailcontent">
-<span class="detail_declaration">neg_f(number)::number</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="not_sub"><div id="moduledetailtitle">not</div><div id="detailcontent">
-<span class="detail_declaration">not(bool) :: bool</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="or_sub"><div id="moduledetailtitle">or</div><div id="detailcontent">
-<span class="detail_declaration">or(bool a, bool b) :: bool</span>
-<p><span class="detail_comments">Return whether either a or b are true</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="path_sub"><div id="moduledetailtitle">path</div><div id="detailcontent">
-<span class="detail_declaration">path(string) :: string</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="pow_sub"><div id="moduledetailtitle">pow</div><div id="detailcontent">
-<span class="detail_declaration">pow(int i, int x) :: int</span>
-<p><span class="detail_comments">Returns i to the power of x</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="print_sub"><div id="moduledetailtitle">print</div><div id="detailcontent">
 <span class="detail_declaration">print(any...)</span>
 <p><span class="detail_comments">Prints a line of text output to the console</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="rand_f_sub"><div id="moduledetailtitle">rand_f</div><div id="detailcontent">
-<span class="detail_declaration">rand_f() :: number</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="rand_range_sub"><div id="moduledetailtitle">rand_range</div><div id="detailcontent">
-<span class="detail_declaration">rand_range(number min, number max)::number</span>
-<p><span class="detail_comments">No description provided</span>
+<div style="display:none" class="moduledetail" id="trace_sub"><div id="moduledetailtitle">trace</div><div id="detailcontent">
+<span class="detail_declaration">trace(any...)</span>
+<p><span class="detail_comments">Prints a line of text output to the console</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="rand_i_sub"><div id="moduledetailtitle">rand_i</div><div id="detailcontent">
-<span class="detail_declaration">rand_i() :: int</span>
+<span class="detail_declaration">rand_i() -> int</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="range_sub"><div id="moduledetailtitle">range</div><div id="detailcontent">
-<span class="detail_declaration">range(int start, int max) :: List</span>
-<p><span class="detail_comments">Return a list of integers from start to max-1</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="read_text_file_sub"><div id="moduledetailtitle">read_text_file</div><div id="detailcontent">
-<span class="detail_declaration">read_text_file(string) :: string</span>
+<div style="display:none" class="moduledetail" id="rand_sub"><div id="moduledetailtitle">rand</div><div id="detailcontent">
+<span class="detail_declaration">rand(any...)-> number</span>
+<p><span class="detail_comments">No description provided</span>
+<p><br>Contains the following overloads:<p><span class="detail_declaration">rand_f() -> number</span>
+<p><span class="detail_comments">No description provided</span>
+<p><span class="detail_declaration">rand_range(number min, number max) -> number</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="remainder_i_sub"><div id="moduledetailtitle">remainder_i</div><div id="detailcontent">
-<span class="detail_declaration">remainder_i(int, int) :: int</span>
+<div style="display:none" class="moduledetail" id="rpath_sub"><div id="moduledetailtitle">rpath</div><div id="detailcontent">
+<span class="detail_declaration">rpath(string) -> string</span>
 <p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="remainder_f_sub"><div id="moduledetailtitle">remainder_f</div><div id="detailcontent">
-<span class="detail_declaration">remainder_f(number, number) :: number</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="round_sub"><div id="moduledetailtitle">round</div><div id="detailcontent">
-<span class="detail_declaration">round(number n) :: int</span>
-<p><span class="detail_comments">Return the integer that is closest to n</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="floor_sub"><div id="moduledetailtitle">floor</div><div id="detailcontent">
-<span class="detail_declaration">floor(number n) :: int</span>
-<p><span class="detail_comments">Return the closest integer that is less than n</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="ceil_sub"><div id="moduledetailtitle">ceil</div><div id="detailcontent">
-<span class="detail_declaration">ceil(number n) :: int</span>
-<p><span class="detail_comments">Return the closest integer that is greater than n</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="set_sub"><div id="moduledetailtitle">set</div><div id="detailcontent">
-<span class="detail_declaration">set(any...) :: Set</span>
+<span class="detail_declaration">set(any...) -> Set</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="set_union_sub"><div id="moduledetailtitle">set_union</div><div id="detailcontent">
-<span class="detail_declaration">set_union(Set...) :: Set</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="sqr_sub"><div id="moduledetailtitle">sqr</div><div id="detailcontent">
-<span class="detail_declaration">sqr(number) :: number</span>
-<p><span class="detail_comments">Square function</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="sqrt_sub"><div id="moduledetailtitle">sqrt</div><div id="detailcontent">
-<span class="detail_declaration">sqrt(number) :: number</span>
-<p><span class="detail_comments">Square root</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="sub_i_sub"><div id="moduledetailtitle">sub_i</div><div id="detailcontent">
-<span class="detail_declaration">sub_i(int, int)::int</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="sub_f_sub"><div id="moduledetailtitle">sub_f</div><div id="detailcontent">
-<span class="detail_declaration">sub_f(number, number)::number</span>
+<span class="detail_declaration">set_union(Set...) -> Set</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="to_string_sub"><div id="moduledetailtitle">to_string</div><div id="detailcontent">
-<span class="detail_declaration">to_string(any) :: string</span>
+<span class="detail_declaration">to_string(any) -> string</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="sin_sub"><div id="moduledetailtitle">sin</div><div id="detailcontent">
-<span class="detail_declaration">sin(number angle) :: number</span>
-<p><span class="detail_comments">Trigonometric sin() function. Note that angles are specified in a range of 0..1 (instead of 0..2pi)</span>
+<div style="display:none" class="moduledetail" id="is_list_sub"><div id="moduledetailtitle">is_list</div><div id="detailcontent">
+<span class="detail_declaration">is_list(any) -> bool</span>
+<p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="cos_sub"><div id="moduledetailtitle">cos</div><div id="detailcontent">
-<span class="detail_declaration">cos(number angle) :: number</span>
-<p><span class="detail_comments">Trigonometric cos() function. Note that angles are specified in a range of 0..1 (instead of 0..2pi)</span>
+<div style="display:none" class="moduledetail" id="is_int_sub"><div id="moduledetailtitle">is_int</div><div id="detailcontent">
+<span class="detail_declaration">is_int(any) -> bool</span>
+<p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="tan_sub"><div id="moduledetailtitle">tan</div><div id="detailcontent">
-<span class="detail_declaration">tan(number angle) :: number</span>
-<p><span class="detail_comments">Trigonometric tan() function. Note that angles are specified in a range of 0..1 (instead of 0..2pi)</span>
+<div style="display:none" class="moduledetail" id="is_float_sub"><div id="moduledetailtitle">is_float</div><div id="detailcontent">
+<span class="detail_declaration">is_float(any) -> bool</span>
+<p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="arcsin_sub"><div id="moduledetailtitle">arcsin</div><div id="detailcontent">
-<span class="detail_declaration">arcsin(number) :: number</span>
-<p><span class="detail_comments">Trigonometric arcsin() function. Note that angles are specified in a range of 0..1 (instead of 0..2pi)</span>
+<div style="display:none" class="moduledetail" id="is_bool_sub"><div id="moduledetailtitle">is_bool</div><div id="detailcontent">
+<span class="detail_declaration">is_bool(any) -> bool</span>
+<p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="arccos_sub"><div id="moduledetailtitle">arccos</div><div id="detailcontent">
-<span class="detail_declaration">arccos(number) :: number</span>
-<p><span class="detail_comments">Trigonometric arccos() function. Note that angles are specified in a range of 0..1 (instead of 0..2pi)</span>
+<div style="display:none" class="moduledetail" id="is_string_sub"><div id="moduledetailtitle">is_string</div><div id="detailcontent">
+<span class="detail_declaration">is_string(any) -> bool</span>
+<p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="arctan_sub"><div id="moduledetailtitle">arctan</div><div id="detailcontent">
-<span class="detail_declaration">arctan(number) :: number</span>
-<p><span class="detail_comments">Trigonometric arctan() function. Note that angles are specified in a range of 0..1 (instead of 0..2pi)</span>
+<div style="display:none" class="moduledetail" id="is_null_sub"><div id="moduledetailtitle">is_null</div><div id="detailcontent">
+<span class="detail_declaration">is_null(any) -> bool</span>
+<p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="typeof_sub"><div id="moduledetailtitle">typeof</div><div id="detailcontent">
-<span class="detail_declaration">typeof(any) :: Type</span>
+<div style="display:none" class="moduledetail" id="toggle_sub"><div id="moduledetailtitle">toggle</div><div id="detailcontent">
+<span class="detail_declaration">toggle(bool tog) -> bool</span>
+<p><span class="detail_comments">
+    Stateful function, returns a boolean status. Every frame the function is called
+    with (true), the result flips. Starts out false.
+    </span>
+</div></div>
+<div style="display:none" class="moduledetail" id="approach_sub"><div id="moduledetailtitle">approach</div><div id="detailcontent">
+<span class="detail_declaration">approach(number target, number maximum_change) -> number</span>
+<p><span class="detail_comments">
+    Stateful function, returns a result which approaches 'target'. Each frame, this
+    result will change at most by 'maximum_change'
+    </span>
+</div></div>
+<div style="display:none" class="moduledetail" id="once_sub"><div id="moduledetailtitle">once</div><div id="detailcontent">
+<span class="detail_declaration">once() -> bool</span>
+<p><span class="detail_comments">
+    Stateful function, returns true the first time it's called, and false thereafter.
+    </span>
+</div></div>
+<div style="display:none" class="moduledetail" id="cycle_sub"><div id="moduledetailtitle">cycle</div><div id="detailcontent">
+<span class="detail_declaration">cycle(int max) -> int</span>
+<p><span class="detail_comments">Stateful function, cycles though the integers starting at 0 and ending before 'max'</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="cycle_elements_sub"><div id="moduledetailtitle">cycle_elements</div><div id="detailcontent">
+<span class="detail_declaration">cycle_elements(List list) -> any</span>
+<p><span class="detail_comments">Stateful function, returns each item of 'list' one at a time</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="random_element_sub"><div id="moduledetailtitle">random_element</div><div id="detailcontent">
+<span class="detail_declaration">random_element(List list) -> any</span>
+<p><span class="detail_comments">Return a random element from the given list, with equal probability per element</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="seed_sub"><div id="moduledetailtitle">seed</div><div id="detailcontent">
+<span class="detail_declaration">seed() -> number</span>
+<p><span class="detail_comments">Stateful function, returns a random number 0..1 which doesn't change after initialization</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="receive_last_sub"><div id="moduledetailtitle">receive_last</div><div id="detailcontent">
+<span class="detail_declaration">receive_last(any default, string inbox_name) -> any</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="to_rect_sub"><div id="moduledetailtitle">to_rect</div><div id="detailcontent">
+<span class="detail_declaration">to_rect(Point topLeft, Point size) -> Rect</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="random_norm_vector_sub"><div id="moduledetailtitle">random_norm_vector</div><div id="detailcontent">
+<span class="detail_declaration">random_norm_vector() -> Point</span>
+<p><span class="detail_comments">Return a random normalized vector</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="expand_rect_sub"><div id="moduledetailtitle">expand_rect</div><div id="detailcontent">
+<span class="detail_declaration">expand_rect(Point center, number width, number height) -> Rect</span>
+<p><span class="detail_comments">Return a rectangle with the given center, width, and height.</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="rect_sub"><div id="moduledetailtitle">rect</div><div id="detailcontent">
+<span class="detail_declaration">rect(Point topleft, Point bottomright) -> Rect</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="rect_intersects_rect_sub"><div id="moduledetailtitle">rect_intersects_rect</div><div id="detailcontent">
+<span class="detail_declaration">rect_intersects_rect(Rect rect_a, Rect rect_b) -> bool</span>
+<p><span class="detail_comments">Return whether the two rectangles intersect.</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="delta_sub"><div id="moduledetailtitle">delta</div><div id="detailcontent">
+<span class="detail_declaration">delta(number val) -> number</span>
+<p><span class="detail_comments">Return the difference that 'val' has changed since the previous frame</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="random_color_sub"><div id="moduledetailtitle">random_color</div><div id="detailcontent">
+<span class="detail_declaration">random_color() -> Color</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="blend_color_sub"><div id="moduledetailtitle">blend_color</div><div id="detailcontent">
+<span class="detail_declaration">blend_color(Color a, Color b, number ratio) -> Color</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="hsv_to_rgb_sub"><div id="moduledetailtitle">hsv_to_rgb</div><div id="detailcontent">
+<span class="detail_declaration">hsv_to_rgb(List hsv) -> Color</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="less_than_sub"><div id="moduledetailtitle">less_than</div><div id="detailcontent">
+<span class="detail_declaration">less_than(any, any)-> bool</span>
+<p><span class="detail_comments">No description provided</span>
+<p><br>Contains the following overloads:<p><span class="detail_declaration">less_than_i(int, int) -> bool</span>
+<p><span class="detail_comments">No description provided</span>
+<p><span class="detail_declaration">less_than_f(number, number) -> bool</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="less_than_eq_sub"><div id="moduledetailtitle">less_than_eq</div><div id="detailcontent">
+<span class="detail_declaration">less_than_eq(any, any)-> bool</span>
+<p><span class="detail_comments">No description provided</span>
+<p><br>Contains the following overloads:<p><span class="detail_declaration">less_than_eq_i(int, int) -> bool</span>
+<p><span class="detail_comments">No description provided</span>
+<p><span class="detail_declaration">less_than_eq_f(number, number) -> bool</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="greater_than_sub"><div id="moduledetailtitle">greater_than</div><div id="detailcontent">
+<span class="detail_declaration">greater_than(any, any)-> bool</span>
+<p><span class="detail_comments">No description provided</span>
+<p><br>Contains the following overloads:<p><span class="detail_declaration">greater_than_i(int, int) -> bool</span>
+<p><span class="detail_comments">No description provided</span>
+<p><span class="detail_declaration">greater_than_f(number, number) -> bool</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="greater_than_eq_sub"><div id="moduledetailtitle">greater_than_eq</div><div id="detailcontent">
+<span class="detail_declaration">greater_than_eq(any, any)-> bool</span>
+<p><span class="detail_comments">No description provided</span>
+<p><br>Contains the following overloads:<p><span class="detail_declaration">greater_than_eq_i(int, int) -> bool</span>
+<p><span class="detail_comments">No description provided</span>
+<p><span class="detail_declaration">greater_than_eq_f(number, number) -> bool</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="equals_sub"><div id="moduledetailtitle">equals</div><div id="detailcontent">
+<span class="detail_declaration">equals(any, any) -> bool</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="not_equals_sub"><div id="moduledetailtitle">not_equals</div><div id="detailcontent">
+<span class="detail_declaration">not_equals(any, any) -> bool</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="file_changed_sub"><div id="moduledetailtitle">file_changed</div><div id="detailcontent">
+<span class="detail_declaration">file_changed(state FileSignature, string filename) -> bool</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="load_script_sub"><div id="moduledetailtitle">load_script</div><div id="detailcontent">
+<span class="detail_declaration">load_script(string filename)</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="read_text_file_sub"><div id="moduledetailtitle">read_text_file</div><div id="detailcontent">
+<span class="detail_declaration">read_text_file(string) -> string</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="write_text_file_sub"><div id="moduledetailtitle">write_text_file</div><div id="detailcontent">
 <span class="detail_declaration">write_text_file(string filename, string contents)</span>
 <p><span class="detail_comments">Write contents to the given filename, overwriting any existing file</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="add_v_sub"><div id="moduledetailtitle">add_v</div><div id="detailcontent">
-<span class="detail_declaration">add_v(List, List) :: List</span>
+<div style="display:none" class="moduledetail" id="dump_parse_sub"><div id="moduledetailtitle">dump_parse</div><div id="detailcontent">
+<span class="detail_declaration">dump_parse(any...)</span>
+<p><span class="detail_comments">For internal debugging. The parser will dump information about all input termsimmediately after this function is parsed</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="test_oracle_sub"><div id="moduledetailtitle">test_oracle</div><div id="detailcontent">
+<span class="detail_declaration">test_oracle() -> any</span>
+<p><span class="detail_comments">For internal testing. This function will output values that are manually inserted with the c++ function oracle_send</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="test_spy_sub"><div id="moduledetailtitle">test_spy</div><div id="detailcontent">
+<span class="detail_declaration">test_spy(any)</span>
+<p><span class="detail_comments">For internal testing. This function will save every inputs to a static list, and the contents of this list can be checked from C++ code.</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="dump_scope_state_sub"><div id="moduledetailtitle">dump_scope_state</div><div id="detailcontent">
+<span class="detail_declaration">dump_scope_state() -> any</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="add_s_sub"><div id="moduledetailtitle">add_s</div><div id="detailcontent">
-<span class="detail_declaration">add_s(List, any) :: List</span>
+<div style="display:none" class="moduledetail" id="any_true_sub"><div id="moduledetailtitle">any_true</div><div id="detailcontent">
+<span class="detail_declaration">any_true(List l) -> bool</span>
+<p><span class="detail_comments">Return whether any of the items in l are true</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="and_sub"><div id="moduledetailtitle">and</div><div id="detailcontent">
+<span class="detail_declaration">and(bool a, bool b) -> bool</span>
+<p><span class="detail_comments">Return whether a and b are both true</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="or_sub"><div id="moduledetailtitle">or</div><div id="detailcontent">
+<span class="detail_declaration">or(bool a, bool b) -> bool</span>
+<p><span class="detail_comments">Return whether a or b are both true</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="not_sub"><div id="moduledetailtitle">not</div><div id="detailcontent">
+<span class="detail_declaration">not(bool) -> bool</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="sub_v_sub"><div id="moduledetailtitle">sub_v</div><div id="detailcontent">
-<span class="detail_declaration">sub_v(List, List) :: List</span>
+<div style="display:none" class="moduledetail" id="abs_sub"><div id="moduledetailtitle">abs</div><div id="detailcontent">
+<span class="detail_declaration">abs(number n) -> number</span>
+<p><span class="detail_comments">Absolute value</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="add_sub"><div id="moduledetailtitle">add</div><div id="detailcontent">
+<span class="detail_declaration">add(any...)-> any</span>
+<p><span class="detail_comments">No description provided</span>
+<p><br>Contains the following overloads:<p><span class="detail_declaration">add_i(int...) -> int</span>
+<p><span class="detail_comments">No description provided</span>
+<p><span class="detail_declaration">add_f(number...) -> number</span>
+<p><span class="detail_comments">No description provided</span>
+<p><span class="detail_declaration">add_v(List, List) -> List</span>
+<p><span class="detail_comments">No description provided</span>
+<p><span class="detail_declaration">add_s(List, any) -> List</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="sub_s_sub"><div id="moduledetailtitle">sub_s</div><div id="detailcontent">
-<span class="detail_declaration">sub_s(List, any) :: List</span>
+<div style="display:none" class="moduledetail" id="div_i_sub"><div id="moduledetailtitle">div_i</div><div id="detailcontent">
+<span class="detail_declaration">div_i(int, int) -> int</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="mult_v_sub"><div id="moduledetailtitle">mult_v</div><div id="detailcontent">
-<span class="detail_declaration">mult_v(List, List) :: List</span>
+<div style="display:none" class="moduledetail" id="div_sub"><div id="moduledetailtitle">div</div><div id="detailcontent">
+<span class="detail_declaration">div(any, any)-> any</span>
+<p><span class="detail_comments">No description provided</span>
+<p><br>Contains the following overloads:<p><span class="detail_declaration">div_f(number, number) -> number</span>
+<p><span class="detail_comments">No description provided</span>
+<p><span class="detail_declaration">div_s(List, any) -> List</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="mult_s_sub"><div id="moduledetailtitle">mult_s</div><div id="detailcontent">
-<span class="detail_declaration">mult_s(List, any) :: List</span>
+<div style="display:none" class="moduledetail" id="increment_sub"><div id="moduledetailtitle">increment</div><div id="detailcontent">
+<span class="detail_declaration">increment(int i) -> int</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="mouse_in_sub"><div id="moduledetailtitle">mouse_in</div><div id="detailcontent">
-<span class="detail_declaration">mouse_in(Rect b) :: bool</span>
-<p><span class="detail_comments">Return whether the mouse is currently inside the given rect.</span>
+<div style="display:none" class="moduledetail" id="decrement_sub"><div id="moduledetailtitle">decrement</div><div id="detailcontent">
+<span class="detail_declaration">decrement(int i) -> int</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="length_sub"><div id="moduledetailtitle">length</div><div id="detailcontent">
+<span class="detail_declaration">length(List) -> int</span>
+<p><span class="detail_comments">Return the number of items in the given list</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="round_sub"><div id="moduledetailtitle">round</div><div id="detailcontent">
+<span class="detail_declaration">round(number n) -> int</span>
+<p><span class="detail_comments">Return the integer that is closest to n</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="floor_sub"><div id="moduledetailtitle">floor</div><div id="detailcontent">
+<span class="detail_declaration">floor(number n) -> int</span>
+<p><span class="detail_comments">Return the closest integer that is less than n</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="ceil_sub"><div id="moduledetailtitle">ceil</div><div id="detailcontent">
+<span class="detail_declaration">ceil(number n) -> int</span>
+<p><span class="detail_comments">Return the closest integer that is greater than n</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="average_sub"><div id="moduledetailtitle">average</div><div id="detailcontent">
+<span class="detail_declaration">average(number...) -> number</span>
+<p><span class="detail_comments">Returns the average of all inputs.</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="pow_sub"><div id="moduledetailtitle">pow</div><div id="detailcontent">
+<span class="detail_declaration">pow(int i, int x) -> int</span>
+<p><span class="detail_comments">Returns i to the power of x</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="sqr_sub"><div id="moduledetailtitle">sqr</div><div id="detailcontent">
+<span class="detail_declaration">sqr(number) -> number</span>
+<p><span class="detail_comments">Square function</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="sqrt_sub"><div id="moduledetailtitle">sqrt</div><div id="detailcontent">
+<span class="detail_declaration">sqrt(number) -> number</span>
+<p><span class="detail_comments">Square root</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="log_sub"><div id="moduledetailtitle">log</div><div id="detailcontent">
+<span class="detail_declaration">log(number) -> number</span>
+<p><span class="detail_comments">Natural log function</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="max_sub"><div id="moduledetailtitle">max</div><div id="detailcontent">
+<span class="detail_declaration">max(any, any)-> number</span>
+<p><span class="detail_comments">No description provided</span>
+<p><br>Contains the following overloads:<p><span class="detail_declaration">max_i(int, int) -> int</span>
+<p><span class="detail_comments">Maximum of two integers</span>
+<p><span class="detail_declaration">max_f(number, number) -> number</span>
+<p><span class="detail_comments">Maximum of two numbers</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="min_sub"><div id="moduledetailtitle">min</div><div id="detailcontent">
+<span class="detail_declaration">min(any, any)-> number</span>
+<p><span class="detail_comments">No description provided</span>
+<p><br>Contains the following overloads:<p><span class="detail_declaration">min_i(int, int) -> int</span>
+<p><span class="detail_comments">Minimum of two integers</span>
+<p><span class="detail_declaration">min_f(number, number) -> number</span>
+<p><span class="detail_comments">Minimum of two numbers</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="remainder_sub"><div id="moduledetailtitle">remainder</div><div id="detailcontent">
+<span class="detail_declaration">remainder(any, any)-> number</span>
+<p><span class="detail_comments">No description provided</span>
+<p><br>Contains the following overloads:<p><span class="detail_declaration">remainder_i(int, int) -> int</span>
+<p><span class="detail_comments">No description provided</span>
+<p><span class="detail_declaration">remainder_f(number, number) -> number</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="mod_sub"><div id="moduledetailtitle">mod</div><div id="detailcontent">
+<span class="detail_declaration">mod(any, any)-> number</span>
+<p><span class="detail_comments">No description provided</span>
+<p><br>Contains the following overloads:<p><span class="detail_declaration">mod_i(int, int) -> int</span>
+<p><span class="detail_comments">No description provided</span>
+<p><span class="detail_declaration">mod_f(number, number) -> number</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="mult_sub"><div id="moduledetailtitle">mult</div><div id="detailcontent">
+<span class="detail_declaration">mult(any, any)-> any</span>
+<p><span class="detail_comments">No description provided</span>
+<p><br>Contains the following overloads:<p><span class="detail_declaration">mult_i(int, int) -> int</span>
+<p><span class="detail_comments">No description provided</span>
+<p><span class="detail_declaration">mult_f(number, number) -> number</span>
+<p><span class="detail_comments">No description provided</span>
+<p><span class="detail_declaration">mult_v(List, List) -> List</span>
+<p><span class="detail_comments">No description provided</span>
+<p><span class="detail_declaration">mult_s(List, any) -> List</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="neg_sub"><div id="moduledetailtitle">neg</div><div id="detailcontent">
+<span class="detail_declaration">neg(any)-> number</span>
+<p><span class="detail_comments">No description provided</span>
+<p><br>Contains the following overloads:<p><span class="detail_declaration">neg_i(int) -> int</span>
+<p><span class="detail_comments">No description provided</span>
+<p><span class="detail_declaration">neg_f(number) -> number</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="range_sub"><div id="moduledetailtitle">range</div><div id="detailcontent">
+<span class="detail_declaration">range(int start, int max) -> List</span>
+<p><span class="detail_comments">Return a list of integers from start to max-1</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="sub_sub"><div id="moduledetailtitle">sub</div><div id="detailcontent">
+<span class="detail_declaration">sub(any, any)-> any</span>
+<p><span class="detail_comments">No description provided</span>
+<p><br>Contains the following overloads:<p><span class="detail_declaration">sub_i(int, int) -> int</span>
+<p><span class="detail_comments">No description provided</span>
+<p><span class="detail_declaration">sub_f(number, number) -> number</span>
+<p><span class="detail_comments">No description provided</span>
+<p><span class="detail_declaration">sub_v(List, List) -> List</span>
+<p><span class="detail_comments">No description provided</span>
+<p><span class="detail_declaration">sub_s(List, any) -> List</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="sin_sub"><div id="moduledetailtitle">sin</div><div id="detailcontent">
+<span class="detail_declaration">sin(number angle) -> number</span>
+<p><span class="detail_comments">Trigonometric sin() function. Note that angles are specified in a range of 0..1 (instead of 0..2pi)</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="cos_sub"><div id="moduledetailtitle">cos</div><div id="detailcontent">
+<span class="detail_declaration">cos(number angle) -> number</span>
+<p><span class="detail_comments">Trigonometric cos() function. Note that angles are specified in a range of 0..1 (instead of 0..2pi)</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="tan_sub"><div id="moduledetailtitle">tan</div><div id="detailcontent">
+<span class="detail_declaration">tan(number angle) -> number</span>
+<p><span class="detail_comments">Trigonometric tan() function. Note that angles are specified in a range of 0..1 (instead of 0..2pi)</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="arcsin_sub"><div id="moduledetailtitle">arcsin</div><div id="detailcontent">
+<span class="detail_declaration">arcsin(number) -> number</span>
+<p><span class="detail_comments">Trigonometric arcsin() function. Note that angles are specified in a range of 0..1 (instead of 0..2pi)</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="arccos_sub"><div id="moduledetailtitle">arccos</div><div id="detailcontent">
+<span class="detail_declaration">arccos(number) -> number</span>
+<p><span class="detail_comments">Trigonometric arccos() function. Note that angles are specified in a range of 0..1 (instead of 0..2pi)</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="arctan_sub"><div id="moduledetailtitle">arctan</div><div id="detailcontent">
+<span class="detail_declaration">arctan(number) -> number</span>
+<p><span class="detail_comments">Trigonometric arctan() function. Note that angles are specified in a range of 0..1 (instead of 0..2pi)</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="polar_sub"><div id="moduledetailtitle">polar</div><div id="detailcontent">
+<span class="detail_declaration">polar(number angle) -> Point</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="magnitude_sub"><div id="moduledetailtitle">magnitude</div><div id="detailcontent">
+<span class="detail_declaration">magnitude(Point point) -> number</span>
+<p><span class="detail_comments">Returns the magnitude, or the distance from [0,0] to this point.</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="point_distance_sub"><div id="moduledetailtitle">point_distance</div><div id="detailcontent">
+<span class="detail_declaration">point_distance(Point a, Point b) -> number</span>
+<p><span class="detail_comments">Returns the distance between a and b.</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="rotate_point_sub"><div id="moduledetailtitle">rotate_point</div><div id="detailcontent">
+<span class="detail_declaration">rotate_point(Point p, number rotation) -> Point</span>
+<p><span class="detail_comments">Rotate p around [0,0] by the given angle. Angles are specified in the range 0..1.</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="norm_sub"><div id="moduledetailtitle">norm</div><div id="detailcontent">
+<span class="detail_declaration">norm(Point v) -> Point</span>
+<p><span class="detail_comments">Returns v normalized to be along the unit circle.</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="perpendicular_sub"><div id="moduledetailtitle">perpendicular</div><div id="detailcontent">
+<span class="detail_declaration">perpendicular(Point v) -> Point</span>
+<p><span class="detail_comments">Returns a vector that is perpendicular to v, rotated clockwise.</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="branch_ref_sub"><div id="moduledetailtitle">branch_ref</div><div id="detailcontent">
+<span class="detail_declaration">branch_ref(any branch) -> BranchRef</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="format_source_for_graph_sub"><div id="moduledetailtitle">format_source_for_graph</div><div id="detailcontent">
+<span class="detail_declaration">format_source_for_graph(BranchRef br) -> List</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="lookup_branch_ref_sub"><div id="moduledetailtitle">lookup_branch_ref</div><div id="detailcontent">
+<span class="detail_declaration">lookup_branch_ref(string) -> BranchRef</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="get_statement_count_sub"><div id="moduledetailtitle">get_statement_count</div><div id="detailcontent">
+<span class="detail_declaration">get_statement_count(BranchRef br) -> int</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="random_location_sub"><div id="moduledetailtitle">random_location</div><div id="detailcontent">
+<span class="detail_declaration">random_location() -> Point</span>
+<p><span class="detail_comments">Return a random point that is inside the boundaries of the window.</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="key_down_sub"><div id="moduledetailtitle">key_down</div><div id="detailcontent">
-<span class="detail_declaration">key_down(int key) :: bool</span>
+<span class="detail_declaration">key_down(int key) -> bool</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="key_pressed_code_sub"><div id="moduledetailtitle">key_pressed_code</div><div id="detailcontent">
-<span class="detail_declaration">key_pressed_code(int key) :: bool</span>
+<div style="display:none" class="moduledetail" id="key_pressed_sub"><div id="moduledetailtitle">key_pressed</div><div id="detailcontent">
+<span class="detail_declaration">key_pressed(any)-> bool</span>
+<p><span class="detail_comments">No description provided</span>
+<p><br>Contains the following overloads:<p><span class="detail_declaration">key_pressed_code(int key) -> bool</span>
+<p><span class="detail_comments">No description provided</span>
+<p><span class="detail_declaration">key_pressed_char(string key) -> bool</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="key_pressed_char_sub"><div id="moduledetailtitle">key_pressed_char</div><div id="detailcontent">
-<span class="detail_declaration">key_pressed_char(string key) :: bool</span>
+<div style="display:none" class="moduledetail" id="mouse_location_sub"><div id="moduledetailtitle">mouse_location</div><div id="detailcontent">
+<span class="detail_declaration">mouse_location() -> Point</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="mouse_pressed_sub"><div id="moduledetailtitle">mouse_pressed</div><div id="detailcontent">
-<span class="detail_declaration">mouse_pressed() :: bool</span>
+<span class="detail_declaration">mouse_pressed() -> bool</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="mouse_over_sub"><div id="moduledetailtitle">mouse_over</div><div id="detailcontent">
-<span class="detail_declaration">mouse_over(Rect region) :: bool</span>
+<span class="detail_declaration">mouse_over(Rect region) -> bool</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="recent_key_presses_sub"><div id="moduledetailtitle">recent_key_presses</div><div id="detailcontent">
-<span class="detail_declaration">recent_key_presses() :: List</span>
+<span class="detail_declaration">recent_key_presses() -> List</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="mouse_clicked_anywhere_sub"><div id="moduledetailtitle">mouse_clicked_anywhere</div><div id="detailcontent">
-<span class="detail_declaration">mouse_clicked_anywhere () :: bool</span>
+<div style="display:none" class="moduledetail" id="mouse_clicked_sub"><div id="moduledetailtitle">mouse_clicked</div><div id="detailcontent">
+<span class="detail_declaration">mouse_clicked(any...)-> bool</span>
+<p><span class="detail_comments">No description provided</span>
+<p><br>Contains the following overloads:<p><span class="detail_declaration">mouse_clicked_anywhere () -> bool</span>
+<p><span class="detail_comments">No description provided</span>
+<p><span class="detail_declaration">mouse_clicked_region (Rect region) -> bool</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="mouse_clicked_region_sub"><div id="moduledetailtitle">mouse_clicked_region</div><div id="detailcontent">
-<span class="detail_declaration">mouse_clicked_region (Rect region) :: bool</span>
+<div style="display:none" class="moduledetail" id="mouse_wheel_up_sub"><div id="moduledetailtitle">mouse_wheel_up</div><div id="detailcontent">
+<span class="detail_declaration">mouse_wheel_up(any...)-> bool</span>
+<p><span class="detail_comments">No description provided</span>
+<p><br>Contains the following overloads:<p><span class="detail_declaration">mouse_wheel_up_anywhere () -> bool</span>
+<p><span class="detail_comments">No description provided</span>
+<p><span class="detail_declaration">mouse_wheel_up_region (Rect region) -> bool</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="mouse_wheel_up_anywhere_sub"><div id="moduledetailtitle">mouse_wheel_up_anywhere</div><div id="detailcontent">
-<span class="detail_declaration">mouse_wheel_up_anywhere () :: bool</span>
+<div style="display:none" class="moduledetail" id="mouse_wheel_down_sub"><div id="moduledetailtitle">mouse_wheel_down</div><div id="detailcontent">
+<span class="detail_declaration">mouse_wheel_down(any...)-> bool</span>
+<p><span class="detail_comments">No description provided</span>
+<p><br>Contains the following overloads:<p><span class="detail_declaration">mouse_wheel_down_anywhere () -> bool</span>
+<p><span class="detail_comments">No description provided</span>
+<p><span class="detail_declaration">mouse_wheel_down_region (Rect region) -> bool</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="mouse_wheel_up_region_sub"><div id="moduledetailtitle">mouse_wheel_up_region</div><div id="detailcontent">
-<span class="detail_declaration">mouse_wheel_up_region (Rect region) :: bool</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="mouse_wheel_down_anywhere_sub"><div id="moduledetailtitle">mouse_wheel_down_anywhere</div><div id="detailcontent">
-<span class="detail_declaration">mouse_wheel_down_anywhere () :: bool</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="mouse_wheel_down_region_sub"><div id="moduledetailtitle">mouse_wheel_down_region</div><div id="detailcontent">
-<span class="detail_declaration">mouse_wheel_down_region (Rect region) :: bool</span>
-<p><span class="detail_comments">No description provided</span>
+<div style="display:none" class="moduledetail" id="mouse_in_sub"><div id="moduledetailtitle">mouse_in</div><div id="detailcontent">
+<span class="detail_declaration">mouse_in(Rect b) -> bool</span>
+<p><span class="detail_comments">Return whether the mouse is currently inside the given rect.</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="draw_text_sub"><div id="moduledetailtitle">draw_text</div><div id="detailcontent">
-<span class="detail_declaration">draw_text(TTF_Font font, string str, Color color, Point location)</span>
+<span class="detail_declaration">draw_text(Font font, string str, Color color, Point location) -> Rect</span>
 <p><span class="detail_comments">Render and draw a string.</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="draw_text_centered_sub"><div id="moduledetailtitle">draw_text_centered</div><div id="detailcontent">
-<span class="detail_declaration">draw_text_centered(TTF_Font font, string str, Color color, Point location)</span>
+<span class="detail_declaration">draw_text_centered(Font font, string str, Color color, Point location)</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="background_sub"><div id="moduledetailtitle">background</div><div id="detailcontent">
 <span class="detail_declaration">background(Color)</span>
 <p><span class="detail_comments">Fill the screen with the given color.</span>
 </div></div>
+<div style="display:none" class="moduledetail" id="load_sound_int_sub"><div id="moduledetailtitle">load_sound_int</div><div id="detailcontent">
+<span class="detail_declaration">load_sound_int(string filename) -> Sound</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="play_sound_sub"><div id="moduledetailtitle">play_sound</div><div id="detailcontent">
+<span class="detail_declaration">play_sound(Sound sound, number freq)</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="load_sound_sub"><div id="moduledetailtitle">load_sound</div><div id="detailcontent">
+<span class="detail_declaration">load_sound(string filename) -> Sound</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
 <div style="display:none" class="moduledetail" id="load_texture_sub"><div id="moduledetailtitle">load_texture</div><div id="detailcontent">
-<span class="detail_declaration">load_texture(state int, string) :: int</span>
+<span class="detail_declaration">load_texture(state int, string) -> int</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="draw_image_sub"><div id="moduledetailtitle">draw_image</div><div id="detailcontent">
@@ -573,97 +817,54 @@
 <p><span class="detail_comments">Draw an image.</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="load_mesh_sub"><div id="moduledetailtitle">load_mesh</div><div id="detailcontent">
-<span class="detail_declaration">load_mesh(string filename) :: int</span>
+<span class="detail_declaration">load_mesh(string filename) -> int</span>
 <p><span class="detail_comments">(experimental) Load a 3d mesh from an .obj file.</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="draw_mesh_sub"><div id="moduledetailtitle">draw_mesh</div><div id="detailcontent">
 <span class="detail_declaration">draw_mesh(int mesh_id, int tex_id, Point translation, Point scale, Point rotation)</span>
 <p><span class="detail_comments">(experimental) Draw a 3d mesh to the screen.</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="polar_sub"><div id="moduledetailtitle">polar</div><div id="detailcontent">
-<span class="detail_declaration">polar(number angle) :: Point</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="magnitude_sub"><div id="moduledetailtitle">magnitude</div><div id="detailcontent">
-<span class="detail_declaration">magnitude(Point point) :: number</span>
-<p><span class="detail_comments">Returns the magnitude, or the distance from [0,0] to this point.</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="point_distance_sub"><div id="moduledetailtitle">point_distance</div><div id="detailcontent">
-<span class="detail_declaration">point_distance(Point a, Point b) :: number</span>
-<p><span class="detail_comments">Returns the distance between a and b.</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="rotate_point_sub"><div id="moduledetailtitle">rotate_point</div><div id="detailcontent">
-<span class="detail_declaration">rotate_point(Point p, number rotation) :: Point</span>
-<p><span class="detail_comments">Rotate p around [0,0] by the given angle. Angles are specified in the range 0..1.</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="random_location_sub"><div id="moduledetailtitle">random_location</div><div id="detailcontent">
-<span class="detail_declaration">random_location() :: Point</span>
-<p><span class="detail_comments">Return a random point that is inside the boundaries of the window.</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="random_norm_vector_sub"><div id="moduledetailtitle">random_norm_vector</div><div id="detailcontent">
-<span class="detail_declaration">random_norm_vector() :: Point</span>
-<p><span class="detail_comments">Return a random normalized vector</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="norm_sub"><div id="moduledetailtitle">norm</div><div id="detailcontent">
-<span class="detail_declaration">norm(Point v) :: Point</span>
-<p><span class="detail_comments">Returns v normalized to be along the unit circle.</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="perpendicular_sub"><div id="moduledetailtitle">perpendicular</div><div id="detailcontent">
-<span class="detail_declaration">perpendicular(Point v) :: Point</span>
-<p><span class="detail_comments">Returns a vector that is perpendicular to v, rotated clockwise.</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="expand_rect_sub"><div id="moduledetailtitle">expand_rect</div><div id="detailcontent">
-<span class="detail_declaration">expand_rect(Point center, number width, number height) :: Rect</span>
-<p><span class="detail_comments">Return a rectangle with the given center, width, and height.</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="to_rect_sub"><div id="moduledetailtitle">to_rect</div><div id="detailcontent">
-<span class="detail_declaration">to_rect(Point topLeft, Point size) :: Rect</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="rect_intersects_rect_sub"><div id="moduledetailtitle">rect_intersects_rect</div><div id="detailcontent">
-<span class="detail_declaration">rect_intersects_rect(Rect rect_a, Rect rect_b) :: bool</span>
-<p><span class="detail_comments">Return whether the two rectangles intersect.</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="random_color_sub"><div id="moduledetailtitle">random_color</div><div id="detailcontent">
-<span class="detail_declaration">random_color() :: Color</span>
-<p><span class="detail_comments">No description provided</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="draw_box_sub"><div id="moduledetailtitle">draw_box</div><div id="detailcontent">
-<span class="detail_declaration">draw_box(Rect box, Color color)</span>
-<p><span class="detail_comments">Draw a filled rectangle.</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="draw_thick_line_sub"><div id="moduledetailtitle">draw_thick_line</div><div id="detailcontent">
-<span class="detail_declaration">draw_thick_line(Point a, Point b, number width, Color color)</span>
-<p><span class="detail_comments">Draw a thick line with the given thickness.</span>
-</div></div>
-<div style="display:none" class="moduledetail" id="approach_sub"><div id="moduledetailtitle">approach</div><div id="detailcontent">
-<span class="detail_declaration">approach(number target, number step) :: number</span>
-<p><span class="detail_comments">Stateful function, returns a result which approaches 'target'. Each frame, this function will change at most by 'step'</span>
-</div></div>
 <div style="display:none" class="moduledetail" id="alternate_over_time_sub"><div id="moduledetailtitle">alternate_over_time</div><div id="detailcontent">
-<span class="detail_declaration">alternate_over_time(number period) :: bool</span>
+<span class="detail_declaration">alternate_over_time(number period) -> bool</span>
 <p><span class="detail_comments">Stateful function, alternates between true and false according to the given period.</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="toggle_sub"><div id="moduledetailtitle">toggle</div><div id="detailcontent">
-<span class="detail_declaration">toggle(bool tog) :: bool</span>
-<p><span class="detail_comments">
-    Stateful function, returns a boolean status. Every frame the function is called
-    with (true), the status flips. Starts out false.
-    </span>
-</div></div>
 <div style="display:none" class="moduledetail" id="linear_fadein_sub"><div id="moduledetailtitle">linear_fadein</div><div id="detailcontent">
-<span class="detail_declaration">linear_fadein(number total_time) :: number</span>
+<span class="detail_declaration">linear_fadein(number total_time) -> number</span>
 <p><span class="detail_comments">
     Stateful function, starts out at 0 and increases linearly. After 'total_time'
     has passed, it will return 1.0 and stay there.
     </span>
 </div></div>
 <div style="display:none" class="moduledetail" id="elapsed_sub"><div id="moduledetailtitle">elapsed</div><div id="detailcontent">
-<span class="detail_declaration">elapsed() :: number</span>
+<span class="detail_declaration">elapsed() -> number</span>
 <p><span class="detail_comments">Stateful function, returns the number of seconds that has passed since this function was first called</span>
 </div></div>
+<div style="display:none" class="moduledetail" id="every_sub"><div id="moduledetailtitle">every</div><div id="detailcontent">
+<span class="detail_declaration">every(number seconds) -> bool</span>
+<p><span class="detail_comments">Stateful function, returns true once every 'seconds'</span>
+</div></div>
 <div style="display:none" class="moduledetail" id="draggable_rect_sub"><div id="moduledetailtitle">draggable_rect</div><div id="detailcontent">
-<span class="detail_declaration">draggable_rect(Point initial_location, Point size) :: Point</span>
+<span class="detail_declaration">draggable_rect(Point initial_location, Point size) -> Point</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="load_user_script_sub"><div id="moduledetailtitle">load_user_script</div><div id="detailcontent">
+<span class="detail_declaration">load_user_script(string filename)</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="step_sub"><div id="moduledetailtitle">step</div><div id="detailcontent">
+<span class="detail_declaration">step()</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="gravity_sub"><div id="moduledetailtitle">gravity</div><div id="detailcontent">
+<span class="detail_declaration">gravity(Point vec)</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="body_int_sub"><div id="moduledetailtitle">body_int</div><div id="detailcontent">
+<span class="detail_declaration">body_int(any handle, Point initialPosition, List properties) -> List</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="body_sub"><div id="moduledetailtitle">body</div><div id="detailcontent">
+<span class="detail_declaration">body(Point initialPosition, List properties) -> List</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="triangles_sub"><div id="moduledetailtitle">triangles</div><div id="detailcontent">
@@ -678,6 +879,10 @@
 <span class="detail_declaration">line_loop(List, Color)</span>
 <p><span class="detail_comments">Render a list of points as a line loop.</span>
 </div></div>
+<div style="display:none" class="moduledetail" id="lines_sub"><div id="moduledetailtitle">lines</div><div id="detailcontent">
+<span class="detail_declaration">lines(List, Color)</span>
+<p><span class="detail_comments">Render a list of points as a line list.</span>
+</div></div>
 <div style="display:none" class="moduledetail" id="points_sub"><div id="moduledetailtitle">points</div><div id="detailcontent">
 <span class="detail_declaration">points(List, Color)</span>
 <p><span class="detail_comments">Render a list of points.</span>
@@ -686,8 +891,12 @@
 <span class="detail_declaration">circle(Point loc, number radius, Color)</span>
 <p><span class="detail_comments">Render a circle.</span>
 </div></div>
+<div style="display:none" class="moduledetail" id="pie_sub"><div id="moduledetailtitle">pie</div><div id="detailcontent">
+<span class="detail_declaration">pie(Point loc, number radius, number angle_start, number angle_fin, Color)</span>
+<p><span class="detail_comments">Render a pie slice.</span>
+</div></div>
 <div style="display:none" class="moduledetail" id="load_program_sub"><div id="moduledetailtitle">load_program</div><div id="detailcontent">
-<span class="detail_declaration">load_program(string vertFile, string fragFile) :: int</span>
+<span class="detail_declaration">load_program(string vertFile, string fragFile) -> int</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="_use_program_sub"><div id="moduledetailtitle">_use_program</div><div id="detailcontent">
@@ -706,37 +915,73 @@
 <span class="detail_declaration">set_uniform(string name, any value)</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
+<div style="display:none" class="moduledetail" id="script_filename_sub"><div id="moduledetailtitle">script_filename</div><div id="detailcontent">
+<span class="detail_declaration">script_filename() -> string</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="quit_sub"><div id="moduledetailtitle">quit</div><div id="detailcontent">
+<span class="detail_declaration">quit()</span>
+<p><span class="detail_comments">Tell the IDE to shutdown</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="reset_state_sub"><div id="moduledetailtitle">reset_state</div><div id="detailcontent">
+<span class="detail_declaration">reset_state()</span>
+<p><span class="detail_comments">Reset state for the current script</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="reload_runtime_sub"><div id="moduledetailtitle">reload_runtime</div><div id="detailcontent">
+<span class="detail_declaration">reload_runtime()</span>
+<p><span class="detail_comments">Reload the builtin runtime</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="paused_sub"><div id="moduledetailtitle">paused</div><div id="detailcontent">
+<span class="detail_declaration">paused() -> bool</span>
+<p><span class="detail_comments">Returns whether the current script is paused</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="get_time_sub"><div id="moduledetailtitle">get_time</div><div id="detailcontent">
+<span class="detail_declaration">get_time() -> number</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
 <div style="display:none" class="moduledetail" id="_load_sub"><div id="moduledetailtitle">_load</div><div id="detailcontent">
-<span class="detail_declaration">_load(string filename) :: Image</span>
+<span class="detail_declaration">_load(string filename) -> Image</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="load_sub"><div id="moduledetailtitle">load</div><div id="detailcontent">
-<span class="detail_declaration">load(string filename) :: Image</span>
+<span class="detail_declaration">load(string filename) -> Image</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="draw_sub"><div id="moduledetailtitle">draw</div><div id="detailcontent">
 <span class="detail_declaration">draw(Image image, Point destination)</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="draw_clip_p_sub"><div id="moduledetailtitle">draw_clip_p</div><div id="detailcontent">
-<span class="detail_declaration">draw_clip_p(Image image, Rect clip, Point destination)</span>
+<div style="display:none" class="moduledetail" id="draw_clip_sub"><div id="moduledetailtitle">draw_clip</div><div id="detailcontent">
+<span class="detail_declaration">draw_clip(any, any, any)</span>
+<p><span class="detail_comments">No description provided</span>
+<p><br>Contains the following overloads:<p><span class="detail_declaration">draw_clip_p(Image image, Rect clip, Point destination)</span>
+<p><span class="detail_comments">No description provided</span>
+<p><span class="detail_declaration">draw_clip_resized(Image image, Rect clip, Rect destination)</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
-<div style="display:none" class="moduledetail" id="draw_clip_resized_sub"><div id="moduledetailtitle">draw_clip_resized</div><div id="detailcontent">
-<span class="detail_declaration">draw_clip_resized(Image image, Rect clip, Rect destination)</span>
+<div style="display:none" class="moduledetail" id="load_font_internal_sub"><div id="moduledetailtitle">load_font_internal</div><div id="detailcontent">
+<span class="detail_declaration">load_font_internal(string filename, int size) -> Font</span>
 <p><span class="detail_comments">No description provided</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="load_font_sub"><div id="moduledetailtitle">load_font</div><div id="detailcontent">
-<span class="detail_declaration">load_font(state TTF_Font, string filename, int size) :: TTF_Font</span>
+<span class="detail_declaration">load_font(string filename, int size) -> Font</span>
 <p><span class="detail_comments">Load the given font</span>
 </div></div>
+<div style="display:none" class="moduledetail" id="render_text_internal_sub"><div id="moduledetailtitle">render_text_internal</div><div id="detailcontent">
+<span class="detail_declaration">render_text_internal(Font font, string text, Color color) -> RenderedText</span>
+<p><span class="detail_comments">No description provided</span>
+</div></div>
 <div style="display:none" class="moduledetail" id="render_text_sub"><div id="moduledetailtitle">render_text</div><div id="detailcontent">
-<span class="detail_declaration">render_text(state RenderedText, TTF_Font font, string text, Color color) :: RenderedText</span>
+<span class="detail_declaration">render_text(Font font, string text, Color color) -> RenderedText</span>
 <p><span class="detail_comments">Render text and return a sprite that can be drawn with draw_rendered_text. This is useful if you want to know the width or height of the rendered text before drawing it.</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="draw_rendered_text_sub"><div id="moduledetailtitle">draw_rendered_text</div><div id="detailcontent">
 <span class="detail_declaration">draw_rendered_text(RenderedText, Point loc)</span>
 <p><span class="detail_comments">Draw a sprite created with render_text.</span>
+</div></div>
+<div style="display:none" class="moduledetail" id="get_metrics_sub"><div id="moduledetailtitle">get_metrics</div><div id="detailcontent">
+<span class="detail_declaration">get_metrics(Font font, string text) -> Point</span>
+<p><span class="detail_comments">No description provided</span>
 </div></div>
 <div style="display:none" class="moduledetail" id="button_sub"><div id="moduledetailtitle">button</div><div id="detailcontent">
 <span class="detail_declaration">button(Ref r, Point loc, string name)</span>
@@ -744,7 +989,6 @@
 </div></div>
 
 		<div>
-
 	</body>
 	</html>
 
