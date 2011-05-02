@@ -1,0 +1,104 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN"
+"http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en-us">
+<head>
+   <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+   <title>Circa + Plastic</title>
+   <meta name="author" content="Andrew Fischer" />
+ 
+   <!-- Homepage CSS -->
+   <link rel="stylesheet" href="css/default.css" type="text/css" />
+</head>
+
+<body>
+
+<!-- Enclose everything in a 2nd div, to get the repeating ripped paper on the left -->
+<div id="_body">
+
+<!-- Floating paint splotches -->
+<div id="paint_splotches">
+    <img style="position:absolute; top:30px; left:600px" src="images/red_green_splotch.png" />
+    <img style="position:absolute; top:500px; left:450px" src="images/blue_dot.png" />
+    <img style="position:absolute; top:800px; left:700px" src="images/yellow_splotch.png" />
+</div>
+
+<!-- Navigation panel -->
+<div id="navigation_panel">
+    <span><a href="index.html">home</a></span>
+    <span><a href="docs/index.html">docs</a></span>
+    <span><a href="http://github.com/andyfischer/circa">github home</a></span>
+    <span></span>
+</div>
+
+<!-- Title -->
+<div class=unselectable">
+    <img id="title_image" src="images/circa_plastic_title.png" />
+</div>
+
+<div id="content">
+
+    <h1>Alpha Known Issues</h1>
+    Here are some of the major known issues in Circa's alpha. All of these are planned to be fixed/improved in future releases.
+    <h2>Performance problems</h2>
+    There are a few areas where runtime performance is currently not good enough.
+    One specific area is with stateful values. Having a loop like this:
+    <p>
+    <code>for i in range(1000)<br>
+          &nbsp;&nbsp;state i<br>
+          &nbsp;&nbsp;...<br>
+          end<br>
+      </code><p>
+      might your FPS to drop.
+    <h2>No recursion</h2>
+    Circa-defined functions don't support reentrancy and can't be called recursively. This
+    will be fixed in a future release.
+    <h2>Not enough 3rd party libraries</h2>
+    In alpha 1, we only have bindings for drawing images, rendering TTF fonts, and doing
+    a few OpenGL commands. In a future release we'd like to include libraries for
+    physics, audio, more kinds of 2d rendering, more kinds of 3d rendering, and other things.
+    <h2>Unstable syntax and API</h2>
+    The syntax and API of Circa may change in a future version. Code that works against
+    alpha-1 is not guaranteed to work in future releases.
+    <p>
+    <h2>Return doesn't return</h2>
+    The 'return' keyword is used to pass back a value from a function to the caller, but
+    in other C-like languages it's also used for control flow. Circa doesn't currently support using
+    return for control flow, which can lead to surprising results. The following function:
+    <p><code>
+        def my_func() : int<br>
+        &nbsp;&nbsp;if true<br>
+        &nbsp;&nbsp;&nbsp;&nbsp;return 1<br>
+          &nbsp;&nbsp;end<br>
+        &nbsp;&nbsp;return 2<br>
+        end<br>
+    </code><p>
+    will always return 2, even though it seems like it should return 1. This will be fixed.
+    <h2>No parametrized types</h2>
+    Circa tries to be a statically typed language, but it isn't 100% there yet. One problem
+    is that there's no support for parametrized types, like a List&lt;Something&gt;, like
+    you might expect. The most common way this problem manifests is that you need to
+    manually cast the iterator in a for loop, using the : operator.
+    <p><code>
+        -- things is a list of Thing items<br>
+        for thing in things<br>
+        &nbsp;&nbsp;-- this line is necessary to use 'thing' as a Thing:<br>
+        &nbsp;&nbsp;thing = thing : Thing<br>
+        &nbsp;&nbsp;...<br>
+        end<br>
+    </code><p>
+</div>
+</div>
+
+<script type="text/javascript">
+var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-8593808-2");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+
+</body>
+</html>
