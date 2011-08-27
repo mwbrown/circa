@@ -35,7 +35,8 @@ Branch::Branch()
     _refCount(0),
     outputIndex(0),
     inuse(false),
-    currentlyCascadingUpdates(false)
+    currentlyCascadingUpdates(false),
+    bytecodeData(NULL)
 {
     debug_register_valid_object((void*) this, BRANCH_OBJECT);
 }

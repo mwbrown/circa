@@ -34,7 +34,8 @@ FunctionAttrs::FunctionAttrs()
     getOutputName(NULL),
     getOutputType(NULL),
     assignRegisters(NULL),
-    postCompile(NULL)
+    postCompile(NULL),
+    writeBytecode(NULL)
 {
     debug_register_valid_object(this, FUNCTION_ATTRS_OBJECT);
 }

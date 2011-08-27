@@ -3,6 +3,7 @@
 namespace circa {
 
 void switch_block_post_compile(Term* term);
+void switch_block_write_bytecode(Term* term, BytecodeWriter* writer);
 CA_FUNCTION(evaluate_switch);
 
 } // namespace circa

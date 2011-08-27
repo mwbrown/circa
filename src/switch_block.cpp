@@ -19,6 +19,10 @@ void switch_block_post_compile(Term* term)
     update_if_block_joining_branch(term);
 }
 
+void switch_block_write_bytecode(Term* term, BytecodeWriter* writer)
+{
+}
+
 CA_FUNCTION(evaluate_switch)
 {
     EvalContext* context = CONTEXT;

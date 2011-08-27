@@ -1,5 +1,11 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
+// evaluation.h
+//
+// Functions for driving the interpreted evaluator
+//
+// 
+
 #pragma once
 
 #include "common_headers.h"

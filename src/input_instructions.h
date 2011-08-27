@@ -26,6 +26,8 @@ struct InputInstruction
         // instead of copied.
         LOCAL_CONSUME,
 
+        // OLD_STYLE_LOCAL means to look in the Branch.localsStack for the value.
+        // This method is deprecated.
         OLD_STYLE_LOCAL
     };
 

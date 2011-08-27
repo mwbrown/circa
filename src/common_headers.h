@@ -31,6 +31,8 @@ namespace circa {
 
 struct Branch;
 struct BrokenLinkList;
+struct BytecodeData;
+struct BytecodeWriter;
 struct CastResult;
 struct Dict;
 struct EvalContext;
