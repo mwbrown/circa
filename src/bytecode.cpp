@@ -41,38 +41,13 @@ void print_bytecode(Operation* op, std::ostream& out)
 #endif
 }
 
-void bytecode_write_call(BytecodeWriter* writer, Term* term)
-{
-    Branch& contents = nested_contents(term);
-    int numCases = contents.length() - 1;
+int bytecode_call(BytecodeWriter* writer, Term* term) { return 0; }
+int bytecode_push_stack(BytecodeWriter* writer, int size) { return 0; }
+int bytecode_pop_stack(BytecodeWriter* writer) { return 0; }
+int bytecode_equals(BytecodeWriter* writer, Term* left, Term* right, int outputSlot) { return 0; }
+int bytecode_jump(BytecodeWriter* writer, int offset) { return 0; }
+int bytecode_jump_if_not(BytecodeWriter* writer, int inputSlot, int offset) { return 0; }
+int bytecode_branch(BytecodeWriter* writer, Term* term) { return 0; }
 
-    // Push a stack frame, we'll use this when evaluating term equality.
-    bytecode_push_stack(writer, numCases);
-
-    Term* inputTerm = term->input(0);
-
-    std::vector<int> jumpsToFinish;
-
-    // Switch bytecode looks like:
-    //   # first case:
-    //   equals <switchInput> <caseInput>
-    //   jump_if_not <equals result> <to next case>
-    //   # case was successful
-    //   branch <case term>
-    //   jump <to 'finish'>
-    //   <.. repeated for each case ..>
-    //   # finish
-    //   ...
-
-    for (int caseIndex=0; caseIndex < numCases; caseIndex++) {
-        Term* caseTerm = contents[caseIndex];
-        int outputSlot = caseIndex;
-        bytecode_equals(writer, inputTerm, caseTerm->input(0), outputSlot);
-        bytecode_jump_if_not(writer, outputSlot, 2);
-        bytecode_branch(writer, caseTerm);
-        int finishJump = bytecode_jump(writer, 0);
-        jumpsToFinish.push_back(finishJump);
-    }
-}
 
 } // namespace circa

@@ -76,6 +76,16 @@ namespace list_methods_function {
         swap(&result, OUTPUT);
     }
 
+    CA_DEFINE_FUNCTION(resize, "List.resize(self :implied_rebind, int) -> List")
+    {
+        TaggedValue result;
+        consume_input(CONTEXT, CALLER, 0, &result);
+        int count = INT_INPUT(1);
+        List* list = List::checkCast(&result);
+        list->resize(count);
+        swap(&result, OUTPUT);
+    }
+
     CA_DEFINE_FUNCTION(slice, "List.slice(self, int start, int fin) -> List")
     {
         List* input = List::checkCast(INPUT(0));

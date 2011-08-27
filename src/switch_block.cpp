@@ -5,6 +5,7 @@
 #include "branch.h"
 #include "building.h"
 #include "builtins.h"
+#include "bytecode.h"
 #include "if_block.h"
 #include "importing_macros.h"
 #include "term.h"
@@ -21,7 +22,39 @@ void switch_block_post_compile(Term* term)
 
 void switch_block_write_bytecode(Term* term, BytecodeWriter* writer)
 {
+    Branch& contents = nested_contents(term);
+    int numCases = contents.length() - 1;
+
+    // Push a stack frame, we'll use this when evaluating term equality.
+    bytecode_push_stack(writer, numCases);
+
+    Term* inputTerm = term->input(0);
+
+    std::vector<int> jumpsToFinish;
+
+    // Switch bytecode looks like:
+    //   # first case:
+    //   equals <switchInput> <caseInput>
+    //   jump_if_not <equals result> <to next case>
+    //   # case was successful
+    //   branch <case term>
+    //   jump <to 'finish'>
+    //   <.. repeated for each case ..>
+    //   # finish
+    //   ...
+
+    for (int caseIndex=0; caseIndex < numCases; caseIndex++) {
+        Term* caseTerm = contents[caseIndex];
+        int outputSlot = caseIndex;
+        bytecode_equals(writer, inputTerm, caseTerm->input(0), outputSlot);
+        bytecode_jump_if_not(writer, outputSlot, 2);
+        bytecode_branch(writer, caseTerm);
+        int finishJump = bytecode_jump(writer, 0);
+        jumpsToFinish.push_back(finishJump);
+    }
 }
+
+
 
 CA_FUNCTION(evaluate_switch)
 {

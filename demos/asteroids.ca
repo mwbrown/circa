@@ -182,6 +182,12 @@ def generate_particle_burst(List particles, Point loc, Point vel) -> List
     return particles
 
 state List asteroids = []
+state num_destroyed_asteroids = 0
+
+asteroid_count = 3
+
+if asteroids.length() > asteroid_count
+    asteroids.resize(asteroid_count)
 
 if once()
     for i in 0..3

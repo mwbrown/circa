@@ -696,6 +696,12 @@ void test_switch_statement()
             "a == 3");
 }
 
+void test_list_functions()
+{
+    test_snippet("a = [1 2 3 4]; a.resize(2)", "a == [1 2]");
+    test_snippet("a = [1 2]; a.resize(4)", "a == [1 2 null null]");
+}
+
 void register_tests()
 {
     REGISTER_TEST_CASE(test_snippets::test_strings);
@@ -740,6 +746,7 @@ void register_tests()
     REGISTER_TEST_CASE(test_snippets::test_dynamic_call);
     REGISTER_TEST_CASE(test_snippets::test_multiple_name_assignment);
     REGISTER_TEST_CASE(test_snippets::test_switch_statement);
+    REGISTER_TEST_CASE(test_snippets::test_list_functions);
 }
 
 } // namespace test_snippets
