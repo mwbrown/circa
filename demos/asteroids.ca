@@ -189,8 +189,8 @@ asteroid_count = 3
 if asteroids.length() > asteroid_count
     asteroids.resize(asteroid_count)
 
-if once()
-    for i in 0..3
+if asteroids.count() + num_destroyed_asteroids < asteroid_count
+    for i in 0..(asteroid_count - asteroids.count() - num_destroyed_asteroids)
         as = generate_asteroid(asteroid_starting_size)
         asteroids.append(as)
 
@@ -231,6 +231,7 @@ for asteroid in @asteroids
             discard
 
     if collides
+        num_destroyed_asteroids += 1
         discard
 
     if collides and asteroid.size > 10

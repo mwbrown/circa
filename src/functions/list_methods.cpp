@@ -81,6 +81,8 @@ namespace list_methods_function {
         TaggedValue result;
         consume_input(CONTEXT, CALLER, 0, &result);
         int count = INT_INPUT(1);
+        if (count < 0)
+            count = 0;
         List* list = List::checkCast(&result);
         list->resize(count);
         swap(&result, OUTPUT);
