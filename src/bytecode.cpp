@@ -8,10 +8,17 @@
 
 namespace circa {
 
+const size_t NEW_BYTECODE_DEFAULT_SIZE = 100;
+
 void print_bytecode(Operation* op, std::ostream& out)
 {
-#if 0
     switch (op->type) {
+        case OP_CALL: {
+            OpCall* cop = (OpCall*) op;
+            out << "call " << global_id(cop->term);
+            break;
+        }
+#if 0
         case OP_JUMP: {
             JumpOp* jop = (JumpOp*) op;
             out << "jump " << jop->offset;
@@ -37,17 +44,43 @@ void print_bytecode(Operation* op, std::ostream& out)
             out << "branch " << global_id(bop->branchTerm);
             break;
         }
-    }
 #endif
+    }
 }
 
-int bytecode_call(BytecodeWriter* writer, Term* term) { return 0; }
-int bytecode_push_stack(BytecodeWriter* writer, int size) { return 0; }
-int bytecode_pop_stack(BytecodeWriter* writer) { return 0; }
-int bytecode_equals(BytecodeWriter* writer, Term* left, Term* right, int outputSlot) { return 0; }
-int bytecode_jump(BytecodeWriter* writer, int offset) { return 0; }
-int bytecode_jump_if_not(BytecodeWriter* writer, int inputSlot, int offset) { return 0; }
-int bytecode_branch(BytecodeWriter* writer, Term* term) { return 0; }
+static void bytecode_reserve_size(BytecodeWriter* writer, size_t size)
+{
+    if (writer->data == NULL) {
+        size_t allocSize = std::max(size, NEW_BYTECODE_DEFAULT_SIZE);
+        writer->data = (BytecodeData*) malloc(sizeof(BytecodeData) + allocSize);
+        writer->writePosition = 0;
+        writer->dataSize = allocSize;
+        return;
+    }
 
+    if (writer->dataSize < size) {
+        writer->dataSize = size;
+        writer->data = (BytecodeData*) realloc(writer->data, writer->dataSize);
+    }
+}
+
+Operation* bytecode_append_op(BytecodeWriter* writer, OpType type)
+{
+    size_t size = sizeof(AnyOperation);
+    bytecode_reserve_size(writer, size);
+    Operation* result = (Operation*) &writer->data->operations[writer->writePosition];
+    writer->writePosition += size;
+    return result;
+}
+
+int bytecode_call(BytecodeWriter* writer, Term* term)
+{
+    return 0;
+}
+
+void update_bytecode_for_branch(Branch* branch)
+{
+    BytecodeWriter writer;
+}
 
 } // namespace circa

@@ -28,54 +28,47 @@
 
 namespace circa {
 
-const int OP_JUMP = 1;
-const int OP_JUMPIF = 2;
-const int OP_JUMPIFN = 3;
-const int OP_CALL = 4;
-const int OP_BRANCH = 5;
+typedef char OpType;
+
+const OpType OP_EVALUATE_TERM = 1;
+const OpType OP_JUMP = 10;
+const OpType OP_JUMPIF = 11;
+const OpType OP_JUMPIFN = 12;
+const OpType OP_CALL = 20;
+const OpType OP_BRANCH = 21;
 
 
 struct BytecodeWriter
 {
+    int writePosition;
+    size_t dataSize;
+    BytecodeData* data;
+
+    BytecodeWriter() : writePosition(NULL), dataSize(0), data(NULL) {}
 };
 
 struct Operation {
-    char type;
+    OpType type;
 };
 
-struct JumpOp : Operation { int offset; };
-struct JumpIfOp : Operation { int inputSlot; int offset; };
-struct JumpIfNotOp : Operation { int inputSlot; int offset; };
-struct CallOp : Operation { EvaluateFunc func; Term* term; };
-struct BranchOp : Operation { Term* branchTerm; };
-struct PushStackOp : Operation { int size; };
-struct EqualsOp : Operation { Term* left; Term* right; int outputSlot; };
+struct OpCall : Operation { Term* term; EvaluateFunc func; };
 
-union SomeOperation {
-    JumpOp jumpOp;
-    JumpIfOp jumpIfOp;
-    JumpIfNotOp jumpIfNotOp;
-    CallOp callOp;
-    BranchOp branchOp;
-    PushStackOp pushStackOp;
-    EqualsOp equalsOp;
+union AnyOperation {
+    OpCall evaluateTerm;
 };
 
 struct BytecodeData
 {
     int operationCount;
-    SomeOperation* operations;
+    AnyOperation operations[0];
+    // 'operations' has a length of 'operationCount'.
 };
 
 void print_bytecode(Operation* op, std::ostream& out);
 
 // Building functions
-int bytecode_call(BytecodeWriter* writer, Term* term);
-int bytecode_push_stack(BytecodeWriter* writer, int size);
-int bytecode_pop_stack(BytecodeWriter* writer);
-int bytecode_equals(BytecodeWriter* writer, Term* left, Term* right, int outputSlot);
-int bytecode_jump(BytecodeWriter* writer, int offset);
-int bytecode_jump_if_not(BytecodeWriter* writer, int inputSlot, int offset);
-int bytecode_branch(BytecodeWriter* writer, Term* term);
+int bytecode_call(BytecodeWriter* writer, Term* term, EvaluateFunc func);
+
+void update_bytecode_for_branch(Branch* branch);
 
 } // namespace circa

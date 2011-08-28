@@ -22,6 +22,7 @@ void switch_block_post_compile(Term* term)
 
 void switch_block_write_bytecode(Term* term, BytecodeWriter* writer)
 {
+#if 0
     Branch& contents = nested_contents(term);
     int numCases = contents.length() - 1;
 
@@ -52,6 +53,7 @@ void switch_block_write_bytecode(Term* term, BytecodeWriter* writer)
         int finishJump = bytecode_jump(writer, 0);
         jumpsToFinish.push_back(finishJump);
     }
+#endif
 }
 
 
