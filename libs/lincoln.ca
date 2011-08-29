@@ -91,7 +91,7 @@ namespace activerect
 
 def draw_highlighted_config(cairo:Context cr)
 
-    topleft = [100 window.height - 250]
+    topleft = [100 window.height - 120]
 
     gutter = 20
     inner_loc = topleft + [gutter gutter]
@@ -134,7 +134,7 @@ def draw_highlighted_config(cairo:Context cr)
         elif not(mouse_pressed())
             dragging = false
         if dragging
-            highlighted_config.tweak(delta_point(mouse).y)
+            highlighted_config.tweak(-delta_point(mouse).y)
 
         for tweak in receive('tweak_events')
             highlighted_config.tweak(tweak)

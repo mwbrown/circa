@@ -265,6 +265,7 @@ include('../../libs/box2d/box2d.ca' -> rpath)
 include('../../libs/opengl/opengl.ca' -> rpath)
 include('../../libs/osc/osc.ca' -> rpath)
 include('../../libs/sdl_img/sdl_img.ca' -> rpath)
+include('../../libs/imagemanip/imagemanip.ca' -> rpath)
 
 -- cairo.ca depends on opengl
 include('../../libs/cairo/cairo.ca' -> rpath)

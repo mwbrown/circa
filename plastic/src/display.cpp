@@ -28,8 +28,8 @@ bool initialize_display()
     SDL_GL_SetAttribute(SDL_GL_DOUBLEBUFFER, 1);
 
     // Create the surface
-    int desiredWidth = 800;
-    int desiredHeight = 600;
+    int desiredWidth = 640;
+    int desiredHeight = 460;
 
     if (!resize_display(desiredWidth, desiredHeight))
         return false;

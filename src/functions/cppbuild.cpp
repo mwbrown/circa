@@ -45,7 +45,7 @@ namespace cppbuild_function {
 
     CA_FUNCTION(build_module)
     {
-        std::string moduleDir = STRING_INPUT(0);
+        std::string moduleDir = get_directory_for_filename(STRING_INPUT(0));
 
         Branch buildFile;
         parse_script(buildFile, moduleDir + "/build.ca");
