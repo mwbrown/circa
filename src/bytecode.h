@@ -30,21 +30,26 @@ namespace circa {
 
 typedef char OpType;
 
+const OpType OP_CALL = 20;
+const OpType OP_RETURN = 21;
+const OpType OP_RETURN_ON_ERROR = 22;
+const OpType OP_RETURN_IF_INTERRUPTED = 23; // <- for backwards compatibility
+
+// future:
 const OpType OP_EVALUATE_TERM = 1;
 const OpType OP_JUMP = 10;
 const OpType OP_JUMPIF = 11;
 const OpType OP_JUMPIFN = 12;
-const OpType OP_CALL = 20;
 const OpType OP_BRANCH = 21;
 
 
 struct BytecodeWriter
 {
     int writePosition;
-    size_t dataSize;
+    int listLength;
     BytecodeData* data;
 
-    BytecodeWriter() : writePosition(NULL), dataSize(0), data(NULL) {}
+    BytecodeWriter() : writePosition(NULL), listLength(0), data(NULL) {}
 };
 
 struct Operation {
@@ -54,21 +59,26 @@ struct Operation {
 struct OpCall : Operation { Term* term; EvaluateFunc func; };
 
 union AnyOperation {
-    OpCall evaluateTerm;
+    OpCall opCall;
 };
 
 struct BytecodeData
 {
+    bool dirty;
     int operationCount;
     AnyOperation operations[0];
-    // 'operations' has a length of 'operationCount'.
+    // 'operations' has a length of at least 'operationCount'.
+
+    BytecodeData() : dirty(false), operationCount(0) {}
 };
 
 void print_bytecode(Operation* op, std::ostream& out);
 
 // Building functions
 int bytecode_call(BytecodeWriter* writer, Term* term, EvaluateFunc func);
+int bytecode_return(BytecodeWriter* writer, Term* term, EvaluateFunc func);
 
 void update_bytecode_for_branch(Branch* branch);
+void evaluate_branch_with_bytecode(EvalContext* context, Branch* branch);
 
 } // namespace circa

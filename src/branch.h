@@ -59,7 +59,7 @@ struct Branch
     TaggedValue pendingUpdates;
     bool currentlyCascadingUpdates;
 
-    BytecodeData* bytecodeData;
+    BytecodeData* bytecode;
 
     Branch();
     ~Branch();

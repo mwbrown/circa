@@ -1,6 +1,7 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
 #include "branch.h"
+#include "bytecode.h"
 #include "heap_debugging.h"
 #include "function.h"
 #include "locals.h"
@@ -144,11 +145,13 @@ void on_repairable_link(Term* term, List& brokenLinks)
 
 void on_evaluate_function_changed(Term* function)
 {
-    // Don't use deferred updaets; just iterate through each user and update
+    // Don't use deferred updates; just iterate through each user and update
     // them.
     for (int i=0; i < function->users.length(); i++) {
         Term* user = function->users[i];
         update_cached_evaluate_func(user);
+        if (user->owningBranch != NULL && user->owningBranch->bytecode != NULL)
+            user->owningBranch->bytecode->dirty = true;
     }
 }
 
