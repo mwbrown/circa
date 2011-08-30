@@ -50,26 +50,29 @@ struct BytecodeWriter
     BytecodeData* data;
 
     BytecodeWriter() : writePosition(NULL), listLength(0), data(NULL) {}
+    ~BytecodeWriter() { free(data); }
 };
 
 struct Operation {
     OpType type;
+
+    // padding..
+    void* ptr1;
+    void* ptr2;
 };
 
-struct OpCall : Operation { Term* term; EvaluateFunc func; };
-
-union AnyOperation {
-    OpCall opCall;
+struct OpCall {
+    OpType type;
+    Term* term;
+    EvaluateFunc func;
 };
 
 struct BytecodeData
 {
     bool dirty;
     int operationCount;
-    AnyOperation operations[0];
+    Operation operations[0];
     // 'operations' has a length of at least 'operationCount'.
-
-    BytecodeData() : dirty(false), operationCount(0) {}
 };
 
 void print_bytecode(Operation* op, std::ostream& out);

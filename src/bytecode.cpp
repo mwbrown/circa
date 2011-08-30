@@ -75,18 +75,19 @@ static void bytecode_reserve_size(BytecodeWriter* writer, int opCount)
         return;
 
     int newLength = opCount;
-
-    bool creatingNewData = writer->data == NULL;
-
-    if (creatingNewData)
+    
+    if (writer->data == NULL) {
         newLength = std::max(newLength, NEW_BYTECODE_DEFAULT_LENGTH);
-
-    writer->data = (BytecodeData*) realloc(writer->data,
-            sizeof(BytecodeData) + sizeof(AnyOperation) * newLength);
-    writer->listLength = newLength;
-
-    if (creatingNewData)
+        writer->data = (BytecodeData*) malloc(
+                sizeof(BytecodeData) + sizeof(Operation) * newLength);
         writer->data->operationCount = 0;
+        writer->data->dirty = false;
+    } else {
+        writer->data = (BytecodeData*) realloc(writer->data,
+                sizeof(BytecodeData) + sizeof(Operation) * newLength);
+    }
+
+    writer->listLength = newLength;
 }
 
 // Appends a slot for an operation, returns the operation's index.
@@ -94,6 +95,7 @@ int bytecode_append_op(BytecodeWriter* writer)
 {
     int pos = writer->writePosition++;
     bytecode_reserve_size(writer, writer->writePosition);
+    writer->data->operationCount++;
     return pos;
 }
 
@@ -110,15 +112,13 @@ int bytecode_call(BytecodeWriter* writer, Term* term, EvaluateFunc func)
 int bytecode_return(BytecodeWriter* writer)
 {
     int pos = bytecode_append_op(writer);
-    Operation* op = (Operation*) &writer->data->operations[pos];
-    op->type = OP_RETURN;
+    writer->data->operations[pos].type = OP_RETURN;
     return pos;
 }
 int bytecode_return_if_interrupted(BytecodeWriter* writer)
 {
     int pos = bytecode_append_op(writer);
-    Operation* op = (Operation*) &writer->data->operations[pos];
-    op->type = OP_RETURN_IF_INTERRUPTED;
+    writer->data->operations[pos].type = OP_RETURN_IF_INTERRUPTED;
     return pos;
 }
 
@@ -172,7 +172,7 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
         ca_assert(pic >= 0);
         ca_assert(pic < bytecode->operationCount);
 
-        Operation* op = (Operation*) &bytecode->operations[pic];
+        Operation* op = &bytecode->operations[pic];
 
         switch (op->type) {
         case OP_CALL: {

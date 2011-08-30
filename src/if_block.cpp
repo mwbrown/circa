@@ -7,6 +7,7 @@
 #include "branch.h"
 #include "builtins.h"
 #include "building.h"
+#include "bytecode.h"
 #include "evaluation.h"
 #include "importing_macros.h"
 #include "locals.h"
@@ -165,11 +166,15 @@ CA_FUNCTION(evaluate_if_block)
                 swap(state->get(branchIndex), &context->currentScopeState);
 
             // Evaluate each term
+#if 0
+            evaluate_branch_with_bytecode(context, acceptedBranch);
+#else
             for (int j=0; j < acceptedBranch->length(); j++) {
                 evaluate_single_term(context, acceptedBranch->get(j));
                 if (evaluation_interrupted(context))
                     break;
             }
+#endif
 
             if (useState)
                 swap(state->get(branchIndex), &context->currentScopeState);

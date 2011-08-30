@@ -1,6 +1,9 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
-#include <circa.h>
+#include "branch.h"
+#include "code_iterators.h"
+#include "term.h"
+#include "testing.h"
 
 namespace circa {
 namespace branch_iterator_tests {
