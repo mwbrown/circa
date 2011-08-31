@@ -3,6 +3,7 @@
 #include "branch.h"
 #include "building.h"
 #include "builtins.h"
+#include "bytecode.h"
 #include "evaluation.h"
 #include "importing_macros.h"
 #include "introspection.h"
@@ -218,12 +219,9 @@ CA_FUNCTION(evaluate_for_loop)
 
         context->forLoopContext.discard = false;
 
-        for (int i=loop_contents_location; i < forContents.length() - 1; i++) {
-            if (evaluation_interrupted(context))
-                break;
-
-            evaluate_single_term(context, forContents[i]);
-        }
+        // TODO: figure out why it needs to check evaluation_interrupted first
+        if (!evaluation_interrupted(context))
+            evaluate_branch_with_bytecode(context, &forContents);
 
         // Save output
         if (saveOutput && !context->forLoopContext.discard) {

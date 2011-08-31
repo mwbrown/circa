@@ -166,7 +166,7 @@ CA_FUNCTION(evaluate_if_block)
                 swap(state->get(branchIndex), &context->currentScopeState);
 
             // Evaluate each term
-#if 0
+#if 1
             evaluate_branch_with_bytecode(context, acceptedBranch);
 #else
             for (int j=0; j < acceptedBranch->length(); j++) {

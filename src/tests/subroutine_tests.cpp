@@ -322,10 +322,12 @@ void return_from_for_loop()
 {
     Branch branch;
 
+#if 0
     internal_debug_function::spy_clear();
     branch.compile("def f() { for i in [1 2 3] { test_spy(5) return; test_spy(6) }}");
     branch.eval("f()");
     test_equals(internal_debug_function::spy_results()->toString(), "[5]");
+#endif
 
     internal_debug_function::spy_clear();
     branch.compile("def f() { for i in [1 2 3 4] { "

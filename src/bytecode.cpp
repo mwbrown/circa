@@ -2,6 +2,7 @@
 
 #include "common_headers.h"
 
+#include "builtins.h"
 #include "bytecode.h"
 #include "evaluation.h"
 #include "function.h"
@@ -11,45 +12,39 @@
 
 namespace circa {
 
-const int NEW_BYTECODE_DEFAULT_LENGTH = 10;
+const int NEW_BYTECODE_DEFAULT_LENGTH = 6;
 
-void print_bytecode(Operation* op, std::ostream& out)
+void print_bytecode_op(Operation* op, std::ostream& out)
 {
     switch (op->type) {
-        case OP_CALL: {
-            OpCall* cop = (OpCall*) op;
-            out << "call " << global_id(cop->term);
+        case OP_CALL:
+            out << "call " << get_unique_name(((OpCall*) op)->term);
             break;
-        }
-#if 0
-        case OP_JUMP: {
-            JumpOp* jop = (JumpOp*) op;
-            out << "jump " << jop->offset;
+        case OP_RETURN:
+            out << "return";
             break;
-        }
-        case OP_JUMPIF: {
-            JumpIfOp* jop = (JumpIfOp*) op;
-            out << "jumpif " << global_id(jop->input) << " " << jop->offset;
+        case OP_RETURN_ON_ERROR:
+            out << "return_on_error";
             break;
-        }
-        case OP_JUMPIFN: {
-            JumpIfOp* jop = (JumpIfOp*) op;
-            out << "jumpif " << global_id(jop->input) << " " << jop->offset;
+        case OP_RETURN_IF_INTERRUPTED:
+            out << "return_on_int";
             break;
-        }
-        case OP_CALL: {
-            JumpIfNotOp* jop = (JumpIfNotOp*) op;
-            out << "jumpifn " << global_id(jop->input) << " " << jop->offset;
-            break;
-        }
-        case OP_BRANCH: {
-            BranchOp* bop = (BranchOp*) op;
-            out << "branch " << global_id(bop->branchTerm);
-            break;
-        }
-#endif
+        default:
+            out << "<unknown opcode>";
     }
 }
+
+void print_bytecode(BytecodeData* bytecode, std::ostream& out)
+{
+    for (int i=0; i < bytecode->operationCount; i++) {
+        if (i != 0)
+            out << "; ";
+        print_bytecode_op(&bytecode->operations[i], out);
+    }
+    out << std::endl;
+}
+
+std::string get_bytecode_as_string(BytecodeData* bytecode);
 
 static void start_bytecode_update(Branch* branch, BytecodeWriter* writer)
 {
@@ -132,6 +127,15 @@ void write_bytecode_for_term(BytecodeWriter* writer, Term* term)
     if (!is_function(term->function))
         return;
 
+    // Don't write anything for certain special names
+    if (term->name == "#inner_rebinds"
+            || term->name == "#outer_rebinds"
+            || term->name == "#attributes")
+        return;
+
+    if (term->function == INPUT_PLACEHOLDER_FUNC)
+        return;
+
     bytecode_call(writer, term, derive_evaluate_func(term));
 
     // Backwards compatibility: Always check for interrupted branch
@@ -188,11 +192,13 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
         case OP_RETURN_ON_ERROR:
             if (context->errorOccurred)
                 return;
+            pic++;
             continue;
 
         case OP_RETURN_IF_INTERRUPTED:
             if (evaluation_interrupted(context))
                 return;
+            pic++;
             continue;
 
         default:
@@ -204,6 +210,10 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
 void evaluate_branch_with_bytecode(EvalContext* context, Branch* branch)
 {
     update_bytecode_for_branch(branch);
+
+    //dump(*branch);
+    //print_bytecode(branch->bytecode, std::cout);
+
     evaluate_bytecode(context, branch->bytecode);
 }
 

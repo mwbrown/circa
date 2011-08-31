@@ -75,7 +75,8 @@ struct BytecodeData
     // 'operations' has a length of at least 'operationCount'.
 };
 
-void print_bytecode(Operation* op, std::ostream& out);
+void print_bytecode(BytecodeData* bytecode, std::ostream& out);
+std::string get_bytecode_as_string(BytecodeData* bytecode);
 
 // Building functions
 int bytecode_call(BytecodeWriter* writer, Term* term, EvaluateFunc func);
