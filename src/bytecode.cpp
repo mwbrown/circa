@@ -20,14 +20,14 @@ void print_bytecode_op(Operation* op, std::ostream& out)
         case OP_CALL:
             out << "call " << get_unique_name(((OpCall*) op)->term);
             break;
+        case OP_CHECK_CALL:
+            out << "chcall " << get_unique_name(((OpCall*) op)->term);
+            break;
         case OP_RETURN:
             out << "return";
             break;
         case OP_RETURN_ON_ERROR:
             out << "return_on_error";
-            break;
-        case OP_RETURN_IF_INTERRUPTED:
-            out << "return_on_int";
             break;
         default:
             out << "<unknown opcode>";
@@ -98,7 +98,7 @@ int bytecode_call(BytecodeWriter* writer, Term* term, EvaluateFunc func)
 {
     int pos = bytecode_append_op(writer);
     OpCall* op = (OpCall*) &writer->data->operations[pos];
-    op->type = OP_CALL;
+    op->type = OP_CHECK_CALL;
     op->term = term;
     op->func = func;
     return pos;
@@ -108,12 +108,6 @@ int bytecode_return(BytecodeWriter* writer)
 {
     int pos = bytecode_append_op(writer);
     writer->data->operations[pos].type = OP_RETURN;
-    return pos;
-}
-int bytecode_return_if_interrupted(BytecodeWriter* writer)
-{
-    int pos = bytecode_append_op(writer);
-    writer->data->operations[pos].type = OP_RETURN_IF_INTERRUPTED;
     return pos;
 }
 
@@ -137,9 +131,6 @@ void write_bytecode_for_term(BytecodeWriter* writer, Term* term)
         return;
 
     bytecode_call(writer, term, derive_evaluate_func(term));
-
-    // Backwards compatibility: Always check for interrupted branch
-    bytecode_return_if_interrupted(writer);
 }
 
 void update_bytecode_for_branch(Branch* branch)
@@ -179,10 +170,16 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
         Operation* op = &bytecode->operations[pic];
 
         switch (op->type) {
-        case OP_CALL: {
+        case OP_CALL:
+            evaluate_single_term(context, ((OpCall*) op)->term);
+            pic++;
+            continue;
+        case OP_CHECK_CALL: {
             OpCall* cop = (OpCall*) op;
             evaluate_single_term(context, cop->term);
             pic++;
+            if (evaluation_interrupted(context))
+                return;
             continue;
         }
 
@@ -191,12 +188,6 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
 
         case OP_RETURN_ON_ERROR:
             if (context->errorOccurred)
-                return;
-            pic++;
-            continue;
-
-        case OP_RETURN_IF_INTERRUPTED:
-            if (evaluation_interrupted(context))
                 return;
             pic++;
             continue;

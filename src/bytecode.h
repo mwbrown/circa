@@ -31,9 +31,9 @@ namespace circa {
 typedef char OpType;
 
 const OpType OP_CALL = 20;
+const OpType OP_CHECK_CALL = 24;
 const OpType OP_RETURN = 21;
 const OpType OP_RETURN_ON_ERROR = 22;
-const OpType OP_RETURN_IF_INTERRUPTED = 23; // <- for backwards compatibility
 
 // future:
 const OpType OP_EVALUATE_TERM = 1;
