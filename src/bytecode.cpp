@@ -127,9 +127,16 @@ void write_bytecode_for_term(BytecodeWriter* writer, Term* term)
             || term->name == "#attributes")
         return;
 
-    if (term->function == INPUT_PLACEHOLDER_FUNC)
-        return;
+    // Check if the function has a special writer function
+    FunctionAttrs::WriteBytecode writeBytecode =
+        get_function_attrs(term->function)->writeBytecode;
 
+    if (writeBytecode != NULL) {
+        writeBytecode(term, writer);
+        return;
+    }
+
+    // Default: Add an OP_CHECK_CALL
     bytecode_call(writer, term, derive_evaluate_func(term));
 }
 
@@ -206,6 +213,10 @@ void evaluate_branch_with_bytecode(EvalContext* context, Branch* branch)
     //print_bytecode(branch->bytecode, std::cout);
 
     evaluate_bytecode(context, branch->bytecode);
+}
+
+void null_bytecode_writer(Term*, BytecodeWriter*)
+{
 }
 
 } // namespace circa

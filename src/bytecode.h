@@ -85,4 +85,8 @@ int bytecode_return(BytecodeWriter* writer, Term* term, EvaluateFunc func);
 void update_bytecode_for_branch(Branch* branch);
 void evaluate_branch_with_bytecode(EvalContext* context, Branch* branch);
 
+// This can be used in Function.writeBytecode, when the call should not write
+// any bytecode.
+void null_bytecode_writer(Term*, BytecodeWriter*);
+
 } // namespace circa

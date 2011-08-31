@@ -82,12 +82,8 @@ CA_FUNCTION(evaluate_switch)
             Branch& caseContents = nested_contents(caseTerm);
             start_using(caseContents);
 
-            for (int i=0; i < caseContents.length(); i++) {
-                evaluate_single_term(context, caseContents[i]);
-
-                  if (evaluation_interrupted(context))
-                      break;
-            }
+            // Evaluate contents
+            evaluate_branch_with_bytecode(context, &caseContents);
 
             // Copy joined values to output slots
             Branch& joining = nested_contents(contents.getFromEnd(0));
