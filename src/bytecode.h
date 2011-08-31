@@ -82,6 +82,9 @@ std::string get_bytecode_as_string(BytecodeData* bytecode);
 int bytecode_call(BytecodeWriter* writer, Term* term, EvaluateFunc func);
 int bytecode_return(BytecodeWriter* writer, Term* term, EvaluateFunc func);
 
+// Mark the term's owning branch as needing to recompute bytecode.
+void dirty_bytecode(Term* term);
+
 void update_bytecode_for_branch(Branch* branch);
 void evaluate_branch_with_bytecode(EvalContext* context, Branch* branch);
 

@@ -111,6 +111,12 @@ int bytecode_return(BytecodeWriter* writer)
     return pos;
 }
 
+void dirty_bytecode(Term* term)
+{
+    if (term->owningBranch != NULL && term->owningBranch->bytecode != NULL)
+        term->owningBranch->bytecode->dirty = true;
+}
+
 void write_bytecode_for_term(BytecodeWriter* writer, Term* term)
 {
     // NULL function: no bytecode
@@ -137,7 +143,7 @@ void write_bytecode_for_term(BytecodeWriter* writer, Term* term)
     }
 
     // Default: Add an OP_CHECK_CALL
-    bytecode_call(writer, term, derive_evaluate_func(term));
+    bytecode_call(writer, term, get_function_attrs(term->function)->evaluate);
 }
 
 void update_bytecode_for_branch(Branch* branch)

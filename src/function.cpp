@@ -2,6 +2,7 @@
 
 #include "building.h"
 #include "builtins.h"
+#include "bytecode.h"
 #include "evaluation.h"
 #include "function.h"
 #include "heap_debugging.h"
@@ -438,8 +439,14 @@ bool is_native_function(FunctionAttrs* func)
 void function_set_evaluate_func(Term* func, EvaluateFunc evaluateFunc)
 {
     get_function_attrs(func)->evaluate = evaluateFunc;
-    on_evaluate_function_changed(func);
+
+    // Dirty bytecode for all of this function's users.
+    for (int i=0; i < func->users.length(); i++) {
+        Term* user = func->users[i];
+        dirty_bytecode(user);
+    }
 }
+
 void function_set_specialize_type_func(Term* func, SpecializeTypeFunc specializeFunc)
 {
     get_function_attrs(func)->specializeType = specializeFunc;

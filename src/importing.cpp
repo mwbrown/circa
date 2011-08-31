@@ -33,12 +33,7 @@ Term* import_function(Branch& branch, EvaluateFunc evaluate, std::string const& 
 void install_function(Term* function, EvaluateFunc evaluate)
 {
     ca_assert(is_function(function));
-    get_function_attrs(function)->evaluate = evaluate;
-
-    for (int i=0; i < function->users.length(); i++) {
-        Term* user = function->users[i];
-        update_cached_evaluate_func(user);
-    }
+    function_set_evaluate_func(function, evaluate);
 }
 
 Term* import_type(Branch& branch, Type* type)
