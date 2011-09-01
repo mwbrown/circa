@@ -414,8 +414,9 @@ void test_unary_minus()
 void test_array_index_access()
 {
     Branch branch;
-    branch.eval("a = [1 2 3]");
-    Term* b = branch.eval("a[0]");
+    branch.compile("a = [1 2 3]");
+    Term* b = branch.compile("a[0]");
+    evaluate_branch(branch);
 
     test_assert(b);
     test_assert(b->function == GET_INDEX_FUNC);
@@ -425,7 +426,8 @@ void test_array_index_access()
 void test_float_division()
 {
     Branch branch;
-    Term* a = branch.eval("5 / 3");
+    Term* a = branch.compile("5 / 3");
+    evaluate_branch(branch);
 
     test_equals(a->type->name, "number");
     test_equals(a->function->name, "div");
@@ -436,7 +438,8 @@ void test_float_division()
 void test_integer_division()
 {
     Branch branch;
-    Term* a = branch.eval("5 // 3");
+    Term* a = branch.compile("5 // 3");
+    evaluate_branch(branch);
 
     test_equals(a->type->name, "int");
     test_equals(a->function->name, "div_i");
@@ -446,7 +449,8 @@ void test_integer_division()
 void test_namespace()
 {
     Branch branch;
-    Term* ns = branch.eval("namespace ns { a = 1; b = 2 }");
+    Term* ns = branch.compile("namespace ns { a = 1; b = 2 }");
+    evaluate_branch(branch);
 
     test_assert(branch);
     test_assert(ns->function == NAMESPACE_FUNC);
@@ -457,8 +461,9 @@ void test_namespace()
     test_assert(a->asInt() == 1);
 
     branch.clear();
-    ns = branch.eval("namespace ns { def myfunc(int a) -> int { return(a+1) } }");
-    Term* c = branch.eval("c = ns:myfunc(4)");
+    ns = branch.compile("namespace ns { def myfunc(int a) -> int { return(a+1) } }");
+    Term* c = branch.compile("c = ns:myfunc(4)");
+    evaluate_branch(branch);
     test_assert(branch);
     test_assert(c->asInt() == 5);
 }
@@ -466,8 +471,10 @@ void test_namespace()
 void test_method_calls()
 {
     Branch branch;
-    branch.eval("x = [1 2 3]");
-    test_equals(branch.eval("x.count()"), "3");
+    branch.compile("x = [1 2 3]");
+    Term* count = branch.compile("x.count()");
+    evaluate_branch(branch);
+    test_equals(count, "3");
 
     // call a method inside a namespace
     branch.clear();

@@ -5,6 +5,7 @@
 #include "circa.h"
 
 #include "branch.h"
+#include "bytecode.h"
 #include "list_shared.h"
 #include "parser.h"
 #include "switch_block.h"
@@ -33,11 +34,13 @@ TermPtr compile(Branch& branch, ParsingStep step, std::string const& input)
         branch.moveToEnd(branch[prevLastIndex]);
         update_branch_finish_term(branch[branch.length()-1]);
         refresh_locals_indices(branch, prevLastIndex);
+        update_input_instructions(nested_contents(prevLast));
     } else {
         check_to_add_branch_finish_term(branch, prevLastIndex+1);
     }
 
     post_parse_branch(branch);
+    dirty_bytecode(branch);
 
     ca_assert(branch_check_invariants_print_result(branch, std::cout));
 
@@ -826,6 +829,7 @@ ParseResult if_block(Branch& branch, TokenStream& tokens, ParserCxt* context)
 
     update_if_block_joining_branch(result);
     refresh_locals_indices(branch);
+    update_input_instructions(nested_contents(result));
     set_source_location(result, startPosition, tokens);
     update_output_count(result);
 
@@ -2142,9 +2146,6 @@ void post_parse_branch(Branch& branch)
 {
     // Remove NULLs
     branch.removeNulls();
-
-    // Make sure the inputs array has the correct size
-    branch.locals.resize(get_locals_count(branch));
 
     finish_update_cascade(branch);
 }

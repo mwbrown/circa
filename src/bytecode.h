@@ -34,6 +34,10 @@ const OpType OP_CALL = 20;
 const OpType OP_CHECK_CALL = 24;
 const OpType OP_RETURN = 21;
 const OpType OP_RETURN_ON_ERROR = 22;
+const OpType OP_STACK_SIZE = 23;
+
+const OpType OP_INPUT_LOCAL = 24;
+const OpType OP_INPUT_GLOBAL = 25;
 
 // future:
 const OpType OP_EVALUATE_TERM = 1;
@@ -42,16 +46,6 @@ const OpType OP_JUMPIF = 11;
 const OpType OP_JUMPIFN = 12;
 const OpType OP_BRANCH = 21;
 
-
-struct BytecodeWriter
-{
-    int writePosition;
-    int listLength;
-    BytecodeData* data;
-
-    BytecodeWriter() : writePosition(NULL), listLength(0), data(NULL) {}
-    ~BytecodeWriter() { free(data); }
-};
 
 struct Operation {
     OpType type;
@@ -67,6 +61,22 @@ struct OpCall {
     EvaluateFunc func;
 };
 
+struct OpStackSize {
+    OpType type;
+    int size;
+};
+
+struct OpInputLocal {
+    OpType type;
+    int relativeFrame;
+    int index;
+};
+
+struct OpInputGlobal {
+    OpType type;
+    TaggedValue* value;
+};
+
 struct BytecodeData
 {
     bool dirty;
@@ -74,6 +84,17 @@ struct BytecodeData
     Operation operations[0];
     // 'operations' has a length of at least 'operationCount'.
 };
+
+struct BytecodeWriter
+{
+    int writePosition;
+    int listLength;
+    BytecodeData* data;
+
+    BytecodeWriter() : writePosition(0), listLength(0), data(NULL) {}
+    ~BytecodeWriter() { free(data); }
+};
+
 
 void print_bytecode(BytecodeData* bytecode, std::ostream& out);
 std::string get_bytecode_as_string(BytecodeData* bytecode);
@@ -84,6 +105,9 @@ int bytecode_return(BytecodeWriter* writer, Term* term, EvaluateFunc func);
 
 // Mark the term's owning branch as needing to recompute bytecode.
 void dirty_bytecode(Term* term);
+void dirty_bytecode(Branch& branch);
+
+void write_bytecode_for_term(BytecodeWriter* writer, Term* term);
 
 void update_bytecode_for_branch(Branch* branch);
 void evaluate_branch_with_bytecode(EvalContext* context, Branch* branch);

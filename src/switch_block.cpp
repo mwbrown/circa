@@ -8,6 +8,7 @@
 #include "bytecode.h"
 #include "if_block.h"
 #include "importing_macros.h"
+#include "list_shared.h"
 #include "term.h"
 #include "type.h"
 
@@ -56,11 +57,10 @@ void switch_block_write_bytecode(Term* term, BytecodeWriter* writer)
 #endif
 }
 
-
-
 CA_FUNCTION(evaluate_switch)
 {
     EvalContext* context = CONTEXT;
+    Term* caller = CALLER;
     Branch& contents = nested_contents(CALLER);
     TaggedValue* input = INPUT(0);
 
@@ -80,7 +80,7 @@ CA_FUNCTION(evaluate_switch)
 
         if (succeeds) {
             Branch& caseContents = nested_contents(caseTerm);
-            start_using(caseContents);
+            push_stack_frame(context, &caseContents);
 
             // Evaluate contents
             evaluate_branch_with_bytecode(context, &caseContents);
@@ -94,10 +94,12 @@ CA_FUNCTION(evaluate_switch)
 
                 ca_test_assert(cast_possible(value, get_output_type(CALLER, i+1)));
 
-                copy(value, EXTRA_OUTPUT(i));
+                int outputIndex = caller->localsIndex + 1 + i;
+                TaggedValue* dest = list_get_index(get_stack_frame(context, 1), outputIndex);
+                copy(value, dest);
             }
 
-            finish_using(caseContents);
+            pop_stack_frame(context);
             break;
         }
     }

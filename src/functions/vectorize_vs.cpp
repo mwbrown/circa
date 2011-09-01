@@ -30,11 +30,11 @@ namespace vectorize_vs_function {
         Term* input1_placeholder = contents[1]; 
         Term* content_output = contents[2]; 
 
-        start_using(contents);
+        push_stack_frame(CONTEXT, &contents);
 
         // Prepare output
-        TaggedValue outputTv;
-        List* output = set_list(&outputTv, listLength);
+        List output;
+        output.resize(listLength);
 
         // Copy right input once
         swap(&input1, get_local(context, 0, input1_placeholder, 0));
@@ -47,12 +47,12 @@ namespace vectorize_vs_function {
             evaluate_single_term(CONTEXT, content_output);
 
             // Save output
-            swap(get_local(context, 0, content_output, 0), output->get(i));
+            swap(get_local(context, 0, content_output, 0), output[i]);
         }
 
-        finish_using(contents);
+        pop_stack_frame(CONTEXT);
 
-        swap(output, OUTPUT);
+        swap(&output, OUTPUT);
     }
 
     void post_input_change(Term* term)

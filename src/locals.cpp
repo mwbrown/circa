@@ -93,9 +93,25 @@ void refresh_locals_indices(Branch& branch, int startingAt)
     }
 }
 
+
 void update_output_count(Term* term)
 {
     term->outputCount = get_output_count(term);
+}
+
+bool branch_creates_separate_stack_frame(Branch* branch)
+{
+    if (branch->owningTerm == NULL)
+        return true;
+
+    if (branch->owningTerm->name == "#inner_rebinds"
+            || branch->owningTerm->name == "#outer_rebinds")
+        return false;
+
+    if (branch->owningTerm->function == IF_BLOCK_FUNC)
+        return false;
+
+    return true;
 }
 
 int get_frame_distance(Term* term, Term* input)
@@ -103,14 +119,32 @@ int get_frame_distance(Term* term, Term* input)
     if (input == NULL)
         return -1;
 
-    // TODO: Walk 'input' upwards as long as it's in a function that shares registers.
+    Branch* inputBranch = input->owningBranch;
+
+    // Special case for if_block. Terms inside #joining can see terms inside each case.
+    Term* termParent = get_parent_term(term);
+    if (termParent != NULL
+            && termParent->name == "#joining"
+            && termParent->owningBranch == get_parent_branch(*inputBranch))
+        return 0;
+
+    // If the input's branch doesn't create a separate stack frame, then look
+    // at the parent branch.
+    if (!branch_creates_separate_stack_frame(inputBranch))
+        inputBranch = get_parent_branch(*inputBranch);
+
+    Branch* fromBranch = term->owningBranch;
 
     // Walk upward from 'term' until we find the common branch.
     int distance = 0;
-    while (term->owningBranch != input->owningBranch) {
-        term = get_parent_term(term);
+    while (fromBranch != inputBranch) {
 
-        if (term == NULL)
+        if (branch_creates_separate_stack_frame(fromBranch))
+            distance++;
+
+        fromBranch = get_parent_branch(*fromBranch);
+
+        if (fromBranch == NULL)
             return -1;
     }
     return distance;
@@ -133,24 +167,21 @@ void update_input_instructions(Term* term)
             continue;
         }
 
-        // TEMP
-        list.inputs[i].type = InputInstruction::OLD_STYLE_LOCAL;
-        #if 0
-        list.inputs[i].relativeFrame =  get_frame_distance(term, input);
+        list.inputs[i].type = InputInstruction::LOCAL;
+        list.inputs[i].relativeFrame = get_frame_distance(term, input);
         list.inputs[i].index = input->localsIndex + term->inputInfo(i)->outputIndex;
-        #endif
+        //ca_assert(list.inputs[i].relativeFrame >= 0);
+        
+        // Fun special case for for-loop locals
+        if (input->function == JOIN_FUNC && get_parent_term(input)->name == "#inner_rebinds")
+            list.inputs[i].index = 1 + input->localsIndex;
     }
+}
 
-    list.outputs.resize(term->numOutputs());
-    for (int i=0; i < term->numOutputs(); i++) {
-        #if 0
-        list.outputs[i].relativeFrame = 0;
-        list.outputs[i].index = term->localsIndex + i;
-        #endif
-
-        // TEMP
-        list.outputs[i].type = InputInstruction::OLD_STYLE_LOCAL;
-    }
+void update_input_instructions(Branch& branch)
+{
+    for (int i=0; i < branch.length(); i++)
+        update_input_instructions(branch[i]);
 }
 
 } // namespace circa

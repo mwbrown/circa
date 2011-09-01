@@ -25,25 +25,18 @@ struct InputInstruction
         // LOCAL_CONSUME is similar to LOCAL, but the stack value is swapped in (consumed)
         // instead of copied.
         LOCAL_CONSUME,
-
-        // OLD_STYLE_LOCAL means to look in the Branch.localsStack for the value.
-        // This method is deprecated.
-        OLD_STYLE_LOCAL
-    };
-
-    struct LocalData {
-        int relativeFrame;
-        int index;
     };
 
     InstructionType type;
-    LocalData data;
+
+    // For LOCAL inputs:
+    int relativeFrame;
+    int index;
 };
 
 struct InputInstructionList
 {
     std::vector<InputInstruction> inputs;
-    std::vector<InputInstruction> outputs;
 };
 
 } // namespace circa

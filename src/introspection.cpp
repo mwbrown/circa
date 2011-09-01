@@ -270,7 +270,14 @@ void print_term(std::ostream& out, Term* term, RawOutputPrefs* prefs)
         int outputIndex = term->inputs[i].outputIndex;
         if (outputIndex != 0)
             out << "#" << outputIndex;
-        //out << ":" << term->inputIsns.inputs[i].type;
+
+        InputInstruction *ins = &term->inputIsns.inputs[i];
+        if (ins->type == InputInstruction::GLOBAL)
+            out << ":g";
+        else if (ins->type == InputInstruction::LOCAL)
+            out << ":l:" << ins->relativeFrame << ":" << ins->index;
+        else if (ins->type == InputInstruction::LOCAL_CONSUME)
+            out << ":l1:" << ins->relativeFrame << ":" << ins->index;
     }
     out << ")";
 
@@ -307,17 +314,12 @@ void print_term(std::ostream& out, Term* term, RawOutputPrefs* prefs)
     if (is_value(term))
         out << " val:" << to_string((TaggedValue*) term);
 
-#if 0
-    out << " local:";
-    for (int i=0; i < outputCount; i++) {
-        if (i != 0) out << ",";
-        TaggedValue* local = get_local_safe(term, i);
-        if (local == NULL)
-            out << "<NULL>";
-        else
-            out << local->toString();
+    out << " index:" << term->localsIndex;
+
+    if (!is_value(term) && !is_null((TaggedValue*) term)) {
+        out << " local:";
+        out << ((TaggedValue*) term)->toString();
     }
-#endif
 
 #if 0
     out << " users = ["; 

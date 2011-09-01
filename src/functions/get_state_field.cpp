@@ -3,6 +3,7 @@
 #include "common_headers.h"
 
 #include "circa.h"
+#include "bytecode.h"
 #include "types/dict.h"
 
 namespace circa {
@@ -37,10 +38,29 @@ namespace get_state_field_function {
         // Try to use initialValue from an input.
         if (INPUT_TERM(1) != NULL) {
             // Evaluate nested contents first, since the initial value might come from there.
-            if (CALLER->nestedContents) 
-                evaluate_branch_internal(CONTEXT, nested_contents(CALLER));
+            // The initial value will either come as an input or from within our
+            // nested contents.
             
-            bool cast_success = cast(INPUT(1), declared_type(CALLER), OUTPUT);
+            TaggedValue input;
+            if (CALLER->nestedContents && nested_contents(CALLER).length() > 0) {
+                Branch& contents = nested_contents(CALLER);
+                push_stack_frame(CONTEXT, &contents);
+                evaluate_branch_with_bytecode(CONTEXT, &contents);
+                List* frame = get_stack_frame(CONTEXT, 0);
+
+                // INPUT_INSTRUCTION_HACK
+                InputInstruction* inputIsn = &CALLER->inputIsns.inputs[1];
+                if (inputIsn->type == InputInstruction::GLOBAL)
+                    copy(CALLER->input(1), &input);
+                else
+                    copy(frame->get(inputIsn->index), &input);
+
+                pop_stack_frame(CONTEXT);
+            } else {
+                copy(INPUT(1), &input);
+            }
+            
+            bool cast_success = cast(&input, declared_type(CALLER), OUTPUT);
 
             if (!cast_success) {
                 std::stringstream msg;

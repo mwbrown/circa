@@ -52,7 +52,7 @@ void evaluate_subroutine_internal(EvalContext* context, Term* caller,
 {
     context->interruptSubroutine = false;
     context->callStack.append(caller);
-    start_using(contents);
+    push_stack_frame(context, &contents);
 
     int numInputs = inputs->length();
 
@@ -110,7 +110,7 @@ void evaluate_subroutine_internal(EvalContext* context, Term* caller,
     }
 
     // Clean up
-    finish_using(contents);
+    pop_stack_frame(context);
     context->callStack.pop();
     context->interruptSubroutine = false;
 }

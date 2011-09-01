@@ -4,6 +4,7 @@
 
 #include "builtins.h"
 #include "building.h"
+#include "bytecode.h"
 #include "circa.h"
 #include "heap_debugging.h"
 #include "locals.h"
@@ -60,6 +61,7 @@ Term* apply(Branch& branch, Term* function, TermList const& inputs, std::string 
     on_inputs_changed(result);
     update_locals_index_for_new_term(result);
     update_input_instructions(result);
+    dirty_bytecode(branch);
 
     if (is_get_state(result) || has_implicit_state(result))
         mark_branch_as_having_inlined_state(branch);

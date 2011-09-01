@@ -352,6 +352,30 @@ void bug_with_misplaced_preserve_state_result()
     test_assert(branch);
 }
 
+void multiple_outputs()
+{
+    Branch branch;
+    branch.compile("def inc(int i :out) { i += 1 }");
+    branch.compile("x = 1");
+    branch.compile("inc(&x)");
+    evaluate_branch(branch);
+    test_equals(branch["x"], 2);
+
+    branch.clear();
+    branch.compile("def inc3(int i :out, int j :out, int k :out) -> string "
+            "{ i += 1; j += 2; k += 3; return 'hi' }");
+
+    branch.compile("x = 1");
+    branch.compile("y = 1");
+    branch.compile("z = 1");
+    branch.compile("result = inc3(&x, &y, &z)");
+    evaluate_branch(branch);
+    test_equals(branch["x"], 2);
+    test_equals(branch["y"], 3);
+    test_equals(branch["z"], 4);
+    test_equals(branch["result"], "hi");
+}
+
 void register_tests()
 {
     REGISTER_TEST_CASE(subroutine_tests::test_return_from_conditional);
@@ -370,6 +394,7 @@ void register_tests()
     REGISTER_TEST_CASE(subroutine_tests::return_from_if_block);
     REGISTER_TEST_CASE(subroutine_tests::return_from_for_loop);
     REGISTER_TEST_CASE(subroutine_tests::bug_with_misplaced_preserve_state_result);
+    REGISTER_TEST_CASE(subroutine_tests::multiple_outputs);
 }
 
 } // namespace refactoring_tests

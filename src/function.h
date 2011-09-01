@@ -20,6 +20,7 @@ struct FunctionAttrs
     typedef void (*AssignRegisters)(Term*);
     typedef void (*PostCompile)(Term*);
     typedef void (*WriteBytecode)(Term*, BytecodeWriter* writer);
+    typedef void (*WriteNestedBytecodeFinish)(Term*, BytecodeWriter* writer);
 
     Term* declaringTerm;
 
@@ -45,6 +46,7 @@ struct FunctionAttrs
     AssignRegisters assignRegisters;
     PostCompile postCompile;
     WriteBytecode writeBytecode;
+    WriteNestedBytecodeFinish writeNestedBytecodeFinish;
 
     List parameters;
 
@@ -126,7 +128,7 @@ bool is_native_function(FunctionAttrs* function);
 
 // Change the function's EvaluateFunc, and update any terms that are using it.
 void function_set_evaluate_func(Term* function, EvaluateFunc func);
-void function_set_specialize_type_func(Term* func, SpecializeTypeFunc func);
+void function_set_specialize_type_func(Term* function, SpecializeTypeFunc func);
 
 void function_format_header_source(StyledSource* source, FunctionAttrs* func);
 

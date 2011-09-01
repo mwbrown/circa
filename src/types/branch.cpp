@@ -13,12 +13,6 @@ namespace branch_t {
         Branch& branch = *as_branch(value);
         TaggedValue relIdent;
 
-        set_string(&relIdent, "locals");
-        callback(&branch.locals, &relIdent, context);
-
-        set_string(&relIdent, "localsStack");
-        callback(&branch.localsStack, &relIdent, context);
-
         set_string(&relIdent, "fileSignature");
         callback(&branch.fileSignature, &relIdent, context);
 

@@ -47,7 +47,7 @@ namespace include_function {
         EvalContext context;
         evaluate_minimum(&context, inputTerm, NULL);
 
-        TaggedValue *input = get_input(NULL, term, 0);
+        TaggedValue *input = get_input(&context, term, 0);
 
         if (!is_string(input))
             return;
@@ -79,7 +79,6 @@ namespace include_function {
         if (fileChanged) {
             TaggedValue trash;
             strip_orphaned_state(contents, &context->currentScopeState, &trash);
-            reset_locals(contents);
         }
 
         context->callStack.append(CALLER);

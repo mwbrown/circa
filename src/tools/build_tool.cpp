@@ -14,10 +14,12 @@ int run_build_tool(const char* filename)
     List buildArgs;
     set_string(buildArgs.append(), filename);
 
-    TaggedValue* result = evaluate(get_global("cppbuild:build_module"), &buildArgs);
+    // FIXME
+    TaggedValue result;
+    /*TaggedValue* result =*/ evaluate(get_global("cppbuild:build_module"), &buildArgs);
 
-    if (is_error(result)) {
-        std::cout << as_cstring(result) << std::endl;
+    if (is_error(&result)) {
+        std::cout << as_cstring(&result) << std::endl;
         return -1;
     }
 

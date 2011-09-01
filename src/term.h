@@ -73,7 +73,6 @@ struct Term : TaggedValue
 
     // The location of this term's output in the locals list. If the term has multiple
     // outputs then this is the first index.
-    // Deprecated with registerList
     int localsIndex;
 
     // Number of outputs.

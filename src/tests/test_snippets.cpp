@@ -70,7 +70,8 @@ void test_snippet(std::string codeStr, std::string assertionsStr)
     }
 
     EvalContext context;
-    evaluate_branch(&context, code);
+    push_stack_frame(&context, &code);
+    evaluate_branch_with_bytecode(&context, &code);
 
     if (context.errorOccurred) {
         std::cout << "Runtime error in: " << get_current_test_name() << std::endl;
@@ -104,12 +105,15 @@ void test_snippet(std::string codeStr, std::string assertionsStr)
     }
     #endif
 
+    // Evaluate assertions again separately, so that these locals are copied to terms.
+    evaluate_branch(&context, assertions);
+
     int boolean_statements_found = 0;
     for (int i=0; i < assertions.length(); i++) {
         if (!is_statement(assertions[i]))
             continue;
 
-        TaggedValue* result = get_local(&context, 0, assertions[i], 0);
+        TaggedValue* result = assertions[i];
 
         if (!is_bool(result))
             continue;

@@ -15,7 +15,7 @@
 #include "types/list.h"
 #include "types/dict.h"
 
-#define KILL_BRANCH_LOCALS 0
+#define KILL_BRANCH_LOCALS 1
 
 namespace circa {
 
@@ -28,6 +28,7 @@ struct EvalContext
     // Error information:
     bool errorOccurred;
     Term* errorTerm;
+    TaggedValue errorValue;
 
     // Tree of persistent state
     TaggedValue state;
@@ -81,10 +82,10 @@ void evaluate_range(EvalContext* context, Branch& branch, int start, int end);
 void evaluate_minimum(EvalContext* context, Term* term, TaggedValue* result);
 void evaluate_minimum_preserve_locals(EvalContext* context, Term* term, TaggedValue* result);
 
-// Parse input and immediately evaluate it, returning the result value.
-TaggedValue* evaluate(EvalContext* context, Branch& branch, std::string const& input);
-TaggedValue* evaluate(Branch& branch, Term* function, List* inputs);
-TaggedValue* evaluate(Term* function, List* inputs);
+// Parse input and immediately evaluate it
+void evaluate(EvalContext* context, Branch& branch, std::string const& input);
+void evaluate(Branch& branch, Term* function, List* inputs);
+void evaluate(Term* function, List* inputs);
 
 // Get the input value for the given term and index.
 TaggedValue* get_input(EvalContext* context, Term* term, int index);
@@ -103,6 +104,7 @@ TaggedValue* get_local(EvalContext* cxt, Term* term);
 #endif
 
 TaggedValue* get_local(EvalContext* cxt, int relativeFrame, Term* term, int outputIndex);
+TaggedValue* get_local(EvalContext* cxt, int relativeFrame, int index);
 
 void error_occurred(EvalContext* context, Term* errorTerm, std::string const& message);
 
@@ -120,17 +122,12 @@ void save_and_consume_state(Term* term, TaggedValue* container, TaggedValue* res
 // 'break' statement, or a runtime error.
 bool evaluation_interrupted(EvalContext* context);
 
-// Start using the given branch- this will push a new frame onto the locals stack, if
-// the branch is already in use.
-void start_using(Branch& branch);
-
-// Finish using the given branch- this may pop a frame from the locals stack.
-void finish_using(Branch& branch);
+void push_stack_frame(EvalContext* context, int size);
+void push_stack_frame(EvalContext* context, Branch* branch);
+void pop_stack_frame(EvalContext* context);
+List* get_stack_frame(EvalContext* context, int relativeFrame);
 
 void clear_error(EvalContext* cxt);
-
-// Recursively clear local values for this branch and all nested branches.
-void reset_locals(Branch& branch);
 
 std::string context_get_error_message(EvalContext* cxt);
 

@@ -267,6 +267,8 @@ TaggedValue* list_get_index_from_end(TaggedValue* value, int reverseIndex)
 
     ListData* data = (ListData*) value->value_data.ptr;
 
+    ca_assert(data != NULL);
+
     int index = data->count - reverseIndex - 1;
     ca_assert(index >= 0);
     ca_assert(index < data->count);

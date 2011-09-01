@@ -32,11 +32,11 @@ namespace vectorize_vv_function {
         Term* input1_placeholder = contents[1]; 
         Term* content_output = contents[2]; 
 
-        start_using(contents);
+        push_stack_frame(context, &contents);
 
         // Prepare output
-        TaggedValue outputTv;
-        List* output = set_list(&outputTv, listLength);
+        List output;
+        output.resize(listLength);
 
         // Evaluate vectorized call, once for each input
         for (int i=0; i < listLength; i++) {
@@ -47,12 +47,12 @@ namespace vectorize_vv_function {
             evaluate_single_term(CONTEXT, content_output);
 
             // Save output
-            swap(get_local(context, 0, content_output, 0), output->get(i));
+            swap(get_local(context, 0, content_output, 0), output[i]);
         }
 
-        finish_using(contents);
+        pop_stack_frame(context);
 
-        swap(output, OUTPUT);
+        swap(&output, OUTPUT);
     }
 
     void post_input_change(Term* term)

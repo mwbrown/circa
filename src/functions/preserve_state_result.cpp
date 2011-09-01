@@ -5,9 +5,8 @@
 
 namespace circa {
 namespace preserve_state_result_function {
-    CA_START_FUNCTIONS;
 
-    CA_DEFINE_FUNCTION(preserve_state_result, "preserve_state_result(any)")
+    CA_FUNCTION(preserve_state_result)
     {
         TaggedValue result;
         copy(INPUT(0), &result);
@@ -23,7 +22,7 @@ namespace preserve_state_result_function {
 
     void setup(Branch& kernel)
     {
-        CA_SETUP_FUNCTIONS(kernel);
+        import_function(kernel, preserve_state_result, "preserve_state_result(any)");
         PRESERVE_STATE_RESULT_FUNC = kernel["preserve_state_result"];
     }
 }

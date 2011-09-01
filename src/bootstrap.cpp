@@ -160,6 +160,8 @@ void initialize_primitive_types(Branch& kernel)
     create_type_value(kernel, &BRANCH_T, "Branch");
 
     initialize_function(VALUE_FUNC);
+    get_function_attrs(VALUE_FUNC)->writeBytecode = null_bytecode_writer;
+
     // ANY_TYPE was created in bootstrap_kernel
 }
 

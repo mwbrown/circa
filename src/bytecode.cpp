@@ -7,6 +7,7 @@
 #include "evaluation.h"
 #include "function.h"
 #include "introspection.h"
+#include "locals.h"
 #include "refactoring.h"
 #include "term.h"
 
@@ -28,6 +29,9 @@ void print_bytecode_op(Operation* op, std::ostream& out)
             break;
         case OP_RETURN_ON_ERROR:
             out << "return_on_error";
+            break;
+        case OP_STACK_SIZE:
+            out << "stack_size " << ((OpStackSize*) op)->size;
             break;
         default:
             out << "<unknown opcode>";
@@ -113,8 +117,14 @@ int bytecode_return(BytecodeWriter* writer)
 
 void dirty_bytecode(Term* term)
 {
-    if (term->owningBranch != NULL && term->owningBranch->bytecode != NULL)
-        term->owningBranch->bytecode->dirty = true;
+    if (term->owningBranch != NULL)
+        dirty_bytecode(*term->owningBranch);
+}
+
+void dirty_bytecode(Branch& branch)
+{
+    if (branch.bytecode != NULL)
+        branch.bytecode->dirty = true;
 }
 
 void write_bytecode_for_term(BytecodeWriter* writer, Term* term)
@@ -125,6 +135,9 @@ void write_bytecode_for_term(BytecodeWriter* writer, Term* term)
 
     // Function isn't a function: no bytecode
     if (!is_function(term->function))
+        return;
+
+    if (term->function == UNKNOWN_IDENTIFIER_FUNC)
         return;
 
     // Don't write anything for certain special names
@@ -152,14 +165,30 @@ void update_bytecode_for_branch(Branch* branch)
     if (branch->bytecode != NULL && !branch->bytecode->dirty)
         return;
 
+    // Deprecated steps:
+    refresh_locals_indices(*branch, 0);
+    update_input_instructions(*branch);
+
     BytecodeWriter writer;
     start_bytecode_update(branch, &writer);
+
+    Term* parent = branch->owningTerm;
+
+    // TODO: Add a stack_size operation.
 
     for (int i=0; i < branch->length(); i++) {
         Term* term = branch->get(i);
         if (term == NULL)
             continue;
         write_bytecode_for_term(&writer, term);
+    }
+
+    // Check if the parent function has a bytecodeFinish call
+    if (parent != NULL) {
+        FunctionAttrs::WriteNestedBytecodeFinish func =
+            get_function_attrs(parent->function)->writeNestedBytecodeFinish;
+        if (func != NULL)
+            func(parent, &writer);
     }
 
     // Finish up with a final return call.
@@ -204,6 +233,12 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
                 return;
             pic++;
             continue;
+
+        case OP_STACK_SIZE: {
+            List* frame = get_stack_frame(context, 0);
+            frame->resize(((OpStackSize*) op)->size);
+            continue;
+        }
 
         default:
             internal_error("in evaluate_bytecode, unrecognized op type");

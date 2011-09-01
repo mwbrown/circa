@@ -6,6 +6,7 @@
 #include "build_options.h"
 #include "builtins.h"
 #include "branch.h"
+#include "bytecode.h"
 #include "code_iterators.h"
 #include "evaluation.h"
 #include "function.h"
@@ -65,29 +66,21 @@ void evaluate_single_term(EvalContext* context, Term* term)
 
 void evaluate_branch_internal(EvalContext* context, Branch& branch)
 {
-    start_using(branch);
-
-    for (int i=0; i < branch.length(); i++) {
-        evaluate_single_term(context, branch[i]);
-
-          if (evaluation_interrupted(context))
-              break;
-    }
-
-    finish_using(branch);
+    push_stack_frame(context, &branch);
+    evaluate_branch_with_bytecode(context, &branch);
+    pop_stack_frame(context);
 }
 
 void evaluate_branch_internal(EvalContext* context, Branch& branch, TaggedValue* output)
 {
-    start_using(branch);
+    push_stack_frame(context, &branch);
 
-    for (int i=0; i < branch.length(); i++)
-        evaluate_single_term(context, branch[i]);
+    evaluate_branch_with_bytecode(context, &branch);
 
     if (output != NULL)
         copy(get_local(context, 0, branch[branch.length()-1], 0), output);
 
-    finish_using(branch);
+    pop_stack_frame(context);
 }
 
 void evaluate_branch_internal_with_state(EvalContext* context, Term* term,
@@ -107,9 +100,12 @@ void evaluate_branch_internal_with_state(EvalContext* context, Term* term,
 
 void evaluate_branch_no_preserve_locals(EvalContext* context, Branch& branch)
 {
+    push_stack_frame(context, &branch);
     copy(&context->state, &context->currentScopeState);
 
-    evaluate_branch_internal(context, branch);
+    evaluate_branch_with_bytecode(context, &branch);
+
+    pop_stack_frame(context);
 
     swap(&context->currentScopeState, &context->state);
     set_null(&context->currentScopeState);
@@ -117,8 +113,16 @@ void evaluate_branch_no_preserve_locals(EvalContext* context, Branch& branch)
 
 void evaluate_branch(EvalContext* context, Branch& branch)
 {
-    evaluate_branch_no_preserve_locals(context, branch);
+    push_stack_frame(context, &branch);
+    copy(&context->state, &context->currentScopeState);
+
+    evaluate_branch_with_bytecode(context, &branch);
+
     copy_locals_to_terms(context, branch);
+    pop_stack_frame(context);
+
+    swap(&context->currentScopeState, &context->state);
+    set_null(&context->currentScopeState);
 }
 
 void copy_locals_to_terms(EvalContext* context, Branch& branch)
@@ -153,9 +157,9 @@ TaggedValue* get_input(EvalContext* context, Term* term, int index)
     case InputInstruction::EMPTY:
         return NULL;
     case InputInstruction::LOCAL: {
-        TaggedValue* frame = list_get_index_from_end(&context->stack,
-            instruction->data.relativeFrame);
-        return list_get_index(frame, instruction->data.index);
+        ca_assert(instruction->relativeFrame >= 0);
+        TaggedValue* frame = get_stack_frame(context, instruction->relativeFrame);
+        return list_get_index(frame, instruction->index);
     }
     case InputInstruction::LOCAL_CONSUME:
     default:
@@ -172,28 +176,8 @@ void consume_input(EvalContext* context, Term* term, int index, TaggedValue* des
 
 TaggedValue* get_output(EvalContext* context, Term* term, int index)
 {
-    InputInstruction *instruction = &term->inputIsns.outputs[index];
-
-    switch (instruction->type) {
-    case InputInstruction::GLOBAL:
-        return (TaggedValue*) term;
-#if !KILL_BRANCH_LOCALS
-    case InputInstruction::OLD_STYLE_LOCAL:
-        return get_local(context, term, index);
-#endif
-    case InputInstruction::EMPTY:
-        internal_error("Attempt to access NULL output");
-        return NULL;
-    case InputInstruction::LOCAL: {
-        TaggedValue* frame = list_get_index_from_end(&context->stack,
-            instruction->data.relativeFrame);
-        return list_get_index(frame, instruction->data.index);
-    }
-    case InputInstruction::LOCAL_CONSUME:
-    default:
-        internal_error("Invalid instruction in get_output: LOCAL_CONSUME");
-        return NULL;
-    }
+    TaggedValue* frame = get_stack_frame(context, 0);
+    return list_get_index(frame, term->localsIndex + index);
 }
 
 TaggedValue* get_extra_output(EvalContext* context, Term* term, int index)
@@ -232,6 +216,11 @@ TaggedValue* get_local(EvalContext* cxt, Term* term)
 }
 #endif
 
+TaggedValue* get_local(EvalContext* cxt, int relativeFrame, int index)
+{
+    return list_get_index(cxt->stack.getFromEnd(relativeFrame), index);
+}
+
 TaggedValue* get_local(EvalContext* cxt, int relativeFrame, Term* term, int outputIndex)
 {
     int index = term->localsIndex + outputIndex;
@@ -246,10 +235,11 @@ TaggedValue* get_local(EvalContext* cxt, int relativeFrame, Term* term, int outp
 
 void error_occurred(EvalContext* context, Term* errorTerm, std::string const& message)
 {
-    // Save the error as this term's output value.
-    TaggedValue* out = get_output(context, errorTerm, 0);
-    set_string(out, message);
-    out->value_type = &ERROR_T;
+    // Save the error on the context
+    TaggedValue* errorValue = get_local(context, 0, errorTerm, 0);
+    set_string(errorValue, message);
+    errorValue->value_type = &ERROR_T;
+    copy(errorValue, &context->errorValue);
 
     // Check if there is an errored() call listening to this term. If so, then
     // continue execution.
@@ -302,7 +292,7 @@ bool evaluation_interrupted(EvalContext* context)
 
 void evaluate_range(EvalContext* context, Branch& branch, int start, int end)
 {
-    start_using(branch);
+    push_stack_frame(context, &branch);
 
     for (int i=start; i <= end; i++)
         evaluate_single_term(context, branch[i]);
@@ -318,32 +308,46 @@ void evaluate_range(EvalContext* context, Branch& branch, int start, int end)
         copy(value, term);
     }
 
-    finish_using(branch);
+    pop_stack_frame(context);
 }
 
-void start_using(Branch& branch)
+void evaluate_range_leave_stack(EvalContext* context, Branch& branch, int start, int end)
 {
-    if (branch.inuse)
-    {
-        swap(&branch.locals, branch.localsStack.append());
-        set_list(&branch.locals, get_locals_count(branch));
-    } else {
-        branch.locals.resize(get_locals_count(branch));
-    }
+    push_stack_frame(context, &branch);
 
-    branch.inuse = true;
+    for (int i=start; i <= end; i++)
+        evaluate_single_term(context, branch[i]);
+
+    // copy locals back to terms
+    for (int i=start; i <= end; i++) {
+        Term* term = branch[i];
+        if (is_value(term))
+            continue;
+        TaggedValue* value = get_local(context, 0, term, 0);
+        if (value == NULL)
+            continue;
+        copy(value, term);
+    }
 }
 
-void finish_using(Branch& branch)
+void push_stack_frame(EvalContext* context, int size)
 {
-    ca_assert(branch.inuse);
+    set_list(context->stack.append(), size);
+}
 
-    if (branch.localsStack.length() == 0) {
-        branch.inuse = false;
-    } else {
-        swap(&branch.locals, branch.localsStack.getLast());
-        branch.localsStack.pop();
-    }
+void push_stack_frame(EvalContext* context, Branch* branch)
+{
+    push_stack_frame(context, get_locals_count(*branch));
+}
+
+void pop_stack_frame(EvalContext* context)
+{
+    context->stack.pop();
+}
+
+List* get_stack_frame(EvalContext* context, int relativeFrame)
+{
+    return (List*) list_get_index_from_end(&context->stack, relativeFrame);
 }
 
 void evaluate_minimum(EvalContext* context, Term* term, TaggedValue* result)
@@ -353,7 +357,7 @@ void evaluate_minimum(EvalContext* context, Term* term, TaggedValue* result)
     
     Branch& branch = *term->owningBranch;
 
-    start_using(branch);
+    push_stack_frame(context, &branch);
 
     bool *marked = new bool[branch.length()];
     memset(marked, false, sizeof(bool)*branch.length());
@@ -392,7 +396,7 @@ void evaluate_minimum(EvalContext* context, Term* term, TaggedValue* result)
 
     delete[] marked;
 
-    finish_using(branch);
+    pop_stack_frame(context);
 }
 
 void evaluate_minimum_preserve_locals(EvalContext* context, Term* term, TaggedValue* result)
@@ -403,15 +407,14 @@ void evaluate_minimum_preserve_locals(EvalContext* context, Term* term, TaggedVa
     copy_locals_to_terms(context, branch);
 }
 
-TaggedValue* evaluate(EvalContext* context, Branch& branch, std::string const& input)
+void evaluate(EvalContext* context, Branch& branch, std::string const& input)
 {
     int prevHead = branch.length();
-    Term* result = parser::compile(branch, parser::statement_list, input);
+    parser::compile(branch, parser::statement_list, input);
     evaluate_range(context, branch, prevHead, branch.length() - 1);
-    return get_local(context, 0, result, 0);
 }
 
-TaggedValue* evaluate(Branch& branch, Term* function, List* inputs)
+void evaluate(Branch& branch, Term* function, List* inputs)
 {
     EvalContext context;
 
@@ -422,12 +425,11 @@ TaggedValue* evaluate(Branch& branch, Term* function, List* inputs)
         inputTerms.setAt(i, create_value(branch, inputs->get(i)));
 
     int prevHead = branch.length();
-    Term* result = apply(branch, function, inputTerms);
+    apply(branch, function, inputTerms);
     evaluate_range(&context, branch, prevHead, branch.length() - 1);
-    return get_local(&context, 0, result, 0);
 }
 
-TaggedValue* evaluate(Term* function, List* inputs)
+void evaluate(Term* function, List* inputs)
 {
     Branch scratch;
     return evaluate(scratch, function, inputs);
@@ -439,27 +441,11 @@ void clear_error(EvalContext* cxt)
     cxt->errorTerm = NULL;
 }
 
-void reset_locals(Branch& branch)
-{
-    ca_assert(!branch.inuse);
-    reset(&branch.locals);
-    reset(&branch.localsStack);
-
-    for (int i=0; i < branch.length(); i++) {
-        Term* term = branch[i];
-        if (term->nestedContents)
-            reset_locals(nested_contents(term));
-    }
-}
-
 std::string context_get_error_message(EvalContext* cxt)
 {
     ca_assert(cxt != NULL);
     ca_assert(cxt->errorTerm != NULL);
-    TaggedValue* output = get_output(cxt, cxt->errorTerm, 0);
-    if (output == NULL)
-        return "error message unavailable";
-    return as_string(output);
+    return as_string(&cxt->errorValue);
 }
 
 } // namespace circa

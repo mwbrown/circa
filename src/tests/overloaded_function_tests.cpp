@@ -5,6 +5,14 @@
 namespace circa {
 namespace overloaded_function_tests {
 
+void simple_eval()
+{
+    Branch branch;
+    branch.compile("a = add(3, 4.5)");
+    evaluate_branch(branch);
+    test_equals(branch["a"], "7.5");
+}
+
 void declared_in_script()
 {
     Branch branch;
@@ -43,11 +51,24 @@ void test_specialize_type()
     test_equals(t2->type->name, "number");
 }
 
+void test_dynamic_overload()
+{
+    Branch branch;
+    branch.compile("def f(bool b) -> any { if b { return 1 } else { return 1.0 } }");
+    Term* a = branch.compile("a = add(f(true), f(true))");
+    Term* b = branch.compile("b = add(f(false), f(false))");
+    evaluate_branch(branch);
+    test_equals(a, "2");
+    test_equals(b, "2.0");
+}
+
 void register_tests()
 {
+    REGISTER_TEST_CASE(overloaded_function_tests::simple_eval);
     REGISTER_TEST_CASE(overloaded_function_tests::declared_in_script);
     REGISTER_TEST_CASE(overloaded_function_tests::update_output_type);
     REGISTER_TEST_CASE(overloaded_function_tests::test_specialize_type);
+    REGISTER_TEST_CASE(overloaded_function_tests::test_dynamic_overload);
 }
 
 } // namespace overloaded_function_tests

@@ -10,6 +10,7 @@
 #include "bytecode.h"
 #include "evaluation.h"
 #include "importing_macros.h"
+#include "list_shared.h"
 #include "locals.h"
 #include "stateful_code.h"
 #include "term.h"
@@ -127,22 +128,25 @@ Branch* if_block_get_branch(Term* ifCall, int index)
 
 CA_FUNCTION(evaluate_if_block)
 {
+    Term* caller = CALLER;
     EvalContext* context = CONTEXT;
-    Branch& contents = nested_contents(CALLER);
+    Branch& contents = nested_contents(caller);
     bool useState = has_any_inlined_state(contents);
+
+    update_bytecode_for_branch(&contents);
 
     int numBranches = contents.length() - 1;
     int acceptedBranchIndex = 0;
     Branch* acceptedBranch = NULL;
 
-    context->callStack.append(CALLER);
+    context->callStack.append(caller);
 
     TaggedValue localState;
     TaggedValue prevScopeState;
     List* state = NULL;
     if (useState) {
         swap(&prevScopeState, &context->currentScopeState);
-        fetch_state_container(CALLER, &prevScopeState, &localState);
+        fetch_state_container(caller, &prevScopeState, &localState);
         state = List::lazyCast(&localState);
         state->resize(numBranches);
     }
@@ -160,7 +164,7 @@ CA_FUNCTION(evaluate_if_block)
             ca_assert(acceptedBranch != NULL);
 
             context->callStack.append(branch);
-            start_using(*acceptedBranch);
+            push_stack_frame(context, acceptedBranch);
 
             if (useState)
                 swap(state->get(branchIndex), &context->currentScopeState);
@@ -182,7 +186,7 @@ CA_FUNCTION(evaluate_if_block)
             if ((i != acceptedBranchIndex))
                 set_null(state->get(i));
         }
-        save_and_consume_state(CALLER, &prevScopeState, &localState);
+        save_and_consume_state(caller, &prevScopeState, &localState);
         swap(&prevScopeState, &context->currentScopeState);
     }
 
@@ -191,16 +195,18 @@ CA_FUNCTION(evaluate_if_block)
 
     for (int i=0; i < joining.length(); i++) {
         Term* joinTerm = joining[i];
+
         TaggedValue* value = get_input(context, joinTerm, acceptedBranchIndex);
 
-        ca_test_assert(cast_possible(value, get_output_type(CALLER, i+1)));
+        ca_test_assert(cast_possible(value, get_output_type(caller, i+1)));
 
-        copy(value, EXTRA_OUTPUT(i));
+        int outputIndex = caller->localsIndex + 1 + i;
+        TaggedValue* dest = list_get_index(get_stack_frame(context, 1), outputIndex);
+
+        copy(value, dest);
     }
 
-    // Finish using the branch, this will pop its stack frame. Need to do this after
-    // copying joined values.
-    finish_using(*acceptedBranch);
+    pop_stack_frame(context);
 
     context->callStack.pop();
     context->callStack.pop();

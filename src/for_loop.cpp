@@ -7,6 +7,7 @@
 #include "evaluation.h"
 #include "importing_macros.h"
 #include "introspection.h"
+#include "list_shared.h"
 #include "locals.h"
 #include "source_repro.h"
 #include "stateful_code.h"
@@ -174,8 +175,7 @@ CA_FUNCTION(evaluate_for_loop)
     List* output = set_list(&outputTv, inputListLength);
     int nextOutputIndex = 0;
 
-    start_using(forContents);
-    start_using(innerRebinds);
+    push_stack_frame(context, &forContents);
     context->callStack.append(CALLER);
 
     // Prepare state container
@@ -211,7 +211,7 @@ CA_FUNCTION(evaluate_for_loop)
         // copy inner rebinds
         for (int i=0; i < innerRebinds.length(); i++) {
             Term* rebindTerm = innerRebinds[i];
-            TaggedValue* dest = get_local(context, 0, rebindTerm, 0);
+            TaggedValue* dest = get_local(context, 0, 1 + i);
 
             if (firstIter)
                 copy(get_input(context, rebindTerm, 0), dest);
@@ -243,8 +243,6 @@ CA_FUNCTION(evaluate_for_loop)
     // Resize output, in case some elements were discarded
     output->resize(nextOutputIndex);
 
-    swap(output, OUTPUT);
-
     // Copy outer rebinds
     ca_assert(caller->numOutputs() == outerRebinds.length() + 1);
     
@@ -262,7 +260,9 @@ CA_FUNCTION(evaluate_for_loop)
             result = get_input(context, rebindTerm, 1);
         }
 
-        copy(result, EXTRA_OUTPUT(i));
+        int outputIndex = caller->localsIndex + 1 + i;
+        TaggedValue* dest = list_get_index(get_stack_frame(context, 1), outputIndex);
+        copy(result, dest);
     }
 
     // Restore loop context
@@ -274,8 +274,10 @@ CA_FUNCTION(evaluate_for_loop)
     }
 
     context->callStack.pop();
-    finish_using(forContents);
-    finish_using(innerRebinds);
+    pop_stack_frame(context);
+    
+    // Copy output (need to do this after restoring stack)
+    swap(output, OUTPUT);
 }
 
 } // namespace circa

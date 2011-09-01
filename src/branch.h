@@ -27,15 +27,6 @@ struct Branch
 
     int outputIndex;
 
-    // (Deprecated) Local values for each term. These are the results of the most
-    // recent interpreted execution of this branch.
-    List locals;
-
-    // (Deprecated) While the interpreter is using a branch, it can be marked 'inuse'
-    // and it can have a list of old local lists. This is to support recursion.
-    bool inuse;
-    List localsStack;
-
     // For a branch loaded from a file, this keeps track of the file signature
     // of the last time this was loaded.
     List fileSignature;

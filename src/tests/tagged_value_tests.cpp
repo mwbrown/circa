@@ -102,11 +102,14 @@ void test_term_value()
     test_assert(is_int(i));
     test_assert(is_int(i));
 
-    TaggedValue* a = branch.eval("a = [1 2 3]");
+    EvalContext context;
+    TaggedValue* a = branch.compile("a = [1 2 3]");
+    TaggedValue* b = branch.compile("b = a");
+
+    evaluate_branch(branch);
     test_assert(a->numElements() == 3);
     test_assert(a->getIndex(1)->asInt() == 2);
 
-    TaggedValue* b = branch.eval("b = a");
     test_assert(b->numElements() == 3);
     test_assert(b->getIndex(1)->asInt() == 2);
     

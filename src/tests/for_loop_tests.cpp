@@ -173,6 +173,17 @@ void test_continue()
     test_equals(internal_debug_function::spy_results(), "[1, 2, 4]");
 }
 
+void local_indexes()
+{
+    Branch branch;
+    branch.compile("a = 1");
+    Term* block = branch.compile("for i in [] { a += 2 }");
+
+    Term* a_innerRebind = block->contents("#inner_rebinds")->contents("a");
+    Term* a_insideLoop = block->contents("a");
+    test_equals(get_frame_distance(a_insideLoop, a_innerRebind), 0);
+}
+
 void register_tests()
 {
     REGISTER_TEST_CASE(for_loop_tests::test_simple);
@@ -186,6 +197,7 @@ void register_tests()
     REGISTER_TEST_CASE(for_loop_tests::test_break);
     REGISTER_TEST_CASE(for_loop_tests::test_nested_break);
     REGISTER_TEST_CASE(for_loop_tests::test_continue);
+    REGISTER_TEST_CASE(for_loop_tests::local_indexes);
 }
 
 } // for_loop_tests

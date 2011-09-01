@@ -2,6 +2,7 @@
 
 #include "circa.h"
 
+#include "bytecode.h"
 #include "types/ref.h"
 
 namespace circa {
@@ -83,6 +84,7 @@ namespace overloaded_function {
             bool alreadyGenerated = (contents.length() > 0)
                 && contents[0]->function == specializedFunc;
             if (!alreadyGenerated) {
+                contents.clear();
                 TermList inputs;
                 CALLER->inputsToList(inputs);
                 apply(contents, specializedFunc, inputs);
@@ -95,20 +97,6 @@ namespace overloaded_function {
             std::stringstream msg;
             msg << "specialized func not found for: " << CALLER->function->name;
             return error_occurred(CONTEXT, CALLER, msg.str());
-        }
-    }
-
-    CA_FUNCTION(evaluate_overload)
-    {
-        Branch& contents = nested_contents(CALLER);
-        if (contents.length() == 0) {
-            evaluate_dynamic_overload(CONTEXT, CALLER);
-            contents.clear();
-        } else {
-            TaggedValue output;
-            evaluate_branch_internal(CONTEXT, contents, &output);
-            if (OUTPUT != NULL)
-                swap(&output, OUTPUT);
         }
     }
 
@@ -133,10 +121,19 @@ namespace overloaded_function {
         return contents[0]->type;
     }
 
+    void writeBytecode(Term* term, BytecodeWriter* writer)
+    {
+        Branch& contents = nested_contents(term);
+        if (contents.length() > 0)
+            write_bytecode_for_term(writer, contents[0]);
+        else
+            bytecode_call(writer, term, evaluate_dynamic_overload);
+    }
+
     bool is_overloaded_function(Term* func)
     {
         ca_assert(is_function(func));
-        return get_function_attrs(func)->evaluate == evaluate_overload;
+        return get_function_attrs(func)->evaluate == evaluate_dynamic_overload;
     }
 
     int num_overloads(Term* func)
@@ -199,7 +196,7 @@ namespace overloaded_function {
 
         FunctionAttrs* attrs = get_function_attrs(term);
         attrs->name = name;
-        attrs->evaluate = evaluate_overload;
+        attrs->evaluate = evaluate_dynamic_overload;
         attrs->postInputChange = overload_post_input_change;
         // attrs->specializeType = overload_specialize_type;
 
@@ -249,6 +246,7 @@ namespace overloaded_function {
         OVERLOADED_FUNCTION_FUNC = import_function(kernel, evaluate_declaration,
                 "overloaded_function(Function...) -> Function");
         get_function_attrs(OVERLOADED_FUNCTION_FUNC)->postCompile = overloaded_func_post_compile;
+        get_function_attrs(OVERLOADED_FUNCTION_FUNC)->writeBytecode = writeBytecode;
     }
 }
 }

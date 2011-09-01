@@ -2,9 +2,77 @@
 
 #include "circa.h"
 #include "importing_macros.h"
+#include "locals.h"
 
 namespace circa {
 namespace if_block_tests {
+
+void test_if_simple_eval()
+{
+    Branch branch;
+    branch.compile("if true { test_spy(1) }");
+    internal_debug_function::spy_clear();
+    evaluate_branch(branch);
+    test_equals(internal_debug_function::spy_results(), "[1]");
+
+    branch.clear();
+    branch.compile("if false { test_spy(1) }");
+    internal_debug_function::spy_clear();
+    evaluate_branch(branch);
+    test_equals(internal_debug_function::spy_results(), "[]");
+
+    branch.clear();
+    branch.compile("if 1 == 1 { test_spy(3) }");
+    update_bytecode_for_branch(&branch);
+    internal_debug_function::spy_clear();
+    evaluate_branch(branch);
+    test_equals(internal_debug_function::spy_results(), "[3]");
+
+    branch.clear();
+    branch.compile("if false { test_spy(3) } else { test_spy(4) } ");
+    internal_debug_function::spy_clear();
+    evaluate_branch(branch);
+    test_equals(internal_debug_function::spy_results(), "[4]");
+}
+
+void local_indexes()
+{
+    Branch branch;
+    Term* a = branch.compile("a = true");
+    Term* block = branch.compile("if a { }");
+    Term* ifcase = block->contents(0);
+    test_assert(ifcase->input(0) == a);
+    test_equals(get_frame_distance(ifcase, a), 0);
+
+    Term* block2 = branch.compile("if true { if a { } }");
+    Term* ifcase2 = block2->contents(0)->contents(0)->contents(0);
+    test_assert(ifcase2->input(0) == a);
+    test_equals(get_frame_distance(ifcase2, a), 1);
+}
+
+void local_indexes_2()
+{
+    Branch branch;
+    Term* block = branch.compile("if 1 == 1 { test_spy(3) }");
+    Term* equals = branch[2];
+    test_equals(equals->function->name, "equals");
+    test_equals(equals->localsIndex, 2);
+    Term* ifcase = block->contents(0);
+    update_bytecode_for_branch(&branch);
+    test_equals(ifcase->inputIsns.inputs[0].index, 2);
+}
+
+void local_indexes_3()
+{
+    // Test having a join term that refers to a local inside the block.
+    Branch branch;
+    branch.compile("a = 1");
+    Term* block = branch.compile("if true { a += 1 }");
+
+    Term* inner_a = block->contents(0)->contents("a");
+    Term* join_a = block->contents("#joining")->contents("a");
+    test_equals(get_frame_distance(join_a, inner_a), 0);
+}
 
 void test_if_joining()
 {
@@ -25,8 +93,14 @@ void test_if_joining()
     test_assert(branch.contains("Cardiff"));
 
     // Test that the type of the joined name is correct
-    branch.compile("if true { a = 4 } else { a = 5 }; a = a");
+    branch.compile("if true { a = 4 } else { a = 5 }");
     test_equals(get_output_type(branch["a"])->name, "int");
+
+    // Output a joined term with a local
+    branch.clear();
+    branch.compile("a = 1; if true { a += 1 }; a = a");
+    evaluate_branch(branch);
+    test_equals(branch["a"], "2");
 }
 
 void test_if_joining_on_bool()
@@ -358,7 +432,7 @@ void test_nested_state()
     Branch branch;
     EvalContext context;
 
-    branch.compile("t = false if true { t = toggle(true) }");
+    branch.compile("t = false; if true { t = toggle(true) }");
     TaggedValue* t = branch["t"];
 
     evaluate_branch(&context, branch);
@@ -373,6 +447,10 @@ void test_nested_state()
 
 void register_tests()
 {
+    REGISTER_TEST_CASE(if_block_tests::test_if_simple_eval);
+    REGISTER_TEST_CASE(if_block_tests::local_indexes);
+    REGISTER_TEST_CASE(if_block_tests::local_indexes_2);
+    REGISTER_TEST_CASE(if_block_tests::local_indexes_3);
     REGISTER_TEST_CASE(if_block_tests::test_if_joining);
     REGISTER_TEST_CASE(if_block_tests::test_if_elif_else);
     REGISTER_TEST_CASE(if_block_tests::test_dont_always_rebind_inner_names);

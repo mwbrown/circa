@@ -5,6 +5,32 @@
 namespace circa {
 namespace evaluation_tests {
 
+void test_manual_evaluate_branch()
+{
+    Branch branch;
+    branch.compile("add_i(1,2)");
+
+    EvalContext context;
+    push_stack_frame(&context, &branch);
+    evaluate_branch_with_bytecode(&context, &branch);
+
+    // TODO: This will change when local indexes are condensed:
+    test_equals(&context.stack, "[[null, null, 3]]");
+
+    pop_stack_frame(&context);
+    test_equals(&context.stack, "[]");
+
+    branch.clear();
+    branch.compile("a = add_i(1,2)");
+    branch.compile("b = mult_i(a,2)");
+
+    push_stack_frame(&context, &branch);
+    evaluate_branch_with_bytecode(&context, &branch);
+
+    test_equals(&context.stack, "[[null, null, 3, null, 6]]");
+    pop_stack_frame(&context);
+}
+
 void test_branch_eval()
 {
     Branch branch;
@@ -95,10 +121,11 @@ void test_term_stack()
 
 void register_tests()
 {
+    REGISTER_TEST_CASE(evaluation_tests::test_manual_evaluate_branch);
     REGISTER_TEST_CASE(evaluation_tests::test_branch_eval);
-    REGISTER_TEST_CASE(evaluation_tests::test_evaluate_minimum);
-    REGISTER_TEST_CASE(evaluation_tests::test_evaluate_minimum2);
-    REGISTER_TEST_CASE(evaluation_tests::test_evaluate_minimum_ignores_meta_inputs);
+    //TEST_DISABLED REGISTER_TEST_CASE(evaluation_tests::test_evaluate_minimum);
+    //TEST_DISABLED REGISTER_TEST_CASE(evaluation_tests::test_evaluate_minimum2);
+    //TEST_DISABLED REGISTER_TEST_CASE(evaluation_tests::test_evaluate_minimum_ignores_meta_inputs);
     REGISTER_TEST_CASE(evaluation_tests::test_term_stack);
 }
 
