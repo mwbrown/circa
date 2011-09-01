@@ -707,7 +707,7 @@ void test_sig_indent_bug_with_for_loop_expression()
             "  i + 5\n");
 
     evaluate_branch(branch);
-    test_equals(get_local(branch["x"]), "[5]");
+    test_equals(branch["x"], "[5]");
 }
 
 void test_namespace_with_curly_braces()
@@ -770,7 +770,7 @@ void test_bug_with_nested_ifs()
 
     test_assert(branch);
     evaluate_branch(branch);
-    test_equals(get_local(branch["a"]), "correct");
+    test_equals(branch["a"], "correct");
 }
 
 void test_source_location()

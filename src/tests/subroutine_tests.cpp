@@ -118,7 +118,7 @@ void test_recursion_with_state()
 
     test_equals(&context.state,
         "{result: {_recr: {_recr: {_recr: {s: 45}, s: 33}, s: 21}, s: 10}}");
-    test_equals(get_local(branch["result"]), 4);
+    test_equals(branch["result"], 4);
 }
 
 void initialize_state_type()

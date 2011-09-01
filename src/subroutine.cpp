@@ -59,7 +59,7 @@ void evaluate_subroutine_internal(EvalContext* context, Term* caller,
     // Insert inputs into placeholders
     for (int i=0; i < numInputs; i++) {
         Term* placeholder = get_subroutine_input_placeholder(contents, i);
-        swap(inputs->get(i), get_local(placeholder));
+        swap(inputs->get(i), get_local(context, 0, placeholder, 0));
     }
 
     // Prepare output
@@ -106,7 +106,7 @@ void evaluate_subroutine_internal(EvalContext* context, Term* caller,
     // Rescue input values
     for (int i=0; i < numInputs; i++) {
         Term* placeholder = get_subroutine_input_placeholder(contents, i);
-        swap(inputs->get(i), get_local(placeholder));
+        swap(inputs->get(i), get_local(context, 0, placeholder, 0));
     }
 
     // Clean up

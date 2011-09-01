@@ -85,7 +85,7 @@ void evaluate_branch_internal(EvalContext* context, Branch& branch, TaggedValue*
         evaluate_single_term(context, branch[i]);
 
     if (output != NULL)
-        copy(get_local(branch[branch.length()-1]), output);
+        copy(get_local(context, 0, branch[branch.length()-1], 0), output);
 
     finish_using(branch);
 }
@@ -118,12 +118,16 @@ void evaluate_branch_no_preserve_locals(EvalContext* context, Branch& branch)
 void evaluate_branch(EvalContext* context, Branch& branch)
 {
     evaluate_branch_no_preserve_locals(context, branch);
+    copy_locals_to_terms(context, branch);
+}
 
-    // Copy stack back to the original terms. Many tests depend on this functionality.
+void copy_locals_to_terms(EvalContext* context, Branch& branch)
+{
+    // Copy locals back to the original terms. Many tests depend on this functionality.
     for (int i=0; i < branch.length(); i++) {
         Term* term = branch[i];
         if (is_value(term)) continue;
-        TaggedValue* val = get_local(term);
+        TaggedValue* val = get_local(context, 0, term, 0);
         if (val != NULL)
             copy(val, branch[i]);
     }
@@ -142,8 +146,10 @@ TaggedValue* get_input(EvalContext* context, Term* term, int index)
     switch (instruction->type) {
     case InputInstruction::GLOBAL:
         return (TaggedValue*) term->input(index);
+#if !KILL_BRANCH_LOCALS
     case InputInstruction::OLD_STYLE_LOCAL:
-        return get_local(term->input(index), term->inputInfo(index)->outputIndex);
+        return get_local(context, term->input(index), term->inputInfo(index)->outputIndex);
+#endif
     case InputInstruction::EMPTY:
         return NULL;
     case InputInstruction::LOCAL: {
@@ -171,8 +177,10 @@ TaggedValue* get_output(EvalContext* context, Term* term, int index)
     switch (instruction->type) {
     case InputInstruction::GLOBAL:
         return (TaggedValue*) term;
+#if !KILL_BRANCH_LOCALS
     case InputInstruction::OLD_STYLE_LOCAL:
-        return get_local(term, index);
+        return get_local(context, term, index);
+#endif
     case InputInstruction::EMPTY:
         internal_error("Attempt to access NULL output");
         return NULL;
@@ -204,7 +212,8 @@ TaggedValue* get_state_input(EvalContext* cxt, Term* term)
     }
 }
 
-TaggedValue* get_local(Term* term, int outputIndex)
+#if !KILL_BRANCH_LOCALS
+TaggedValue* get_local(EvalContext*, Term* term, int outputIndex)
 {
     //ca_assert(!is_value(term));
 
@@ -217,20 +226,22 @@ TaggedValue* get_local(Term* term, int outputIndex)
     return term->owningBranch->locals[index];
 }
 
-TaggedValue* get_local(Term* term)
+TaggedValue* get_local(EvalContext* cxt, Term* term)
 {
-    return get_local(term, 0);
+    return get_local(cxt, term, 0);
 }
+#endif
 
-TaggedValue* get_local_safe(Term* term, int outputIndex)
+TaggedValue* get_local(EvalContext* cxt, int relativeFrame, Term* term, int outputIndex)
 {
-    if (term->owningBranch == NULL)
-        return NULL;
     int index = term->localsIndex + outputIndex;
-    if (index >= term->owningBranch->locals.length())
-        return NULL;
-    TaggedValue* local = term->owningBranch->locals[index];
-    return local;
+
+#if KILL_BRANCH_LOCALS
+    return list_get_index(cxt->stack.getFromEnd(relativeFrame), index);
+#else
+    ca_assert(index < term->owningBranch->locals.length());
+    return term->owningBranch->locals[index];
+#endif
 }
 
 void error_occurred(EvalContext* context, Term* errorTerm, std::string const& message)
@@ -301,7 +312,7 @@ void evaluate_range(EvalContext* context, Branch& branch, int start, int end)
         Term* term = branch[i];
         if (is_value(term))
             continue;
-        TaggedValue* value = get_local(term);
+        TaggedValue* value = get_local(context, 0, term, 0);
         if (value == NULL)
             continue;
         copy(value, term);
@@ -377,11 +388,19 @@ void evaluate_minimum(EvalContext* context, Term* term, TaggedValue* result)
 
     // Possibly save output
     if (result != NULL)
-        copy(get_local(term), result);
+        copy(get_local(context, 0, term, 0), result);
 
     delete[] marked;
 
     finish_using(branch);
+}
+
+void evaluate_minimum_preserve_locals(EvalContext* context, Term* term, TaggedValue* result)
+{
+    evaluate_minimum(context, term, result);
+
+    Branch& branch = *term->owningBranch;
+    copy_locals_to_terms(context, branch);
 }
 
 TaggedValue* evaluate(EvalContext* context, Branch& branch, std::string const& input)
@@ -389,7 +408,7 @@ TaggedValue* evaluate(EvalContext* context, Branch& branch, std::string const& i
     int prevHead = branch.length();
     Term* result = parser::compile(branch, parser::statement_list, input);
     evaluate_range(context, branch, prevHead, branch.length() - 1);
-    return get_local(result);
+    return get_local(context, 0, result, 0);
 }
 
 TaggedValue* evaluate(Branch& branch, Term* function, List* inputs)
@@ -405,7 +424,7 @@ TaggedValue* evaluate(Branch& branch, Term* function, List* inputs)
     int prevHead = branch.length();
     Term* result = apply(branch, function, inputTerms);
     evaluate_range(&context, branch, prevHead, branch.length() - 1);
-    return get_local(result);
+    return get_local(&context, 0, result, 0);
 }
 
 TaggedValue* evaluate(Term* function, List* inputs)

@@ -359,7 +359,7 @@ void test_nested_state()
     EvalContext context;
 
     branch.compile("t = false if true { t = toggle(true) }");
-    TaggedValue* t = get_local(branch["t"]);
+    TaggedValue* t = branch["t"];
 
     evaluate_branch(&context, branch);
     test_assert(as_bool(t) == true);

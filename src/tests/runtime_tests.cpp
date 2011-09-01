@@ -35,7 +35,7 @@ void test_errored_function()
     evaluate_branch(&context, branch);
 
     test_assert(!context.errorOccurred);
-    test_assert(as_bool(get_local(t)));
+    test_assert(as_bool(t));
 }
 
 void test_misc()

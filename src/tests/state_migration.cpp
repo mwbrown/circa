@@ -62,7 +62,7 @@ void test_migration(std::string sourceCode, std::string destinationCode,
         if (!is_statement(assertions[i]))
             continue;
 
-        TaggedValue* result = get_local(assertions[i]);
+        TaggedValue* result = get_local(&context, 0, assertions[i], 0);
 
         if (!is_bool(result))
             continue;

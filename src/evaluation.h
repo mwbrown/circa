@@ -15,6 +15,8 @@
 #include "types/list.h"
 #include "types/dict.h"
 
+#define KILL_BRANCH_LOCALS 0
+
 namespace circa {
 
 struct EvalContext
@@ -67,6 +69,7 @@ void evaluate_branch_no_preserve_locals(EvalContext* context, Branch& branch);
 
 // Top-level call. Evalaute the branch and then preserve stack outputs back to terms.
 void evaluate_branch(EvalContext* context, Branch& branch);
+void copy_locals_to_terms(EvalContext* context, Branch& branch);
 
 // Shorthand to call evaluate_branch with a new EvalContext:
 void evaluate_branch(Branch& branch);
@@ -76,6 +79,7 @@ void evaluate_range(EvalContext* context, Branch& branch, int start, int end);
 
 // Evaluate 'term' and every term that it depends on.
 void evaluate_minimum(EvalContext* context, Term* term, TaggedValue* result);
+void evaluate_minimum_preserve_locals(EvalContext* context, Term* term, TaggedValue* result);
 
 // Parse input and immediately evaluate it, returning the result value.
 TaggedValue* evaluate(EvalContext* context, Branch& branch, std::string const& input);
@@ -93,9 +97,12 @@ void consume_input(EvalContext* context, Term* term, int index, TaggedValue* des
 TaggedValue* get_output(EvalContext* context, Term* term, int outputIndex);
 TaggedValue* get_extra_output(EvalContext* context, Term* term, int index);
 TaggedValue* get_state_input(EvalContext* cxt, Term* term);
-TaggedValue* get_local(Term* term, int outputIndex);
-TaggedValue* get_local(Term* term);
-TaggedValue* get_local_safe(Term* term, int outputIndex);
+#if !KILL_BRANCH_LOCALS
+TaggedValue* get_local(EvalContext* cxt, Term* term, int outputIndex);
+TaggedValue* get_local(EvalContext* cxt, Term* term);
+#endif
+
+TaggedValue* get_local(EvalContext* cxt, int relativeFrame, Term* term, int outputIndex);
 
 void error_occurred(EvalContext* context, Term* errorTerm, std::string const& message);
 

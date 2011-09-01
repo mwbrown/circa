@@ -69,14 +69,14 @@ void test_snippet(std::string codeStr, std::string assertionsStr)
         return;
     }
 
-    EvalContext result;
-    evaluate_branch(&result, code);
+    EvalContext context;
+    evaluate_branch(&context, code);
 
-    if (result.errorOccurred) {
+    if (context.errorOccurred) {
         std::cout << "Runtime error in: " << get_current_test_name() << std::endl;
         std::cout << "setup: " << codeStr << std::endl;
         std::cout << "assertion: " << assertionsStr << std::endl;
-        print_runtime_error_formatted(result, std::cout);
+        print_runtime_error_formatted(context, std::cout);
         std::cout << std::endl;
         print_branch(std::cout, code);
         declare_current_test_failed();
@@ -109,7 +109,7 @@ void test_snippet(std::string codeStr, std::string assertionsStr)
         if (!is_statement(assertions[i]))
             continue;
 
-        TaggedValue* result = get_local(assertions[i]);
+        TaggedValue* result = get_local(&context, 0, assertions[i], 0);
 
         if (!is_bool(result))
             continue;

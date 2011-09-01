@@ -203,7 +203,6 @@ CA_FUNCTION(evaluate_if_block)
     finish_using(*acceptedBranch);
 
     context->callStack.pop();
-
     context->callStack.pop();
 }
 

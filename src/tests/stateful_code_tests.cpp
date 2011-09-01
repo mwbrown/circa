@@ -64,11 +64,11 @@ void initial_value()
     Term* j = branch.compile("state int j = 4");
     evaluate_branch(&context, branch);
 
-    test_assert(is_int(get_local(i)));
-    test_equals(get_local(i)->asInt(), 3);
+    test_assert(is_int(i));
+    test_equals(i->asInt(), 3);
 
-    test_assert(is_int(get_local(j)));
-    test_equals(get_local(j)->asInt(), 4);
+    test_assert(is_int(j));
+    test_equals(j->asInt(), 4);
 }
 
 void initialize_from_expression()

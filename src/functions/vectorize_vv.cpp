@@ -17,6 +17,7 @@ namespace vectorize_vv_function {
 
     CA_FUNCTION(evaluate)
     {
+        EvalContext* context = CONTEXT;
         Branch& contents = nested_contents(CALLER);
         TaggedValue input0, input1;
 
@@ -40,13 +41,13 @@ namespace vectorize_vv_function {
         // Evaluate vectorized call, once for each input
         for (int i=0; i < listLength; i++) {
             // Copy inputs into placeholder
-            swap(input0.getIndex(i), get_local(input0_placeholder));
-            swap(input1.getIndex(i), get_local(input1_placeholder));
+            swap(input0.getIndex(i), get_local(context, 0, input0_placeholder, 0));
+            swap(input1.getIndex(i), get_local(context, 0, input1_placeholder, 0));
 
             evaluate_single_term(CONTEXT, content_output);
 
             // Save output
-            swap(get_local(content_output), output->get(i));
+            swap(get_local(context, 0, content_output, 0), output->get(i));
         }
 
         finish_using(contents);

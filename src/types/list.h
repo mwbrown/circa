@@ -36,6 +36,8 @@ struct List : TaggedValue
     // get the item at length - 1
     TaggedValue* getLast();
 
+    TaggedValue* getFromEnd(int reverseIndex);
+
     // remove the item at length - 1
     void pop();
 

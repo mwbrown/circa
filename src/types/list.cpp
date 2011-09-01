@@ -430,6 +430,12 @@ List::getLast()
     return get(length() - 1);
 }
 
+TaggedValue*
+List::getFromEnd(int reverseIndex)
+{
+    return get(length() - 1 - reverseIndex);
+}
+
 void
 List::pop()
 {

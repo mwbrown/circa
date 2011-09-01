@@ -19,19 +19,14 @@ void test_evaluate_minimum()
     Term* c = branch.compile("c = add(a b)");
     Term* d = branch.compile("d = sub(a b)");
 
-    test_equals(get_local(a), "null");
-    test_equals(get_local(b), "null");
-    test_equals(get_local(c), "null");
-    test_equals(get_local(d), "null");
-
     EvalContext context;
     TaggedValue result;
-    evaluate_minimum(&context, d, &result);
+    evaluate_minimum_preserve_locals(&context, d, &result);
 
-    test_equals(get_local(a), "1");
-    test_equals(get_local(b), "2");
-    test_equals(get_local(c), "null");
-    test_equals(get_local(d), "-1");
+    test_equals(a, "1");
+    test_equals(b, "2");
+    test_equals(c, "null");
+    test_equals(d, "-1");
 
     test_equals(&result, "-1");
 }
@@ -49,16 +44,16 @@ void test_evaluate_minimum2()
     Term* xyz = branch.compile("dont_evaluate_this = [x y z]");
 
     EvalContext context;
-    evaluate_minimum(&context, abc, NULL);
+    evaluate_minimum_preserve_locals(&context, abc, NULL);
 
-    test_equals(get_local(a), "[1]");
-    test_equals(get_local(b), "[1, [1], 3]");
-    test_equals(get_local(c), "[[1, [1], 3], [1]]");
-    test_equals(get_local(abc), "[[1], [1, [1], 3], [[1, [1], 3], [1]]]");
-    test_equals(get_local(x), "null");
-    test_equals(get_local(y), "null");
-    test_equals(get_local(z), "null");
-    test_equals(get_local(xyz), "null");
+    test_equals(a, "[1]");
+    test_equals(b, "[1, [1], 3]");
+    test_equals(c, "[[1, [1], 3], [1]]");
+    test_equals(abc, "[[1], [1, [1], 3], [[1, [1], 3], [1]]]");
+    test_equals(x, "null");
+    test_equals(y, "null");
+    test_equals(z, "null");
+    test_equals(xyz, "null");
 }
 
 void test_evaluate_minimum_ignores_meta_inputs()
@@ -68,8 +63,8 @@ void test_evaluate_minimum_ignores_meta_inputs()
     Term* b = branch.compile("type(a)");
     EvalContext context;
     TaggedValue result;
-    evaluate_minimum(&context, b, &result);
-    test_equals(get_local(a), "null");
+    evaluate_minimum_preserve_locals(&context, b, &result);
+    test_equals(a, "null");
     test_equals(as_type(&result)->name, "int");
 }
 

@@ -194,6 +194,8 @@ CA_FUNCTION(evaluate_for_loop)
     // Preserve old for-loop context
     ForLoopContext prevLoopContext = context->forLoopContext;
 
+    context->forLoopContext.breakCalled = false;
+
     for (int iteration=0; iteration < inputListLength; iteration++) {
         context->forLoopContext.continueCalled = false;
 
@@ -204,12 +206,12 @@ CA_FUNCTION(evaluate_for_loop)
             swap(state->get(iteration), &context->currentScopeState);
 
         // copy iterator
-        copy(inputList->getIndex(iteration), get_local(iterator));
+        copy(inputList->getIndex(iteration), get_local(context, 0, iterator, 0));
 
         // copy inner rebinds
         for (int i=0; i < innerRebinds.length(); i++) {
             Term* rebindTerm = innerRebinds[i];
-            TaggedValue* dest = get_local(rebindTerm);
+            TaggedValue* dest = get_local(context, 0, rebindTerm, 0);
 
             if (firstIter)
                 copy(get_input(context, rebindTerm, 0), dest);
@@ -219,19 +221,23 @@ CA_FUNCTION(evaluate_for_loop)
 
         context->forLoopContext.discard = false;
 
-        // TODO: figure out why it needs to check evaluation_interrupted first
-        if (!evaluation_interrupted(context))
-            evaluate_branch_with_bytecode(context, &forContents);
+        ca_assert(!evaluation_interrupted(context));
+
+        evaluate_branch_with_bytecode(context, &forContents);
 
         // Save output
         if (saveOutput && !context->forLoopContext.discard) {
-            TaggedValue* localResult = get_local(forContents[forContents.outputIndex]);
+            TaggedValue* localResult = get_local(context, 0, forContents[forContents.outputIndex], 0);
             copy(localResult, output->get(nextOutputIndex++));
         }
 
         // Unload state
         if (useState)
             swap(&context->currentScopeState, state->get(iteration));
+
+        if (context->forLoopContext.breakCalled
+                || context->interruptSubroutine)
+            break;
     }
 
     // Resize output, in case some elements were discarded

@@ -22,7 +22,7 @@ void test_type_inference()
     }
 
     evaluate_branch(branch);
-    test_equals(get_local(t), "[1, 1]");
+    test_equals(t, "[1, 1]");
 }
 
 void register_tests()
