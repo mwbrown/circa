@@ -106,7 +106,7 @@ void test_term_value()
     TaggedValue* a = branch.compile("a = [1 2 3]");
     TaggedValue* b = branch.compile("b = a");
 
-    evaluate_branch(branch);
+    evaluate_save_locals(branch);
     test_assert(a->numElements() == 3);
     test_assert(a->getIndex(1)->asInt() == 2);
 

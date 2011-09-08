@@ -64,7 +64,7 @@ void bug_reproducing_list_after_eval()
     test_equals(get_input_source_text(sum, 1), " [1 1]");
     test_equals(get_branch_source_text(branch), "[1 1] + [1 1]");
 
-    evaluate_branch(branch);
+    evaluate_save_locals(branch);
 
     test_equals(get_term_source_text(in0), "[1 1]");
     test_equals(get_term_source_text(in1), "[1 1]");

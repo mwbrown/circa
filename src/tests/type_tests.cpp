@@ -155,10 +155,10 @@ void create_empty_type_then_populate_it()
     branch.compile("a = T()");
     branch.compile("to_string(a)");
     test_assert(branch);
-    evaluate_branch(branch);
+    evaluate_save_locals(branch);
 
     list_t::setup_type(unbox_type(branch["T"]));
-    evaluate_branch(branch);
+    evaluate_save_locals(branch);
     test_assert(branch);
 }
 
@@ -224,7 +224,7 @@ void use_installed_handle_type()
 
     Term* fCall = branch.compile("f()");
 
-    evaluate_branch(branch);
+    evaluate_save_locals(branch);
     test_assert(cast_possible(fCall, as_type(myType)));
 }
 

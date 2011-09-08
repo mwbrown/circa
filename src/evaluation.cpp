@@ -111,7 +111,7 @@ void evaluate_branch_no_preserve_locals(EvalContext* context, Branch& branch)
     set_null(&context->currentScopeState);
 }
 
-void evaluate_branch(EvalContext* context, Branch& branch)
+void evaluate_save_locals(EvalContext* context, Branch& branch)
 {
     push_stack_frame(context, &branch);
     copy(&context->state, &context->currentScopeState);
@@ -137,10 +137,10 @@ void copy_locals_to_terms(EvalContext* context, Branch& branch)
     }
 }
 
-void evaluate_branch(Branch& branch)
+void evaluate_save_locals(Branch& branch)
 {
     EvalContext context;
-    evaluate_branch(&context, branch);
+    evaluate_save_locals(&context, branch);
 }
 
 TaggedValue* get_input(EvalContext* context, Term* term, int index)
@@ -150,10 +150,6 @@ TaggedValue* get_input(EvalContext* context, Term* term, int index)
     switch (instruction->type) {
     case InputInstruction::GLOBAL:
         return (TaggedValue*) term->input(index);
-#if !KILL_BRANCH_LOCALS
-    case InputInstruction::OLD_STYLE_LOCAL:
-        return get_local(context, term->input(index), term->inputInfo(index)->outputIndex);
-#endif
     case InputInstruction::EMPTY:
         return NULL;
     case InputInstruction::LOCAL: {
@@ -196,26 +192,6 @@ TaggedValue* get_state_input(EvalContext* cxt, Term* term)
     }
 }
 
-#if !KILL_BRANCH_LOCALS
-TaggedValue* get_local(EvalContext*, Term* term, int outputIndex)
-{
-    //ca_assert(!is_value(term));
-
-    ca_assert(term->owningBranch != NULL);
-
-    int index = term->localsIndex + outputIndex;
-
-    ca_assert(index < term->owningBranch->locals.length());
-
-    return term->owningBranch->locals[index];
-}
-
-TaggedValue* get_local(EvalContext* cxt, Term* term)
-{
-    return get_local(cxt, term, 0);
-}
-#endif
-
 TaggedValue* get_local(EvalContext* cxt, int relativeFrame, int index)
 {
     return list_get_index(cxt->stack.getFromEnd(relativeFrame), index);
@@ -225,12 +201,7 @@ TaggedValue* get_local(EvalContext* cxt, int relativeFrame, Term* term, int outp
 {
     int index = term->localsIndex + outputIndex;
 
-#if KILL_BRANCH_LOCALS
     return list_get_index(cxt->stack.getFromEnd(relativeFrame), index);
-#else
-    ca_assert(index < term->owningBranch->locals.length());
-    return term->owningBranch->locals[index];
-#endif
 }
 
 void error_occurred(EvalContext* context, Term* errorTerm, std::string const& message)

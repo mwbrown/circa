@@ -82,12 +82,12 @@ void test_list()
 
     Term* l = branch.compile("l = List()");
 
-    evaluate_branch(branch);
+    evaluate_save_locals(branch);
     test_assert(is_list(l));
     test_assert(l->numElements() == 0);
 
     l = branch.compile("l.append(2)");
-    evaluate_branch(branch);
+    evaluate_save_locals(branch);
     test_assert(l->numElements() == 1);
     test_assert(l->getIndex(0)->asInt() == 2);
 }

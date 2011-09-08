@@ -15,8 +15,6 @@
 #include "types/list.h"
 #include "types/dict.h"
 
-#define KILL_BRANCH_LOCALS 1
-
 namespace circa {
 
 struct EvalContext
@@ -55,7 +53,6 @@ struct EvalContext
     EvalContext() : interruptSubroutine(false), errorOccurred(false) {}
 };
 
-
 // Evaluate a single term. This is not usually called directly, it's called
 // by the interpreter.
 void evaluate_single_term(EvalContext* context, Term* term);
@@ -69,11 +66,11 @@ void evaluate_branch_internal_with_state(EvalContext* context, Term* term,
 void evaluate_branch_no_preserve_locals(EvalContext* context, Branch& branch);
 
 // Top-level call. Evalaute the branch and then preserve stack outputs back to terms.
-void evaluate_branch(EvalContext* context, Branch& branch);
+void evaluate_save_locals(EvalContext* context, Branch& branch);
 void copy_locals_to_terms(EvalContext* context, Branch& branch);
 
-// Shorthand to call evaluate_branch with a new EvalContext:
-void evaluate_branch(Branch& branch);
+// Shorthand to call evaluate_save_locals with a new EvalContext:
+void evaluate_save_locals(Branch& branch);
 
 // Evaluate only the terms between 'start' and 'end'.
 void evaluate_range(EvalContext* context, Branch& branch, int start, int end);
@@ -98,10 +95,6 @@ void consume_input(EvalContext* context, Term* term, int index, TaggedValue* des
 TaggedValue* get_output(EvalContext* context, Term* term, int outputIndex);
 TaggedValue* get_extra_output(EvalContext* context, Term* term, int index);
 TaggedValue* get_state_input(EvalContext* cxt, Term* term);
-#if !KILL_BRANCH_LOCALS
-TaggedValue* get_local(EvalContext* cxt, Term* term, int outputIndex);
-TaggedValue* get_local(EvalContext* cxt, Term* term);
-#endif
 
 TaggedValue* get_local(EvalContext* cxt, int relativeFrame, Term* term, int outputIndex);
 TaggedValue* get_local(EvalContext* cxt, int relativeFrame, int index);

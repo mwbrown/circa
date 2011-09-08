@@ -106,7 +106,7 @@ void test_snippet(std::string codeStr, std::string assertionsStr)
     #endif
 
     // Evaluate assertions again separately, so that these locals are copied to terms.
-    evaluate_branch(&context, assertions);
+    evaluate_save_locals(&context, assertions);
 
     int boolean_statements_found = 0;
     for (int i=0; i < assertions.length(); i++) {
@@ -153,7 +153,7 @@ void test_snippet_runtime_error(std::string const& str)
     }
 
     EvalContext result;
-    evaluate_branch(&result, code);
+    evaluate_save_locals(&result, code);
 
     if (!result.errorOccurred) {
         std::cout << "No runtime error occured: " << get_current_test_name() << std::endl;

@@ -39,7 +39,7 @@ void compound_type_usage()
     // field access of recently assigned value
     Term* astr2 = branch.compile("inst.astr");
 
-    evaluate_branch(branch);
+    evaluate_save_locals(branch);
 
     test_equals(inst->type->name, "MyType");
     test_assert(inst->value_data.ptr != NULL);

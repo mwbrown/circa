@@ -45,7 +45,7 @@ int run_debugger_repl(std::string const& filename)
         }
 
         if (input == "e") {
-            evaluate_branch(branch);
+            evaluate_save_locals(branch);
             continue;
         }
 

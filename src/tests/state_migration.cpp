@@ -47,7 +47,7 @@ void test_migration(std::string sourceCode, std::string destinationCode,
     Branch& assertions = create_branch(destination, "assertions");
     parser::compile(assertions, parser::statement_list, assertionsCode);
 
-    evaluate_branch(&context, destination);
+    evaluate_save_locals(&context, destination);
 
     if (context.errorOccurred) {
         std::cout << "In " << get_current_test_name() << std::endl;

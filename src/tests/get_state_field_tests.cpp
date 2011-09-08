@@ -10,7 +10,7 @@ void initial_value_expr_1()
     update_bytecode_for_branch(&branch);
 
     EvalContext context;
-    evaluate_branch(&context, branch);
+    evaluate_save_locals(&context, branch);
     test_equals(&context.state, "{s: 1}");
 }
 
@@ -22,7 +22,7 @@ void initial_value_expr_2()
     update_bytecode_for_branch(&branch);
     
     EvalContext context;
-    evaluate_branch(&context, branch);
+    evaluate_save_locals(&context, branch);
     test_equals(&context.state, "{s: 2}");
 }
 
@@ -33,7 +33,7 @@ void initial_value_expr_3()
     update_bytecode_for_branch(&branch);
 
     EvalContext context;
-    evaluate_branch(&context, branch);
+    evaluate_save_locals(&context, branch);
     test_equals(&context.state, "{s: 2}");
 }
 

@@ -140,7 +140,7 @@ void test_calling_manual_overloaded_function()
     test_assert(inputs_statically_fit_function(KERNEL->get("add_f"), inputs));
 
     Term* sum = branch.compile("my_add(2 2)");
-    evaluate_branch(branch);
+    evaluate_save_locals(branch);
     test_assert(branch);
     test_equals(sum, "4.0");
 }
@@ -171,7 +171,7 @@ namespace test_func_with_multiple_outputs {
         branch.compile("c = f(&a, &b)");
 
         test_assert(branch);
-        evaluate_branch(branch);
+        evaluate_save_locals(branch);
         test_equals(branch["a"], "3");
         test_equals(branch["b"], "4");
         test_equals(branch["c"], "4");

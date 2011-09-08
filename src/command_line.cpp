@@ -103,7 +103,7 @@ int run_command_line(std::vector<std::string> args)
         Branch branch;
         parse_script(branch, args[1]);
 
-        evaluate_branch(branch);
+        evaluate_save_locals(branch);
 
         print_branch(std::cout, branch);
         return 0;
@@ -148,7 +148,7 @@ int run_command_line(std::vector<std::string> args)
         std::cout << "-- Before evaluation:" << std::endl;
         print_branch(std::cout, branch);
 
-        evaluate_branch(branch);
+        evaluate_save_locals(branch);
 
         std::cout << std::endl;
         std::cout << "-- After evaluation:" << std::endl;
@@ -220,7 +220,7 @@ int run_command_line(std::vector<std::string> args)
         for (size_t i=1; i < args.size(); i++)
             set_string(inputs->append(), args[i]);
 
-        evaluate_branch(&context, main_branch);
+        evaluate_save_locals(&context, main_branch);
 
         if (context.errorOccurred) {
             std::cout << "Error occurred:\n";

@@ -99,7 +99,7 @@ void recursion_and_multiple_outputs()
                    "l = [] "
                    "f(0, &l)");
 
-    evaluate_branch(branch);
+    evaluate_save_locals(branch);
 }
 
 void register_tests()

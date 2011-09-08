@@ -554,7 +554,7 @@ void parse_script(Branch& branch, std::string const& filename)
 void evaluate_script(Branch& branch, std::string const& filename)
 {
     parse_script(branch, filename);
-    evaluate_branch(branch);
+    evaluate_save_locals(branch);
 }
 
 void persist_branch_to_file(Branch& branch)
