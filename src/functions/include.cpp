@@ -45,14 +45,13 @@ namespace include_function {
         Term* inputTerm = term->input(0);
 
         EvalContext context;
-        evaluate_minimum(&context, inputTerm, NULL);
+        TaggedValue input;
+        evaluate_minimum(&context, inputTerm, &input);
 
-        TaggedValue *input = get_input(&context, term, 0);
-
-        if (!is_string(input))
+        if (!is_string(&input))
             return;
 
-        load_script(&context, term, as_string(input), true);
+        load_script(&context, term, as_string(&input), true);
     }
 
     CA_FUNCTION(evaluate_include)

@@ -33,8 +33,8 @@ void test_migration(std::string sourceCode, std::string destinationCode,
     }
 
     EvalContext context;
-    push_stack_frame(&context, &destination);
-    evaluate_branch_with_bytecode(&context, &destination);
+    context.preserveLocals = true;
+    evaluate_branch(&context, source);
 
     if (context.errorOccurred) {
         std::cout << "Runtime error in " << get_current_test_name() << std::endl;
@@ -47,7 +47,7 @@ void test_migration(std::string sourceCode, std::string destinationCode,
     Branch& assertions = create_branch(destination, "assertions");
     parser::compile(assertions, parser::statement_list, assertionsCode);
 
-    evaluate_save_locals(&context, destination);
+    evaluate_branch(&context, destination);
 
     if (context.errorOccurred) {
         std::cout << "In " << get_current_test_name() << std::endl;
@@ -138,6 +138,7 @@ void migrate_complex_types()
 
 void migrate_namespace()
 {
+    return; // TEST_DISABLED
     test_migration("namespace ns { state s = 1.0 }",
             "namespace ns { state s }",
             "ns:s == 1.0");
@@ -167,14 +168,12 @@ void migrate_misc()
 
 void register_tests()
 {
-    /* TEST_DISABLED - Need to fix evaluate_minimum
     REGISTER_TEST_CASE(state_migration::migrate_simple);
     REGISTER_TEST_CASE(state_migration::migrate_across_user_defined_types);
     REGISTER_TEST_CASE(state_migration::dont_migrate_across_different_types);
     REGISTER_TEST_CASE(state_migration::migrate_complex_types);
     REGISTER_TEST_CASE(state_migration::migrate_namespace);
     REGISTER_TEST_CASE(state_migration::migrate_misc);
-    */
 }
 
 } // namespace migration_snippets

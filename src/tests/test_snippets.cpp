@@ -70,8 +70,8 @@ void test_snippet(std::string codeStr, std::string assertionsStr)
     }
 
     EvalContext context;
-    push_stack_frame(&context, &code);
-    evaluate_branch_with_bytecode(&context, &code);
+    context.preserveLocals = true;
+    evaluate_branch(&context, code);
 
     if (context.errorOccurred) {
         std::cout << "Runtime error in: " << get_current_test_name() << std::endl;
@@ -104,9 +104,6 @@ void test_snippet(std::string codeStr, std::string assertionsStr)
         return;
     }
     #endif
-
-    // Evaluate assertions again separately, so that these locals are copied to terms.
-    evaluate_save_locals(&context, assertions);
 
     int boolean_statements_found = 0;
     for (int i=0; i < assertions.length(); i++) {

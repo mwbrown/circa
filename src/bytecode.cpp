@@ -21,9 +21,18 @@ void print_bytecode_op(Operation* op, std::ostream& out)
         case OP_CALL:
             out << "call " << get_unique_name(((OpCall*) op)->term);
             break;
-        case OP_CHECK_CALL:
-            out << "chcall " << get_unique_name(((OpCall*) op)->term);
+        case OP_INPUT_NULL:
+            out << "input_null";
             break;
+        case OP_INPUT_GLOBAL:
+            out << "input_global " << ((OpInputGlobal*) op)->value->toString();
+            break;
+        case OP_INPUT_LOCAL: {
+            OpInputLocal* lop = (OpInputLocal*) op;
+            out << "input_local frame:" << lop->relativeFrame << " index:" << lop->index;
+            break;
+        }
+
         case OP_RETURN:
             out << "return";
             break;
@@ -90,29 +99,46 @@ static void bytecode_reserve_size(BytecodeWriter* writer, int opCount)
 }
 
 // Appends a slot for an operation, returns the operation's index.
-int bytecode_append_op(BytecodeWriter* writer)
+Operation* bytecode_append_op(BytecodeWriter* writer)
 {
     int pos = writer->writePosition++;
     bytecode_reserve_size(writer, writer->writePosition);
     writer->data->operationCount++;
-    return pos;
+    return &writer->data->operations[pos];
 }
 
-int bytecode_call(BytecodeWriter* writer, Term* term, EvaluateFunc func)
+void bytecode_call(BytecodeWriter* writer, Term* term, EvaluateFunc func)
 {
-    int pos = bytecode_append_op(writer);
-    OpCall* op = (OpCall*) &writer->data->operations[pos];
-    op->type = OP_CHECK_CALL;
+    OpCall* op = (OpCall*) bytecode_append_op(writer);
+    op->type = OP_CALL;
     op->term = term;
     op->func = func;
-    return pos;
+
+    // Write information for each input
+    for (int i=0; i < term->numInputs(); i++) {
+        Term* input = term->input(i);
+        if (input == NULL) {
+            bytecode_append_op(writer)->type = OP_INPUT_NULL;
+            continue;
+        }
+
+        InputInstruction *inputIsn = &term->inputIsns.inputs[i];
+        if (inputIsn->type == InputInstruction::GLOBAL) {
+            OpInputGlobal *op = (OpInputGlobal*) bytecode_append_op(writer);
+            op->type = OP_INPUT_GLOBAL;
+            op->value = (TaggedValue*) input;
+        } else {
+            OpInputLocal *op = (OpInputLocal*) bytecode_append_op(writer);
+            op->type = OP_INPUT_LOCAL;
+            op->relativeFrame = inputIsn->relativeFrame;
+            op->index = inputIsn->index;
+        }
+    }
 }
 
-int bytecode_return(BytecodeWriter* writer)
+void bytecode_return(BytecodeWriter* writer)
 {
-    int pos = bytecode_append_op(writer);
-    writer->data->operations[pos].type = OP_RETURN;
-    return pos;
+    bytecode_append_op(writer)->type = OP_RETURN;
 }
 
 void dirty_bytecode(Term* term)
@@ -155,7 +181,7 @@ void write_bytecode_for_term(BytecodeWriter* writer, Term* term)
         return;
     }
 
-    // Default: Add an OP_CHECK_CALL
+    // Default: Add an OP_CALL
     bytecode_call(writer, term, get_function_attrs(term->function)->evaluate);
 }
 
@@ -212,18 +238,23 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
         Operation* op = &bytecode->operations[pic];
 
         switch (op->type) {
-        case OP_CALL:
-            evaluate_single_term(context, ((OpCall*) op)->term);
-            pic++;
-            continue;
-        case OP_CHECK_CALL: {
+        case OP_CALL: {
             OpCall* cop = (OpCall*) op;
             evaluate_single_term(context, cop->term);
-            pic++;
+            int numInputs = cop->term->numInputs();
+            pic += 1 + numInputs;
+
+            // this will be removed:
             if (evaluation_interrupted(context))
                 return;
             continue;
         }
+
+        case OP_INPUT_LOCAL:
+        case OP_INPUT_GLOBAL:
+        case OP_INPUT_NULL:
+            internal_error("bytecode error, interpreter hit an input instruction");
+            return;
 
         case OP_RETURN:
             return;

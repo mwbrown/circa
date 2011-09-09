@@ -31,21 +31,13 @@ namespace circa {
 typedef char OpType;
 
 const OpType OP_CALL = 20;
-const OpType OP_CHECK_CALL = 24;
 const OpType OP_RETURN = 21;
 const OpType OP_RETURN_ON_ERROR = 22;
 const OpType OP_STACK_SIZE = 23;
 
 const OpType OP_INPUT_LOCAL = 24;
 const OpType OP_INPUT_GLOBAL = 25;
-
-// future:
-const OpType OP_EVALUATE_TERM = 1;
-const OpType OP_JUMP = 10;
-const OpType OP_JUMPIF = 11;
-const OpType OP_JUMPIFN = 12;
-const OpType OP_BRANCH = 21;
-
+const OpType OP_INPUT_NULL = 26;
 
 struct Operation {
     OpType type;
@@ -99,8 +91,8 @@ void print_bytecode(BytecodeData* bytecode, std::ostream& out);
 std::string get_bytecode_as_string(BytecodeData* bytecode);
 
 // Building functions
-int bytecode_call(BytecodeWriter* writer, Term* term, EvaluateFunc func);
-int bytecode_return(BytecodeWriter* writer);
+void bytecode_call(BytecodeWriter* writer, Term* term, EvaluateFunc func);
+void bytecode_return(BytecodeWriter* writer);
 
 // Mark the term's owning branch as needing to recompute bytecode.
 void dirty_bytecode(Term* term);

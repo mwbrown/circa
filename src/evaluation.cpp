@@ -68,6 +68,10 @@ void evaluate_branch_internal(EvalContext* context, Branch& branch)
 {
     push_stack_frame(context, &branch);
     evaluate_branch_with_bytecode(context, &branch);
+
+    if (context->preserveLocals)
+        copy_locals_to_terms(context, branch);
+
     pop_stack_frame(context);
 }
 
@@ -319,6 +323,13 @@ List* get_stack_frame(EvalContext* context, int relativeFrame)
 
 void evaluate_minimum(EvalContext* context, Term* term, TaggedValue* result)
 {
+    // Short-circuit if the term is a value
+    if (is_value(term)) {
+        if (result != NULL)
+            copy(term, result);
+        return;
+    }
+
     Branch& branch = *term->owningBranch;
 
     // Walk upwards, and "mark" every term that this term depends on. Limit this

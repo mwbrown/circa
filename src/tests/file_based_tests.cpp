@@ -155,9 +155,6 @@ void test_include_with_error()
 
 void test_include_from_expression()
 {
-    // TEST_DISABLED - Need to fix evaluate_minimum
-    return;
-
     Branch branch;
     FakeFileSystem files;
     files["a"] = "x = 1";
@@ -183,9 +180,6 @@ void test_include_with_state()
 
 void test_call_function_from_included_file()
 {
-    // TEST_DISABLED - Need to fix evaluate_minimum
-    return;
-
     FakeFileSystem files;
     files["file"] = "def hi() -> int { return 1 }";
     Branch branch;
@@ -196,7 +190,7 @@ void test_call_function_from_included_file()
     evaluate_save_locals(&context, branch);
 
     files.last_modified("file")++;
-    evaluate_single_term(&context, includeCall);
+    evaluate_minimum(&context, includeCall, NULL);
 
     evaluate_save_locals(&context, branch);
 

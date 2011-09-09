@@ -16,13 +16,17 @@ void test_simple_write()
     bytecode_call(&writer, a, NULL);
     bytecode_call(&writer, b, NULL);
 
-    test_assert(writer.data->operationCount == 2);
-    test_assert(writer.data->operations[0].type == OP_CHECK_CALL);
-    test_assert(writer.data->operations[1].type == OP_CHECK_CALL);
+    test_assert(writer.data->operationCount == 6);
+    test_assert(writer.data->operations[0].type == OP_CALL);
+    test_assert(writer.data->operations[1].type == OP_INPUT_GLOBAL);
+    test_assert(writer.data->operations[2].type == OP_INPUT_GLOBAL);
+    test_assert(writer.data->operations[3].type == OP_CALL);
+    test_assert(writer.data->operations[4].type == OP_INPUT_GLOBAL);
+    test_assert(writer.data->operations[5].type == OP_INPUT_GLOBAL);
 
     OpCall* op0 = (OpCall*) &writer.data->operations[0];
     test_assert(op0->term == a);
-    OpCall* op1 = (OpCall*) &writer.data->operations[1];
+    OpCall* op1 = (OpCall*) &writer.data->operations[3];
     test_assert(op1->term == b);
 }
 
