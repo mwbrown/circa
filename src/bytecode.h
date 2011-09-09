@@ -95,13 +95,12 @@ struct BytecodeWriter
     ~BytecodeWriter() { free(data); }
 };
 
-
 void print_bytecode(BytecodeData* bytecode, std::ostream& out);
 std::string get_bytecode_as_string(BytecodeData* bytecode);
 
 // Building functions
 int bytecode_call(BytecodeWriter* writer, Term* term, EvaluateFunc func);
-int bytecode_return(BytecodeWriter* writer, Term* term, EvaluateFunc func);
+int bytecode_return(BytecodeWriter* writer);
 
 // Mark the term's owning branch as needing to recompute bytecode.
 void dirty_bytecode(Term* term);
@@ -109,7 +108,10 @@ void dirty_bytecode(Branch& branch);
 
 void write_bytecode_for_term(BytecodeWriter* writer, Term* term);
 
+// Refresh the branch's bytecode, if it's dirty.
 void update_bytecode_for_branch(Branch* branch);
+
+void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode);
 void evaluate_branch_with_bytecode(EvalContext* context, Branch* branch);
 
 // This can be used in Function.writeBytecode, when the call should not write

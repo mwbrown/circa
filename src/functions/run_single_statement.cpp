@@ -30,7 +30,6 @@ namespace run_single_statement_function {
 
         set_null(OUTPUT);
     }
-
     
     CA_DEFINE_FUNCTION(get_statement_count, "get_statement_count(Branch br) -> int")
     {

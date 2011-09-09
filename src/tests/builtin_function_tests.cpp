@@ -314,7 +314,7 @@ void test_run_single_statement()
     evaluate_save_locals(branch);
     test_equals(internal_debug_function::spy_results(), "[1]");
 
-#if 0 // TEST_DISABLED - Need an evaluate_range that works with locals
+#if 0 // TEST_DISABLED - need to fix evaluate_range
     internal_debug_function::spy_clear();
     branch.eval("run_single_statement(br, 1)");
     test_equals(internal_debug_function::spy_results(), "['two']");

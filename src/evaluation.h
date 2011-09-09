@@ -4,7 +4,6 @@
 //
 // Functions for driving the interpreted evaluator
 //
-// 
 
 #pragma once
 
@@ -19,6 +18,11 @@ namespace circa {
 
 struct EvalContext
 {
+    // If this flag is on, then we'll copy all local variables back to their
+    // associated terms when we're finished with a stack frame. This is very
+    // helpful for testing and local evaluation.
+    bool preserveLocals;
+
     bool interruptSubroutine;
 
     TaggedValue subroutineOutput;
@@ -50,7 +54,10 @@ struct EvalContext
     // Current stack of in-progress terms. Used for introspection.
     TermList callStack;
 
-    EvalContext() : interruptSubroutine(false), errorOccurred(false) {}
+    EvalContext()
+      : preserveLocals(false),
+        interruptSubroutine(false),
+        errorOccurred(false) {}
 };
 
 // Evaluate a single term. This is not usually called directly, it's called
@@ -63,7 +70,7 @@ void evaluate_branch_internal(EvalContext* context, Branch& branch, TaggedValue*
 void evaluate_branch_internal_with_state(EvalContext* context, Term* term,
         Branch& branch);
 
-void evaluate_branch_no_preserve_locals(EvalContext* context, Branch& branch);
+void evaluate_branch(EvalContext* context, Branch& branch);
 
 // Top-level call. Evalaute the branch and then preserve stack outputs back to terms.
 void evaluate_save_locals(EvalContext* context, Branch& branch);
@@ -75,16 +82,16 @@ void evaluate_save_locals(Branch& branch);
 // Evaluate only the terms between 'start' and 'end'.
 void evaluate_range(EvalContext* context, Branch& branch, int start, int end);
 
-// Evaluate 'term' and every term that it depends on.
+// Evaluate 'term' and every term that it depends on. Will only reevaluate terms
+// in the current branch.
 void evaluate_minimum(EvalContext* context, Term* term, TaggedValue* result);
-void evaluate_minimum_preserve_locals(EvalContext* context, Term* term, TaggedValue* result);
 
 // Parse input and immediately evaluate it
 void evaluate(EvalContext* context, Branch& branch, std::string const& input);
 void evaluate(Branch& branch, Term* function, List* inputs);
 void evaluate(Term* function, List* inputs);
 
-// Get the input value for the given term and index.
+// Get the input value (which might be a local or global) for the given term and index.
 TaggedValue* get_input(EvalContext* context, Term* term, int index);
 
 // consume_input will assign 'dest' to the value of the given input. It may copy the

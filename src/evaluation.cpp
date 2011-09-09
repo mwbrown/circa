@@ -98,12 +98,15 @@ void evaluate_branch_internal_with_state(EvalContext* context, Term* term,
     swap(&context->currentScopeState, &prevScopeState);
 }
 
-void evaluate_branch_no_preserve_locals(EvalContext* context, Branch& branch)
+void evaluate_branch(EvalContext* context, Branch& branch)
 {
     push_stack_frame(context, &branch);
     copy(&context->state, &context->currentScopeState);
 
     evaluate_branch_with_bytecode(context, &branch);
+
+    if (context->preserveLocals)
+        copy_locals_to_terms(context, branch);
 
     pop_stack_frame(context);
 
@@ -113,16 +116,8 @@ void evaluate_branch_no_preserve_locals(EvalContext* context, Branch& branch)
 
 void evaluate_save_locals(EvalContext* context, Branch& branch)
 {
-    push_stack_frame(context, &branch);
-    copy(&context->state, &context->currentScopeState);
-
-    evaluate_branch_with_bytecode(context, &branch);
-
-    copy_locals_to_terms(context, branch);
-    pop_stack_frame(context);
-
-    swap(&context->currentScopeState, &context->state);
-    set_null(&context->currentScopeState);
+    context->preserveLocals = true;
+    evaluate_branch(context, branch);
 }
 
 void copy_locals_to_terms(EvalContext* context, Branch& branch)
@@ -140,6 +135,7 @@ void copy_locals_to_terms(EvalContext* context, Branch& branch)
 void evaluate_save_locals(Branch& branch)
 {
     EvalContext context;
+    context.preserveLocals = true;
     evaluate_save_locals(&context, branch);
 }
 
@@ -323,12 +319,10 @@ List* get_stack_frame(EvalContext* context, int relativeFrame)
 
 void evaluate_minimum(EvalContext* context, Term* term, TaggedValue* result)
 {
-    // Get a list of every term that this term depends on. Also, limit this
-    // search to terms inside the current branch.
-    
     Branch& branch = *term->owningBranch;
 
-    push_stack_frame(context, &branch);
+    // Walk upwards, and "mark" every term that this term depends on. Limit this
+    // search to the current branch.
 
     bool *marked = new bool[branch.length()];
     memset(marked, false, sizeof(bool)*branch.length());
@@ -356,26 +350,30 @@ void evaluate_minimum(EvalContext* context, Term* term, TaggedValue* result)
         }
     }
 
+    // Create bytecode for all the marked terms.
+    BytecodeWriter bytecode;
+
     for (int i=0; i <= term->index; i++) {
         if (marked[i])
-            evaluate_single_term(context, branch[i]);
+            write_bytecode_for_term(&bytecode, branch[i]);
     }
+    bytecode_return(&bytecode);
+
+    // Run our bytecode
+    push_stack_frame(context, &branch);
+    evaluate_bytecode(context, bytecode.data);
 
     // Possibly save output
     if (result != NULL)
         copy(get_local(context, 0, term, 0), result);
 
+    // Clean up
     delete[] marked;
 
+    if (context->preserveLocals)
+        copy_locals_to_terms(context, branch);
+
     pop_stack_frame(context);
-}
-
-void evaluate_minimum_preserve_locals(EvalContext* context, Term* term, TaggedValue* result)
-{
-    evaluate_minimum(context, term, result);
-
-    Branch& branch = *term->owningBranch;
-    copy_locals_to_terms(context, branch);
 }
 
 void evaluate(EvalContext* context, Branch& branch, std::string const& input)

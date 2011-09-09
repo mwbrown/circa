@@ -42,12 +42,18 @@ void test_evaluate_minimum()
     Branch branch;
     Term* a = branch.compile("a = 1");
     Term* b = branch.compile("b = 2");
-    Term* c = branch.compile("c = add(a b)");
+    Term* c = branch.compile("test_spy(a b)");
     Term* d = branch.compile("d = sub(a b)");
 
+    internal_debug_function::spy_clear();
+    test_equals(internal_debug_function::spy_results(), "[]");
+
     EvalContext context;
+    context.preserveLocals = true;
     TaggedValue result;
-    evaluate_minimum_preserve_locals(&context, d, &result);
+    evaluate_minimum(&context, d, &result);
+
+    test_equals(internal_debug_function::spy_results(), "[]");
 
     test_equals(a, "1");
     test_equals(b, "2");
@@ -70,7 +76,8 @@ void test_evaluate_minimum2()
     Term* xyz = branch.compile("dont_evaluate_this = [x y z]");
 
     EvalContext context;
-    evaluate_minimum_preserve_locals(&context, abc, NULL);
+    context.preserveLocals = true;
+    evaluate_minimum(&context, abc, NULL);
 
     test_equals(a, "[1]");
     test_equals(b, "[1, [1], 3]");
@@ -89,7 +96,8 @@ void test_evaluate_minimum_ignores_meta_inputs()
     Term* b = branch.compile("type(a)");
     EvalContext context;
     TaggedValue result;
-    evaluate_minimum_preserve_locals(&context, b, &result);
+    context.preserveLocals = true;
+    evaluate_minimum(&context, b, &result);
     test_equals(a, "null");
     test_equals(as_type(&result)->name, "int");
 }
@@ -123,9 +131,9 @@ void register_tests()
 {
     REGISTER_TEST_CASE(evaluation_tests::test_manual_evaluate_branch);
     REGISTER_TEST_CASE(evaluation_tests::test_branch_eval);
-    //TEST_DISABLED REGISTER_TEST_CASE(evaluation_tests::test_evaluate_minimum);
-    //TEST_DISABLED REGISTER_TEST_CASE(evaluation_tests::test_evaluate_minimum2);
-    //TEST_DISABLED REGISTER_TEST_CASE(evaluation_tests::test_evaluate_minimum_ignores_meta_inputs);
+    REGISTER_TEST_CASE(evaluation_tests::test_evaluate_minimum);
+    REGISTER_TEST_CASE(evaluation_tests::test_evaluate_minimum2);
+    REGISTER_TEST_CASE(evaluation_tests::test_evaluate_minimum_ignores_meta_inputs);
     REGISTER_TEST_CASE(evaluation_tests::test_term_stack);
 }
 
