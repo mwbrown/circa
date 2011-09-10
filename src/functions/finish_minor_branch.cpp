@@ -1,6 +1,7 @@
 // Copyright (c) 2007-2010 Paul Hodge. All rights reserved
 
 #include <circa.h>
+#include "bytecode.h"
 #include <importing_macros.h>
 
 namespace circa {
@@ -12,8 +13,7 @@ namespace finish_minor_branch_function {
     {
         Branch& contents = nested_contents(CALLER);
         push_stack_frame(CONTEXT, &contents);
-        for (int i=0; i < contents.length(); i++)
-            evaluate_single_term(CONTEXT, contents[i]);
+        evaluate_branch_with_bytecode(CONTEXT, &contents);
         pop_stack_frame(CONTEXT);
     }
 

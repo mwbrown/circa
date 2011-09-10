@@ -22,25 +22,24 @@
 
 namespace circa {
 
-void evaluate_single_term(EvalContext* context, Term* term)
+void evaluate_single_term(EvalContext* context, OpCall* op)
 {
     #if CIRCA_THROW_ON_ERROR
     try {
     #endif
 
-    EvaluateFunc func = get_function_attrs(term->function)->evaluate;
-
-    func(context, term);
+    op->func(context, op);
 
     #if CIRCA_THROW_ON_ERROR
-    } catch (std::exception const& e) { return error_occurred(context, term, e.what()); }
+    } catch (std::exception const& e) { return error_occurred(context, op->term, e.what()); }
     #endif
 
     // For a test build, we check the type of the output of every single call. This is
     // slow, and it should be unnecessary if the function is written correctly. But it's
     // a good test.
     #ifdef CIRCA_TEST_BUILD
-    if (!context->errorOccurred && !is_value(term)) {
+    if (!context->errorOccurred && !is_value(op->term)) {
+        Term* term = op->term;
         for (int i=0; i < get_output_count(term); i++) {
 
             Type* outputType = get_output_type(term, i);
@@ -141,6 +140,29 @@ void evaluate_save_locals(Branch& branch)
     EvalContext context;
     context.preserveLocals = true;
     evaluate_save_locals(&context, branch);
+}
+
+TaggedValue* get_input(EvalContext* context, OpCall* op, int index)
+{
+    Operation* opList = (Operation*) op;
+    Operation* inputOp = &opList[index + 1];
+
+    switch (inputOp->type) {
+    case OP_INPUT_GLOBAL: {
+        OpInputGlobal* gop = (OpInputGlobal*) inputOp;
+        return gop->value;
+    }
+    case OP_INPUT_LOCAL: {
+        OpInputLocal* lop = (OpInputLocal*) inputOp;
+        TaggedValue* frame = get_stack_frame(context, lop->relativeFrame);
+        return list_get_index(frame, lop->index);
+    }
+    case OP_INPUT_NULL:
+        return NULL;
+    default:
+        internal_error("not an input instruction");
+    }
+    return NULL;
 }
 
 TaggedValue* get_input(EvalContext* context, Term* term, int index)
@@ -263,10 +285,14 @@ bool evaluation_interrupted(EvalContext* context)
 
 void evaluate_range(EvalContext* context, Branch& branch, int start, int end)
 {
-    push_stack_frame(context, &branch);
+    BytecodeWriter bytecode;
 
     for (int i=start; i <= end; i++)
-        evaluate_single_term(context, branch[i]);
+        write_bytecode_for_term(&bytecode, branch[i]);
+    bytecode_return(&bytecode);
+
+    push_stack_frame(context, &branch);
+    evaluate_bytecode(context, bytecode.data);
 
     // copy locals back to terms
     for (int i=start; i <= end; i++) {
@@ -280,25 +306,6 @@ void evaluate_range(EvalContext* context, Branch& branch, int start, int end)
     }
 
     pop_stack_frame(context);
-}
-
-void evaluate_range_leave_stack(EvalContext* context, Branch& branch, int start, int end)
-{
-    push_stack_frame(context, &branch);
-
-    for (int i=start; i <= end; i++)
-        evaluate_single_term(context, branch[i]);
-
-    // copy locals back to terms
-    for (int i=start; i <= end; i++) {
-        Term* term = branch[i];
-        if (is_value(term))
-            continue;
-        TaggedValue* value = get_local(context, 0, term, 0);
-        if (value == NULL)
-            continue;
-        copy(value, term);
-    }
 }
 
 void push_stack_frame(EvalContext* context, int size)
@@ -385,6 +392,15 @@ void evaluate_minimum(EvalContext* context, Term* term, TaggedValue* result)
         copy_locals_to_terms(context, branch);
 
     pop_stack_frame(context);
+}
+
+void evaluate_single_term_with_bytecode(EvalContext* context, Term* term)
+{
+    BytecodeWriter bytecode;
+    write_bytecode_for_term(&bytecode, term);
+    bytecode_return(&bytecode);
+
+    evaluate_bytecode(context, bytecode.data);
 }
 
 void evaluate(EvalContext* context, Branch& branch, std::string const& input)

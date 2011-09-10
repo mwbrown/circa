@@ -44,7 +44,7 @@ namespace vectorize_vv_function {
             swap(input0.getIndex(i), get_local(context, 0, input0_placeholder, 0));
             swap(input1.getIndex(i), get_local(context, 0, input1_placeholder, 0));
 
-            evaluate_single_term(CONTEXT, content_output);
+            evaluate_single_term_with_bytecode(CONTEXT, content_output);
 
             // Save output
             swap(get_local(context, 0, content_output, 0), output[i]);

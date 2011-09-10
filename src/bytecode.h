@@ -28,8 +28,6 @@
 
 namespace circa {
 
-typedef char OpType;
-
 const OpType OP_CALL = 20;
 const OpType OP_RETURN = 21;
 const OpType OP_RETURN_ON_ERROR = 22;
@@ -47,11 +45,7 @@ struct Operation {
     void* ptr2;
 };
 
-struct OpCall {
-    OpType type;
-    Term* term;
-    EvaluateFunc func;
-};
+// OpCall is defined in common_headers.h
 
 struct OpStackSize {
     OpType type;
@@ -83,7 +77,20 @@ struct BytecodeWriter
     int listLength;
     BytecodeData* data;
 
-    BytecodeWriter() : writePosition(0), listLength(0), data(NULL) {}
+    // If an InputOverride function is installed, it will be called whenever
+    // writing an input instruction. The function can change whether the result
+    // is a local or global.
+    typedef void (*InputOverride)(void* cxt, Term* term, Operation* op);
+    InputOverride inputOverride;
+    void* inputOverrideContext;
+
+    BytecodeWriter()
+      : writePosition(0),
+        listLength(0),
+        data(NULL),
+        inputOverride(NULL),
+        inputOverrideContext(NULL)
+    {}
     ~BytecodeWriter() { free(data); }
 };
 
@@ -93,6 +100,8 @@ std::string get_bytecode_as_string(BytecodeData* bytecode);
 // Building functions
 void bytecode_call(BytecodeWriter* writer, Term* term, EvaluateFunc func);
 void bytecode_return(BytecodeWriter* writer);
+void bytecode_write_global_input(Operation* op, TaggedValue* value);
+void bytecode_write_local_input(Operation* op, int frame, int index);
 
 // Mark the term's owning branch as needing to recompute bytecode.
 void dirty_bytecode(Term* term);

@@ -20,10 +20,10 @@ void repl_evaluate_line(Branch& branch, std::string const& input, std::ostream& 
 
     bool anyErrors = false;
 
-    EvalContext context;
 
     int resultIndex = -1;
 
+    // Look for static errors
     for (int i=previousHead; i < newHead; i++) {
         Term* result = branch[i];
 
@@ -34,18 +34,12 @@ void repl_evaluate_line(Branch& branch, std::string const& input, std::ostream& 
             anyErrors = true;
             break;
         }
-
-        evaluate_single_term(&context, result);
-
-        if (context.errorOccurred) {
-            output << "error: ";
-            print_runtime_error_formatted(context, std::cout);
-            anyErrors = true;
-            break;
-        }
-
-        resultIndex = i;
     }
+
+    EvalContext context;
+    context.preserveLocals = true;
+    if (!anyErrors)
+        evaluate_range(&context, branch, previousHead, newHead);
 
     // Print results of the last expression
     if (!anyErrors && resultIndex != -1) {

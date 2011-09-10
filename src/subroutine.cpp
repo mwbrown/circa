@@ -6,6 +6,7 @@
 #include "code_iterators.h"
 #include "building.h"
 #include "builtins.h"
+#include "bytecode.h"
 #include "evaluation.h"
 #include "function.h"
 #include "importing_macros.h"
@@ -66,11 +67,7 @@ void evaluate_subroutine_internal(EvalContext* context, Term* caller,
     set_null(&context->subroutineOutput);
 
     // Evaluate each term
-    for (int i=numInputs+1; i < contents.length(); i++) {
-        evaluate_single_term(context, contents[i]);
-        if (evaluation_interrupted(context))
-            break;
-    }
+    evaluate_branch_with_bytecode(context, &contents);
 
     // Fetch output
     Type* outputType = get_subroutine_output_type(contents);
@@ -115,8 +112,10 @@ void evaluate_subroutine_internal(EvalContext* context, Term* caller,
     context->interruptSubroutine = false;
 }
 
-void evaluate_subroutine(EvalContext* context, Term* caller)
+CA_FUNCTION(evaluate_subroutine)
 {
+    EvalContext* context = CONTEXT;
+    Term* caller = CALLER;
     Term* function = caller->function;
     Branch& contents = nested_contents(function);
     int numInputs = caller->numInputInstructions();

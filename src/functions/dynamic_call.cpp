@@ -39,7 +39,7 @@ namespace dynamic_call_function {
         temporaryTerm.localsIndex = frameIndex++;
 
         // Evaluate
-        evaluate_single_term(CONTEXT, &temporaryTerm);
+        evaluate_single_term_with_bytecode(CONTEXT, &temporaryTerm);
 
         frame = get_stack_frame(CONTEXT, 0);
 

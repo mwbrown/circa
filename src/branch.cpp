@@ -5,6 +5,7 @@
 #include "branch.h"
 #include "building.h"
 #include "builtins.h"
+#include "bytecode.h"
 #include "code_iterators.h"
 #include "evaluation.h"
 #include "filesystem.h"
@@ -446,6 +447,7 @@ void clear_branch(Branch* branch)
     set_null(&branch->staticErrors);
     mark_branch_as_possibly_not_having_inlined_state(*branch);
     set_null(&branch->pendingUpdates);
+    dirty_bytecode(*branch);
 
     branch->names.clear();
 

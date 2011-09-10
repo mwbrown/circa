@@ -62,7 +62,7 @@ struct EvalContext
 
 // Evaluate a single term. This is not usually called directly, it's called
 // by the interpreter.
-void evaluate_single_term(EvalContext* context, Term* term);
+void evaluate_single_term(EvalContext* context, OpCall* op);
 
 void evaluate_branch_internal(EvalContext* context, Branch& branch);
 void evaluate_branch_internal(EvalContext* context, Branch& branch, TaggedValue* output);
@@ -74,6 +74,7 @@ void evaluate_branch(EvalContext* context, Branch& branch);
 
 // Top-level call. Evalaute the branch and then preserve stack outputs back to terms.
 void evaluate_save_locals(EvalContext* context, Branch& branch);
+
 void copy_locals_to_terms(EvalContext* context, Branch& branch);
 
 // Shorthand to call evaluate_save_locals with a new EvalContext:
@@ -86,6 +87,8 @@ void evaluate_range(EvalContext* context, Branch& branch, int start, int end);
 // in the current branch.
 void evaluate_minimum(EvalContext* context, Term* term, TaggedValue* result);
 
+void evaluate_single_term_with_bytecode(EvalContext* context, Term* term);
+
 // Parse input and immediately evaluate it
 void evaluate(EvalContext* context, Branch& branch, std::string const& input);
 void evaluate(Branch& branch, Term* function, List* inputs);
@@ -93,6 +96,7 @@ void evaluate(Term* function, List* inputs);
 
 // Get the input value (which might be a local or global) for the given term and index.
 TaggedValue* get_input(EvalContext* context, Term* term, int index);
+TaggedValue* get_input(EvalContext* context, OpCall* op, int index);
 
 // consume_input will assign 'dest' to the value of the given input. It may copy the
 // input value. But, if it's safe to do so, this function will instead swap the value,

@@ -24,9 +24,15 @@ void print_bytecode_op(Operation* op, std::ostream& out)
         case OP_INPUT_NULL:
             out << "input_null";
             break;
-        case OP_INPUT_GLOBAL:
-            out << "input_global " << ((OpInputGlobal*) op)->value->toString();
+        case OP_INPUT_GLOBAL: {
+            OpInputGlobal* gop = (OpInputGlobal*) op;
+            out << "input_global ";
+            if (gop->value == NULL)
+               out << "<NULL>";
+            else
+               out << gop->value->toString();
             break;
+        }
         case OP_INPUT_LOCAL: {
             OpInputLocal* lop = (OpInputLocal*) op;
             out << "input_local frame:" << lop->relativeFrame << " index:" << lop->index;
@@ -122,16 +128,26 @@ void bytecode_call(BytecodeWriter* writer, Term* term, EvaluateFunc func)
             continue;
         }
 
-        InputInstruction *inputIsn = &term->inputIsns.inputs[i];
-        if (inputIsn->type == InputInstruction::GLOBAL) {
-            OpInputGlobal *op = (OpInputGlobal*) bytecode_append_op(writer);
-            op->type = OP_INPUT_GLOBAL;
-            op->value = (TaggedValue*) input;
+        Operation* inputOp = bytecode_append_op(writer);
+
+        // Use InputOverride if there is one
+        if (writer->inputOverride != NULL) {
+            // write NULL to the type. If the override leaves it as NULL then we'll
+            // continue on to the default behavior.
+            inputOp->type = OP_INPUT_NULL;
+            writer->inputOverride(writer->inputOverrideContext, input, inputOp);
+
+            if (inputOp->type != OP_INPUT_NULL) {
+                ca_assert(inputOp->type == OP_INPUT_GLOBAL || inputOp->type == OP_INPUT_LOCAL);
+                continue;
+            }
+        }
+
+        if (is_value(input)) {
+            bytecode_write_global_input(inputOp, (TaggedValue*) input);
         } else {
-            OpInputLocal *op = (OpInputLocal*) bytecode_append_op(writer);
-            op->type = OP_INPUT_LOCAL;
-            op->relativeFrame = inputIsn->relativeFrame;
-            op->index = inputIsn->index;
+            InputInstruction *inputIsn = &term->inputIsns.inputs[i];
+            bytecode_write_local_input(inputOp, inputIsn->relativeFrame, inputIsn->index);
         }
     }
 }
@@ -140,6 +156,20 @@ void bytecode_return(BytecodeWriter* writer)
 {
     bytecode_append_op(writer)->type = OP_RETURN;
 }
+void bytecode_write_global_input(Operation* op, TaggedValue* value)
+{
+    OpInputGlobal* gop = (OpInputGlobal*) op;
+    gop->type = OP_INPUT_GLOBAL;
+    gop->value = (TaggedValue*) value;
+}
+void bytecode_write_local_input(Operation* op, int frame, int index)
+{
+    OpInputLocal *lop = (OpInputLocal*) op;
+    lop->type = OP_INPUT_LOCAL;
+    lop->relativeFrame = frame;
+    lop->index = index;
+}
+
 
 void dirty_bytecode(Term* term)
 {
@@ -239,14 +269,19 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
 
         switch (op->type) {
         case OP_CALL: {
+
+            // this will be removed:
+            bool evalWasInterrupted = evaluation_interrupted(context);
+
             OpCall* cop = (OpCall*) op;
-            evaluate_single_term(context, cop->term);
+            evaluate_single_term(context, cop);
             int numInputs = cop->term->numInputs();
             pic += 1 + numInputs;
 
             // this will be removed:
-            if (evaluation_interrupted(context))
+            if (evaluation_interrupted(context) && !evalWasInterrupted)
                 return;
+
             continue;
         }
 

@@ -39,13 +39,14 @@ struct EvalContext;
 struct FeedbackOperation;
 struct FunctionAttrs;
 struct List;
+struct OpCall;
 struct RawOutputPrefs;
-struct TermMap;
 struct StaticTypeQuery;
 struct StyledSource;
 struct TaggedValue;
 struct Term;
 struct TermList;
+struct TermMap;
 struct Type;
 
 typedef Term* TermPtr;
@@ -59,15 +60,24 @@ union VariantValue {
     void* ptr;
 };
 
+
 // Function-related typedefs:
 
 #define CA_FUNCTION(fname) \
-    void fname(circa::EvalContext* _context, circa::Term* _caller)
+    void fname(circa::EvalContext* _context, circa::OpCall* _op)
 
-typedef void (*EvaluateFunc)(EvalContext* cxt, Term* caller);
+typedef void (*EvaluateFunc)(EvalContext* cxt, OpCall* op);
 typedef Type* (*SpecializeTypeFunc)(Term* caller);
 typedef void (*FormatSource)(StyledSource* source, Term* term);
 typedef bool (*CheckInvariants)(Term* term, std::string* output);
+
+typedef char OpType;
+
+struct OpCall {
+    OpType type;
+    Term* term;
+    EvaluateFunc func;
+};
 
 // Possibly enable ca_assert and/or ca_test_assert
 

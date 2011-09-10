@@ -14,8 +14,7 @@ namespace return_function {
 
         Branch& contents = nested_contents(CALLER);
         push_stack_frame(CONTEXT, &contents);
-        for (int i=0; i < contents.length(); i++)
-            evaluate_single_term(CONTEXT, contents[i]);
+        evaluate_branch_with_bytecode(CONTEXT, &contents);
         pop_stack_frame(CONTEXT);
     }
 
