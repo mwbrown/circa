@@ -48,6 +48,11 @@ struct EvalContext
     // Stack of input values, used for inputs to functions & blocks.
     List inputStack;
 
+    struct Frame {
+        List locals;
+        Branch* branch;
+    };
+
     // Local variables.
     List stack;
 

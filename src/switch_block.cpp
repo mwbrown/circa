@@ -21,14 +21,14 @@ void switch_block_post_compile(Term* term)
     update_if_block_joining_branch(term);
 }
 
-void switch_block_write_bytecode(Term* term, BytecodeWriter* writer)
+void switch_block_write_bytecode(Term* caller, BytecodeWriter* writer)
 {
 #if 0
     Branch& contents = nested_contents(term);
     int numCases = contents.length() - 1;
 
     // Push a stack frame, we'll use this when evaluating term equality.
-    bytecode_push_stack(writer, numCases);
+    bc_push_stack(writer, numCases);
 
     Term* inputTerm = term->input(0);
 
@@ -48,13 +48,37 @@ void switch_block_write_bytecode(Term* term, BytecodeWriter* writer)
     for (int caseIndex=0; caseIndex < numCases; caseIndex++) {
         Term* caseTerm = contents[caseIndex];
         int outputSlot = caseIndex;
-        bytecode_equals(writer, inputTerm, caseTerm->input(0), outputSlot);
-        bytecode_jump_if_not(writer, outputSlot, 2);
-        bytecode_branch(writer, caseTerm);
-        int finishJump = bytecode_jump(writer, 0);
+        bc_equals(writer, inputTerm, caseTerm->input(0), outputSlot);
+        bc_jump_if_not(writer, outputSlot, 2);
+        bc_branch(writer, caseTerm);
+        int finishJump = bc_jump(writer, 0);
         jumpsToFinish.push_back(finishJump);
     }
 #endif
+
+    // start_switch <input count>
+    //  <input list>
+    // call_branch
+    // copy output from stack
+    // pop_stack
+
+    // jump_if_not next_case
+    //  input0
+    // do stuff for this case
+    // next_case: jump_if_not next_case_2
+
+    Branch& contents = nested_contents(caller);
+
+    for (int caseIndex=0; caseIndex < contents.length()-1; caseIndex++) {
+        Term* caseTerm = contents[caseIndex];
+
+        //Operation* initial_jump_if_not = bc_jump_if_not(writer);
+        //bc_write_input(writer, caseTerm, &contents);
+
+        //bc_call_branch(writer, caseTerm);
+
+        //bc_jump_to_here(writer, initial_jump_if_not);
+    }
 }
 
 CA_FUNCTION(evaluate_switch)

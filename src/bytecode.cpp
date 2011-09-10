@@ -83,7 +83,7 @@ static void finish_bytecode_update(Branch* branch, BytecodeWriter* writer)
 
 // Guarantee that the BytecodeData has enough room for the given number
 // of operations.
-static void bytecode_reserve_size(BytecodeWriter* writer, int opCount)
+static void bc_reserve_size(BytecodeWriter* writer, int opCount)
 {
     if (writer->listLength >= opCount)
         return;
@@ -105,17 +105,17 @@ static void bytecode_reserve_size(BytecodeWriter* writer, int opCount)
 }
 
 // Appends a slot for an operation, returns the operation's index.
-Operation* bytecode_append_op(BytecodeWriter* writer)
+Operation* bc_append_op(BytecodeWriter* writer)
 {
     int pos = writer->writePosition++;
-    bytecode_reserve_size(writer, writer->writePosition);
+    bc_reserve_size(writer, writer->writePosition);
     writer->data->operationCount++;
     return &writer->data->operations[pos];
 }
 
-void bytecode_call(BytecodeWriter* writer, Term* term, EvaluateFunc func)
+void bc_write_call_op(BytecodeWriter* writer, Term* term, EvaluateFunc func)
 {
-    OpCall* op = (OpCall*) bytecode_append_op(writer);
+    OpCall* op = (OpCall*) bc_append_op(writer);
     op->type = OP_CALL;
     op->term = term;
     op->func = func;
@@ -124,11 +124,11 @@ void bytecode_call(BytecodeWriter* writer, Term* term, EvaluateFunc func)
     for (int i=0; i < term->numInputs(); i++) {
         Term* input = term->input(i);
         if (input == NULL) {
-            bytecode_append_op(writer)->type = OP_INPUT_NULL;
+            bc_append_op(writer)->type = OP_INPUT_NULL;
             continue;
         }
 
-        Operation* inputOp = bytecode_append_op(writer);
+        Operation* inputOp = bc_append_op(writer);
 
         // Use InputOverride if there is one
         if (writer->inputOverride != NULL) {
@@ -144,32 +144,80 @@ void bytecode_call(BytecodeWriter* writer, Term* term, EvaluateFunc func)
         }
 
         if (is_value(input)) {
-            bytecode_write_global_input(inputOp, (TaggedValue*) input);
+            bc_write_global_input(inputOp, (TaggedValue*) input);
         } else {
-            InputInstruction *inputIsn = &term->inputIsns.inputs[i];
-            bytecode_write_local_input(inputOp, inputIsn->relativeFrame, inputIsn->index);
+            int index = input->localsIndex + term->inputInfo(i)->outputIndex;
+
+            // Fun special case for for-loop locals
+            if (input->function == JOIN_FUNC && get_parent_term(input)->name == "#inner_rebinds")
+                index = 1 + input->localsIndex;
+
+            int relativeFrame = get_frame_distance(term, input);
+            bc_write_local_input(inputOp, relativeFrame, index);
         }
     }
 }
 
-void bytecode_return(BytecodeWriter* writer)
+void bc_return(BytecodeWriter* writer)
 {
-    bytecode_append_op(writer)->type = OP_RETURN;
+    bc_append_op(writer)->type = OP_RETURN;
 }
-void bytecode_write_global_input(Operation* op, TaggedValue* value)
+OpJumpIf* bc_jump_if(BytecodeWriter* writer)
+{
+    OpJumpIf* op = (OpJumpIf*) bc_append_op(writer);
+    op->type = OP_JUMP_IF;
+    op->offset = 0;
+    return op;
+}
+OpJumpIf* bc_jump_if_not(BytecodeWriter* writer)
+{
+    OpJumpIf* op = (OpJumpIf*) bc_append_op(writer);
+    op->type = OP_JUMP_IF_NOT;
+    op->offset = 0;
+    return op;
+}
+void bc_write_input(BytecodeWriter* writer, Branch* frame, Term* input)
+{
+    if (input == NULL) {
+        bc_append_op(writer)->type = OP_INPUT_NULL;
+        return;
+    }
+
+    Operation* inputOp = bc_append_op(writer);
+
+    // Use InputOverride if there is one
+    if (writer->inputOverride != NULL) {
+        // write NULL to the type. If the override leaves it as NULL then we'll
+        // continue on to the default behavior.
+        inputOp->type = OP_INPUT_NULL;
+        writer->inputOverride(writer->inputOverrideContext, input, inputOp);
+
+        if (inputOp->type != OP_INPUT_NULL) {
+            ca_assert(inputOp->type == OP_INPUT_GLOBAL || inputOp->type == OP_INPUT_LOCAL);
+            return;
+        }
+    }
+
+    if (is_value(input)) {
+        bc_write_global_input(inputOp, (TaggedValue*) input);
+    } else {
+        int relativeFrame = get_frame_distance(frame, input);
+        bc_write_local_input(inputOp, relativeFrame, input->localsIndex);
+    }
+}
+void bc_write_global_input(Operation* op, TaggedValue* value)
 {
     OpInputGlobal* gop = (OpInputGlobal*) op;
     gop->type = OP_INPUT_GLOBAL;
     gop->value = (TaggedValue*) value;
 }
-void bytecode_write_local_input(Operation* op, int frame, int index)
+void bc_write_local_input(Operation* op, int frame, int index)
 {
     OpInputLocal *lop = (OpInputLocal*) op;
     lop->type = OP_INPUT_LOCAL;
     lop->relativeFrame = frame;
     lop->index = index;
 }
-
 
 void dirty_bytecode(Term* term)
 {
@@ -183,7 +231,7 @@ void dirty_bytecode(Branch& branch)
         branch.bytecode->dirty = true;
 }
 
-void write_bytecode_for_term(BytecodeWriter* writer, Term* term)
+void bc_call(BytecodeWriter* writer, Term* term)
 {
     // NULL function: no bytecode
     if (term->function == NULL)
@@ -212,7 +260,12 @@ void write_bytecode_for_term(BytecodeWriter* writer, Term* term)
     }
 
     // Default: Add an OP_CALL
-    bytecode_call(writer, term, get_function_attrs(term->function)->evaluate);
+    bc_write_call_op(writer, term, get_function_attrs(term->function)->evaluate);
+}
+
+void bc_finish(BytecodeWriter* writer)
+{
+    bc_return(writer);
 }
 
 void update_bytecode_for_branch(Branch* branch)
@@ -236,7 +289,7 @@ void update_bytecode_for_branch(Branch* branch)
         Term* term = branch->get(i);
         if (term == NULL)
             continue;
-        write_bytecode_for_term(&writer, term);
+        bc_call(&writer, term);
     }
 
     // Check if the parent function has a bytecodeFinish call
@@ -248,7 +301,7 @@ void update_bytecode_for_branch(Branch* branch)
     }
 
     // Finish up with a final return call.
-    bytecode_return(&writer);
+    bc_finish(&writer);
 
     finish_bytecode_update(branch, &writer);
 }

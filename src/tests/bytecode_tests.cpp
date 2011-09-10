@@ -13,8 +13,8 @@ void test_simple_write()
     Term* b = branch.compile("mult(3,4)");
     BytecodeWriter writer;
 
-    bytecode_call(&writer, a, NULL);
-    bytecode_call(&writer, b, NULL);
+    bc_write_call_op(&writer, a, NULL);
+    bc_write_call_op(&writer, b, NULL);
 
     test_assert(writer.data->operationCount == 6);
     test_assert(writer.data->operations[0].type == OP_CALL);
@@ -44,7 +44,7 @@ TaggedValue globalForInputOverride;
 void input_override_for_test(void*, Term* term, Operation* op)
 {
     if (term->name == "override_me")
-        bytecode_write_global_input(op, &globalForInputOverride);
+        bc_write_global_input(op, &globalForInputOverride);
 }
 
 void test_input_override()
@@ -65,8 +65,8 @@ void test_input_override()
     set_int(&globalForInputOverride, 5);
 
     push_stack_frame(&context, &branch);
-    write_bytecode_for_term(&writer, sum);
-    bytecode_return(&writer);
+    bc_call(&writer, sum);
+    bc_finish(&writer);
     evaluate_bytecode(&context, writer.data);
     copy_locals_to_terms(&context, branch);
 

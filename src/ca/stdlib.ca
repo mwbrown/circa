@@ -38,6 +38,19 @@ def changed(any current) -> bool
     prev = current
     return result
 
+def file_changed(string filename) -> bool
+    state any prevFilename
+    state any modifiedTime
+
+    currentModifiedTime = file:modified_time(filename)
+
+    result = (prevFilename != filename) or (modifiedTime != currentModifiedTime)
+
+    prevFilename = filename
+    modifiedTime = currentModifiedTime
+
+    return result
+
 def toggle(bool tog) -> bool
     <<<
     Stateful function, returns a boolean status. Every frame the function is called

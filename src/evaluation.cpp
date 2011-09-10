@@ -288,8 +288,8 @@ void evaluate_range(EvalContext* context, Branch& branch, int start, int end)
     BytecodeWriter bytecode;
 
     for (int i=start; i <= end; i++)
-        write_bytecode_for_term(&bytecode, branch[i]);
-    bytecode_return(&bytecode);
+        bc_call(&bytecode, branch[i]);
+    bc_finish(&bytecode);
 
     push_stack_frame(context, &branch);
     evaluate_bytecode(context, bytecode.data);
@@ -373,9 +373,9 @@ void evaluate_minimum(EvalContext* context, Term* term, TaggedValue* result)
 
     for (int i=0; i <= term->index; i++) {
         if (marked[i])
-            write_bytecode_for_term(&bytecode, branch[i]);
+            bc_call(&bytecode, branch[i]);
     }
-    bytecode_return(&bytecode);
+    bc_finish(&bytecode);
 
     // Run our bytecode
     push_stack_frame(context, &branch);
@@ -397,8 +397,8 @@ void evaluate_minimum(EvalContext* context, Term* term, TaggedValue* result)
 void evaluate_single_term_with_bytecode(EvalContext* context, Term* term)
 {
     BytecodeWriter bytecode;
-    write_bytecode_for_term(&bytecode, term);
-    bytecode_return(&bytecode);
+    bc_call(&bytecode, term);
+    bc_finish(&bytecode);
 
     evaluate_bytecode(context, bytecode.data);
 }

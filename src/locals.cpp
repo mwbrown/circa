@@ -114,40 +114,42 @@ bool branch_creates_separate_stack_frame(Branch* branch)
     return true;
 }
 
-int get_frame_distance(Term* term, Term* input)
+int get_frame_distance(Branch* frame, Term* input)
 {
     if (input == NULL)
         return -1;
 
-    Branch* inputBranch = input->owningBranch;
+    Branch* inputFrame = input->owningBranch;
 
     // Special case for if_block. Terms inside #joining can see terms inside each case.
-    Term* termParent = get_parent_term(term);
+    Term* termParent = frame->owningTerm;
     if (termParent != NULL
             && termParent->name == "#joining"
-            && termParent->owningBranch == get_parent_branch(*inputBranch))
+            && termParent->owningBranch == get_parent_branch(*inputFrame))
         return 0;
 
     // If the input's branch doesn't create a separate stack frame, then look
     // at the parent branch.
-    if (!branch_creates_separate_stack_frame(inputBranch))
-        inputBranch = get_parent_branch(*inputBranch);
-
-    Branch* fromBranch = term->owningBranch;
+    if (!branch_creates_separate_stack_frame(inputFrame))
+        inputFrame = get_parent_branch(*inputFrame);
 
     // Walk upward from 'term' until we find the common branch.
     int distance = 0;
-    while (fromBranch != inputBranch) {
+    while (frame != inputFrame) {
 
-        if (branch_creates_separate_stack_frame(fromBranch))
+        if (branch_creates_separate_stack_frame(frame))
             distance++;
 
-        fromBranch = get_parent_branch(*fromBranch);
+        frame = get_parent_branch(*frame);
 
-        if (fromBranch == NULL)
+        if (frame == NULL)
             return -1;
     }
     return distance;
+}
+int get_frame_distance(Term* term, Term* input)
+{
+    return get_frame_distance(term->owningBranch, input);
 }
 
 void update_input_instructions(Term* term)

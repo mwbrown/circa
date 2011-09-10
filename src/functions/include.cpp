@@ -7,14 +7,39 @@
 namespace circa {
 namespace include_function {
 
+    bool check_file_changed(EvalContext* cxt, Term* caller, TaggedValue* fileSignature,
+            std::string const& filename)
+    {
+        if (!file_exists(filename.c_str()) && filename != "") {
+            error_occurred(cxt, caller, "File not found: " + filename);
+            return false;
+        }
+
+        if (fileSignature->value_type != FILE_SIGNATURE_T)
+            change_type(fileSignature, FILE_SIGNATURE_T);
+        
+        TaggedValue* sigFilename = fileSignature->getIndex(0);
+        TaggedValue* sigModified = fileSignature->getIndex(1);
+
+        time_t modifiedTime = get_modified_time(filename.c_str());
+
+        if (modifiedTime != as_int(sigModified)
+                || filename != as_string(sigFilename)) {
+            set_string(sigFilename, filename);
+            set_int(sigModified, (int) modifiedTime);
+            return true;
+        } else {
+            return false;
+        }
+    }
+
     bool load_script(EvalContext* cxt, Term* caller, const std::string& filename, bool exposeNames)
     {
         Branch& contents = nested_contents(caller);
 
         TaggedValue* fileSignature = &contents.fileSignature;
 
-        bool fileChanged =
-            file_changed_function::check(cxt, caller, fileSignature, filename);
+        bool fileChanged = check_file_changed(cxt, caller, fileSignature, filename);
 
         // Reload if the filename or modified-time has changed
         if (fileChanged)

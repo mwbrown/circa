@@ -8,21 +8,6 @@
 
 // Operations
 //
-// JUMP <addr>
-//   Unconditional jump to <addr>
-// JUMPIF <input> <addr>
-//   Jump to <addr> if <input> is true
-// JUMPIFN <input> <addr>
-//   Jump to <addr> if <input> is not true
-// CALL
-//   Execute the given C function
-// BRANCH
-//   Execute the given branch
-// PUSH_FRAME <size>
-//   Append a stack frame with the given size
-// POP_FRAME
-//   Discard the top stack frame
-//   
 
 #pragma once
 
@@ -32,6 +17,8 @@ const OpType OP_CALL = 20;
 const OpType OP_RETURN = 21;
 const OpType OP_RETURN_ON_ERROR = 22;
 const OpType OP_STACK_SIZE = 23;
+const OpType OP_JUMP_IF = 27;
+const OpType OP_JUMP_IF_NOT = 27;
 
 const OpType OP_INPUT_LOCAL = 24;
 const OpType OP_INPUT_GLOBAL = 25;
@@ -61,6 +48,11 @@ struct OpInputLocal {
 struct OpInputGlobal {
     OpType type;
     TaggedValue* value;
+};
+
+struct OpJumpIf {
+    OpType type;
+    int offset;
 };
 
 struct BytecodeData
@@ -98,16 +90,23 @@ void print_bytecode(BytecodeData* bytecode, std::ostream& out);
 std::string get_bytecode_as_string(BytecodeData* bytecode);
 
 // Building functions
-void bytecode_call(BytecodeWriter* writer, Term* term, EvaluateFunc func);
-void bytecode_return(BytecodeWriter* writer);
-void bytecode_write_global_input(Operation* op, TaggedValue* value);
-void bytecode_write_local_input(Operation* op, int frame, int index);
+void bc_write_call_op(BytecodeWriter* writer, Term* term, EvaluateFunc func);
+void bc_return(BytecodeWriter* writer);
+OpJumpIf* bc_jump_if(BytecodeWriter* writer);
+OpJumpIf* bc_jump_if_not(BytecodeWriter* writer);
+void bc_write_input(BytecodeWriter* writer, Branch* frame, Term* input);
+void bc_write_global_input(Operation* op, TaggedValue* value);
+void bc_write_local_input(Operation* op, int frame, int index);
 
 // Mark the term's owning branch as needing to recompute bytecode.
 void dirty_bytecode(Term* term);
 void dirty_bytecode(Branch& branch);
 
-void write_bytecode_for_term(BytecodeWriter* writer, Term* term);
+// Write bytecode to call the given term. This will use any custom behavior,
+// like the function's custom writeBytecode handler.
+void bc_call(BytecodeWriter* writer, Term* term);
+
+void bc_finish(BytecodeWriter* writer);
 
 // Refresh the branch's bytecode, if it's dirty.
 void update_bytecode_for_branch(Branch* branch);

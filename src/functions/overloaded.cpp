@@ -125,9 +125,9 @@ namespace overloaded_function {
     {
         Branch& contents = nested_contents(term);
         if (contents.length() > 0)
-            write_bytecode_for_term(writer, contents[0]);
+            bc_call(writer, contents[0]);
         else
-            bytecode_call(writer, term, evaluate_dynamic_overload);
+            bc_write_call_op(writer, term, evaluate_dynamic_overload);
     }
 
     bool is_overloaded_function(Term* func)
