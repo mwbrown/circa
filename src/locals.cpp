@@ -12,91 +12,32 @@
 
 namespace circa {
 
-int get_output_count(Term* term)
+int get_extra_output_count(Term* term)
 {
     if (!FINISHED_BOOTSTRAP)
-        return 1;
+        return 0;
 
     // check if the function has overridden getOutputCount
     FunctionAttrs::GetOutputCount getOutputCount = NULL;
 
     if (term->function == NULL)
         return 1;
-
     FunctionAttrs* attrs = get_function_attrs(term->function);
 
     if (attrs == NULL)
         return 1;
-    
+
     getOutputCount = attrs->getOutputCount;
 
     if (getOutputCount != NULL)
-        return getOutputCount(term);
-
-    // Default behavior, if FunctionAttrs was found.
-    return attrs->outputCount;
-}
+        return getOutputCount(term) - 1;
     
-void update_locals_index_for_new_term(Term* term)
-{
-    Branch* branch = term->owningBranch;
-
-    term->outputCount = get_output_count(term);
-
-    // make sure localsIndex is -1 so that if get_locals_count looks at this
-    // term, it doesn't get confused.
-    term->localsIndex = -1;
-    if (term->outputCount > 0)
-        term->localsIndex = get_locals_count(*branch);
+    return attrs->outputCount - 1;
 }
 
 int get_locals_count(Branch& branch)
 {
-    if (branch.length() == 0)
-        return 0;
-
-    int lastLocal = branch.length() - 1;
-
-    while (branch[lastLocal] == NULL || branch[lastLocal]->localsIndex == -1) {
-        lastLocal--;
-        if (lastLocal < 0)
-            return 0;
-    }
-
-    Term* last = branch[lastLocal];
-
-    return last->localsIndex + get_output_count(last);
-}
-
-void refresh_locals_indices(Branch& branch, int startingAt)
-{
-    int nextLocal = 0;
-    if (startingAt > 0) {
-        Term* prev = branch[startingAt - 1];
-        nextLocal = prev->localsIndex + get_output_count(prev);
-    }
-
-    for (int i=startingAt; i < branch.length(); i++) {
-        Term* term = branch[i];
-        if (term == NULL)
-            continue;
-        term->localsIndex = nextLocal;
-
-        int newOutputCount = get_output_count(term);
-        if (term->outputCount != newOutputCount) {
-            term->outputCount = newOutputCount;
-            update_input_instructions(term);
-        }
-
-        term->outputCount = get_output_count(term);
-        nextLocal += term->outputCount;
-    }
-}
-
-
-void update_output_count(Term* term)
-{
-    term->outputCount = get_output_count(term);
+    return branch.length();
 }
 
 bool branch_creates_separate_stack_frame(Branch* branch)
@@ -171,12 +112,12 @@ void update_input_instructions(Term* term)
 
         list.inputs[i].type = InputInstruction::LOCAL;
         list.inputs[i].relativeFrame = get_frame_distance(term, input);
-        list.inputs[i].index = input->localsIndex + term->inputInfo(i)->outputIndex;
+        list.inputs[i].index = input->index;
         //ca_assert(list.inputs[i].relativeFrame >= 0);
         
         // Fun special case for for-loop locals
         if (input->function == JOIN_FUNC && get_parent_term(input)->name == "#inner_rebinds")
-            list.inputs[i].index = 1 + input->localsIndex;
+            list.inputs[i].index = 1 + input->index;
     }
 }
 

@@ -426,10 +426,10 @@ const char* get_output_name(Term* term, int outputIndex)
     return "";
 }
 
+// TODO: Is this necessary
 const char* get_output_name_for_input(Term* term, int inputIndex)
 {
-    return get_output_name(term->input(inputIndex),
-            term->inputInfo(inputIndex)->outputIndex);
+    return get_output_name(term->input(inputIndex), 0);
 }
 
 bool is_native_function(FunctionAttrs* func)

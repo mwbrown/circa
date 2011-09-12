@@ -190,6 +190,23 @@ Type* get_output_type(Term* term, int outputIndex)
     return function_get_output_type(term->function, outputIndex);
 }
 
+Type* get_extra_output_type(Term* term, int outputIndex)
+{
+    if (term->function == NULL)
+        return &ANY_T;
+
+    FunctionAttrs* attrs = get_function_attrs(term->function);
+
+    FunctionAttrs::GetOutputType getOutputType = NULL;
+    if (attrs != NULL)
+        getOutputType = attrs->getOutputType;
+
+    if (getOutputType != NULL)
+        return getOutputType(term, outputIndex);
+
+    return function_get_output_type(term->function, outputIndex);
+}
+
 Type* get_output_type(Term* term)
 {
     return get_output_type(term, 0);
@@ -201,8 +218,7 @@ Type* get_type_of_input(Term* term, int inputIndex)
         return NULL;
     if (term->input(inputIndex) == NULL)
         return NULL;
-    int outputIndex = term->inputInfo(inputIndex)->outputIndex;
-    return get_output_type(term->input(inputIndex), outputIndex);
+    return get_output_type(term->input(inputIndex), 0);
 }
 
 Type* unbox_type(Term* term)

@@ -178,6 +178,7 @@ void clear_contents_of_every_permanent_type();
 void delete_every_permanent_type();
 
 Type* get_output_type(Term* term, int outputIndex);
+Type* get_extra_output_type(Term* term, int outputIndex);
 Type* get_output_type(Term* term);
 Type* get_type_of_input(Term* term, int inputIndex);
 

@@ -40,24 +40,22 @@ void evaluate_single_term(EvalContext* context, OpCall* op)
     #ifdef CIRCA_TEST_BUILD
     if (!context->errorOccurred && !is_value(op->term)) {
         Term* term = op->term;
-        for (int i=0; i < get_output_count(term); i++) {
 
-            Type* outputType = get_output_type(term, i);
-            TaggedValue* output = get_output(context, term, i);
+        Type* outputType = declared_type(term);
+        TaggedValue* output = get_output(context, term);
 
-            // Special case, if the function's output type is void then we don't care
-            // if the output value is null or not.
-            if (i == 0 && outputType == &VOID_T)
-                continue;
+        // Special case, if the function's output type is void then we don't care
+        // if the output value is null or not.
+        if (outputType == &VOID_T)
+            ;
 
-            if (!cast_possible(output, outputType)) {
-                std::stringstream msg;
-                msg << "Function " << term->function->name << " produced output "
-                    << output->toString() << " (in index " << i << ")"
-                    << " which doesn't fit output type "
-                    << outputType->name;
-                internal_error(msg.str());
-            }
+        else if (!cast_possible(output, outputType)) {
+            std::stringstream msg;
+            msg << "Function " << term->function->name << " produced output "
+                << output->toString()
+                << " which doesn't fit output type "
+                << outputType->name;
+            internal_error(msg.str());
         }
     }
     #endif
@@ -81,7 +79,7 @@ void evaluate_branch_internal(EvalContext* context, Branch& branch, TaggedValue*
     evaluate_branch_with_bytecode(context, &branch);
 
     if (output != NULL)
-        copy(get_local(context, 0, branch[branch.length()-1], 0), output);
+        copy(get_local(context, 0, branch[branch.length()-1]), output);
 
     pop_stack_frame(context);
 }
@@ -129,7 +127,7 @@ void copy_locals_to_terms(EvalContext* context, Branch& branch)
     for (int i=0; i < branch.length(); i++) {
         Term* term = branch[i];
         if (is_value(term)) continue;
-        TaggedValue* val = get_local(context, 0, term, 0);
+        TaggedValue* val = get_local(context, 0, term);
         if (val != NULL)
             copy(val, branch[i]);
     }
@@ -192,15 +190,16 @@ void consume_input(EvalContext* context, Term* term, int index, TaggedValue* des
     copy(get_input(context, term, index), dest);
 }
 
-TaggedValue* get_output(EvalContext* context, Term* term, int index)
+TaggedValue* get_output(EvalContext* context, Term* term)
 {
     TaggedValue* frame = get_stack_frame(context, 0);
-    return list_get_index(frame, term->localsIndex + index);
+    return list_get_index(frame, term->index);
 }
 
 TaggedValue* get_extra_output(EvalContext* context, Term* term, int index)
 {
-    return get_output(context, term, index + 1);
+    TaggedValue* frame = get_stack_frame(context, 0);
+    return list_get_index(frame, term->index + 1 + index);
 }
 
 TaggedValue* get_state_input(EvalContext* cxt, Term* term)
@@ -219,17 +218,15 @@ TaggedValue* get_local(EvalContext* cxt, int relativeFrame, int index)
     return list_get_index(cxt->stack.getFromEnd(relativeFrame), index);
 }
 
-TaggedValue* get_local(EvalContext* cxt, int relativeFrame, Term* term, int outputIndex)
+TaggedValue* get_local(EvalContext* cxt, int relativeFrame, Term* term)
 {
-    int index = term->localsIndex + outputIndex;
-
-    return list_get_index(cxt->stack.getFromEnd(relativeFrame), index);
+    return list_get_index(cxt->stack.getFromEnd(relativeFrame), term->index);
 }
 
 void error_occurred(EvalContext* context, Term* errorTerm, std::string const& message)
 {
     // Save the error on the context
-    TaggedValue* errorValue = get_local(context, 0, errorTerm, 0);
+    TaggedValue* errorValue = get_local(context, 0, errorTerm);
     set_string(errorValue, message);
     errorValue->value_type = &ERROR_T;
     copy(errorValue, &context->errorValue);
@@ -299,7 +296,7 @@ void evaluate_range(EvalContext* context, Branch& branch, int start, int end)
         Term* term = branch[i];
         if (is_value(term))
             continue;
-        TaggedValue* value = get_local(context, 0, term, 0);
+        TaggedValue* value = get_local(context, 0, term);
         if (value == NULL)
             continue;
         copy(value, term);
@@ -315,7 +312,7 @@ void push_stack_frame(EvalContext* context, int size)
 
 void push_stack_frame(EvalContext* context, Branch* branch)
 {
-    push_stack_frame(context, get_locals_count(*branch));
+    push_stack_frame(context, branch->length());
 }
 
 void pop_stack_frame(EvalContext* context)
@@ -383,7 +380,7 @@ void evaluate_minimum(EvalContext* context, Term* term, TaggedValue* result)
 
     // Possibly save output
     if (result != NULL)
-        copy(get_local(context, 0, term, 0), result);
+        copy(get_local(context, 0, term), result);
 
     // Clean up
     delete[] marked;

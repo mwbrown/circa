@@ -60,7 +60,7 @@ void evaluate_subroutine_internal(EvalContext* context, Term* caller,
     // Insert inputs into placeholders
     for (int i=0; i < numInputs; i++) {
         Term* placeholder = get_subroutine_input_placeholder(contents, i);
-        swap(inputs->get(i), get_local(context, 0, placeholder, 0));
+        swap(inputs->get(i), get_local(context, 0, placeholder));
     }
 
     // Prepare output
@@ -103,7 +103,7 @@ void evaluate_subroutine_internal(EvalContext* context, Term* caller,
     // Rescue input values
     for (int i=0; i < numInputs; i++) {
         Term* placeholder = get_subroutine_input_placeholder(contents, i);
-        swap(inputs->get(i), get_local(context, 0, placeholder, 0));
+        swap(inputs->get(i), get_local(context, 0, placeholder));
     }
 
     // Clean up
@@ -158,15 +158,13 @@ CA_FUNCTION(evaluate_subroutine)
     swap(&context->currentScopeState, &prevScopeState);
 
     // Write output
-    TaggedValue* outputDest = get_output(context, caller, 0);
+    TaggedValue* outputDest = get_output(context, caller);
     if (outputDest != NULL)
         swap(outputs[0], outputDest);
 
     // Write extra outputs
-    ca_assert(outputs.length() == get_output_count(caller));
-
     for (int i=1; i < outputs.length(); i++)
-        copy(outputs[i], get_output(context, caller, i));
+        copy(outputs[i], get_extra_output(context, caller, i-1));
 }
 
 bool is_subroutine(Term* term)

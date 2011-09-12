@@ -146,11 +146,11 @@ void bc_write_call_op(BytecodeWriter* writer, Term* term, EvaluateFunc func)
         if (is_value(input)) {
             bc_write_global_input(inputOp, (TaggedValue*) input);
         } else {
-            int index = input->localsIndex + term->inputInfo(i)->outputIndex;
+            int index = input->index;
 
             // Fun special case for for-loop locals
             if (input->function == JOIN_FUNC && get_parent_term(input)->name == "#inner_rebinds")
-                index = 1 + input->localsIndex;
+                index = 1 + input->index;
 
             int relativeFrame = get_frame_distance(term, input);
             bc_write_local_input(inputOp, relativeFrame, index);
@@ -202,7 +202,7 @@ void bc_write_input(BytecodeWriter* writer, Branch* frame, Term* input)
         bc_write_global_input(inputOp, (TaggedValue*) input);
     } else {
         int relativeFrame = get_frame_distance(frame, input);
-        bc_write_local_input(inputOp, relativeFrame, input->localsIndex);
+        bc_write_local_input(inputOp, relativeFrame, input->index);
     }
 }
 void bc_write_global_input(Operation* op, TaggedValue* value)
@@ -275,7 +275,6 @@ void update_bytecode_for_branch(Branch* branch)
         return;
 
     // Deprecated steps:
-    refresh_locals_indices(*branch, 0);
     update_input_instructions(*branch);
 
     BytecodeWriter writer;

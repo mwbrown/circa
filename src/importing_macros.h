@@ -38,7 +38,7 @@
 #define INT_INPUT(index) (circa::as_int(INPUT(index)))
 #define STATE_INPUT (get_state_input(_context, _op->term))
 #define INPUT_TERM(index) (CALLER->input(index))
-#define OUTPUT (get_output(_context, _op->term, 0))
+#define OUTPUT (get_output(_context, _op->term))
 #define EXTRA_OUTPUT(index) (get_extra_output(_context, _op->term, (index)))
 #define FUNCTION (_op->term->function)
 #define ERROR_OCCURRED(msg) (error_occurred(_context, _op->term, (msg)))

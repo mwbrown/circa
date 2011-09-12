@@ -33,7 +33,6 @@ TermPtr compile(Branch& branch, ParsingStep step, std::string const& input)
     if (prevLast && prevLast->function == FINISH_MINOR_BRANCH_FUNC) {
         branch.moveToEnd(branch[prevLastIndex]);
         update_branch_finish_term(branch[branch.length()-1]);
-        refresh_locals_indices(branch, prevLastIndex);
         update_input_instructions(nested_contents(prevLast));
     } else {
         check_to_add_branch_finish_term(branch, prevLastIndex+1);
@@ -738,7 +737,6 @@ ParseResult anonymous_type_decl(Branch& branch, TokenStream& tokens, ParserCxt* 
     list_initialize_parameter_from_type_decl(contents, &as_type(result)->parameter);
 
     branch.moveToEnd(result);
-    refresh_locals_indices(branch);
 
     return ParseResult(result);
 }
@@ -828,10 +826,8 @@ ParseResult if_block(Branch& branch, TokenStream& tokens, ParserCxt* context)
     branch.moveToEnd(result);
 
     update_if_block_joining_branch(result);
-    refresh_locals_indices(branch);
     update_input_instructions(nested_contents(result));
     set_source_location(result, startPosition, tokens);
-    update_output_count(result);
 
     return ParseResult(result);
 }
@@ -853,7 +849,6 @@ ParseResult switch_block(Branch& branch, TokenStream& tokens, ParserCxt* context
     // case_statement may have appended some terms to our branch, so move this
     // term to compensate.
     branch.moveToEnd(result);
-    refresh_locals_indices(branch);
 
     switch_block_post_compile(result);
     set_source_location(result, startPosition, tokens);
@@ -939,7 +934,6 @@ ParseResult for_block(Branch& branch, TokenStream& tokens, ParserCxt* context)
 
     setup_for_loop_post_code(forTerm);
     set_source_location(forTerm, startPosition, tokens);
-    update_output_count(forTerm);
 
     return ParseResult(forTerm);
 }
@@ -953,8 +947,6 @@ ParseResult do_once_block(Branch& branch, TokenStream& tokens, ParserCxt* contex
     Term* result = apply(branch, DO_ONCE_FUNC, TermList());
     set_starting_source_location(result, startPosition, tokens);
     consume_branch(nested_contents(result), tokens, context);
-
-    update_output_count(result);
 
     return ParseResult(result);
 }
@@ -1543,7 +1535,7 @@ ParseResult function_call2(Branch& branch, Term* function, TokenStream& tokens, 
         if (postWhitespace != "")
             set_input_syntax_hint(result, index, "postWhitespace", postWhitespace);
 
-        set_input2(result, index, input, 0);
+        set_input(result, index, input);
 
         index++;
     }

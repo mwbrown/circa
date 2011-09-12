@@ -108,11 +108,11 @@ TaggedValue* get_input(EvalContext* context, OpCall* op, int index);
 // leaving a null behind and preventing the need for a copy.
 void consume_input(EvalContext* context, Term* term, int index, TaggedValue* dest);
 
-TaggedValue* get_output(EvalContext* context, Term* term, int outputIndex);
+TaggedValue* get_output(EvalContext* context, Term* term);
 TaggedValue* get_extra_output(EvalContext* context, Term* term, int index);
 TaggedValue* get_state_input(EvalContext* cxt, Term* term);
 
-TaggedValue* get_local(EvalContext* cxt, int relativeFrame, Term* term, int outputIndex);
+TaggedValue* get_local(EvalContext* cxt, int relativeFrame, Term* term);
 TaggedValue* get_local(EvalContext* cxt, int relativeFrame, int index);
 
 void error_occurred(EvalContext* context, Term* errorTerm, std::string const& message);

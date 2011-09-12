@@ -37,17 +37,17 @@ namespace vectorize_vs_function {
         output.resize(listLength);
 
         // Copy right input once
-        swap(&input1, get_local(context, 0, input1_placeholder, 0));
+        swap(&input1, get_local(context, 0, input1_placeholder));
 
         // Evaluate vectorized call, once for each input
         for (int i=0; i < listLength; i++) {
             // Copy left into placeholder
-            swap(input0.getIndex(i), get_local(context, 0, input0_placeholder, 0));
+            swap(input0.getIndex(i), get_local(context, 0, input0_placeholder));
 
             evaluate_single_term_with_bytecode(CONTEXT, content_output);
 
             // Save output
-            swap(get_local(context, 0, content_output, 0), output[i]);
+            swap(get_local(context, 0, content_output), output[i]);
         }
 
         pop_stack_frame(CONTEXT);

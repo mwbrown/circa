@@ -118,7 +118,7 @@ CA_FUNCTION(evaluate_switch)
 
                 ca_test_assert(cast_possible(value, get_output_type(CALLER, i+1)));
 
-                int outputIndex = caller->localsIndex + 1 + i;
+                int outputIndex = caller->index + 1 + i;
                 TaggedValue* dest = list_get_index(get_stack_frame(context, 1), outputIndex);
                 copy(value, dest);
             }

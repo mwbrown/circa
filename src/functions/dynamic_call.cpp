@@ -36,7 +36,7 @@ namespace dynamic_call_function {
             frameIndex++;
         }
 
-        temporaryTerm.localsIndex = frameIndex++;
+        temporaryTerm.index = frameIndex++;
 
         // Evaluate
         evaluate_single_term_with_bytecode(CONTEXT, &temporaryTerm);
@@ -49,7 +49,7 @@ namespace dynamic_call_function {
         swap(frame, &finishedFrame);
         pop_stack_frame(CONTEXT);
 
-        swap(list_get_index(&finishedFrame, temporaryTerm.localsIndex), OUTPUT);
+        swap(list_get_index(&finishedFrame, temporaryTerm.index), OUTPUT);
     }
 
     void setup(Branch& kernel)

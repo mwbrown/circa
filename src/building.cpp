@@ -59,7 +59,6 @@ Term* apply(Branch& branch, Term* function, TermList const& inputs, std::string 
 
     update_unique_name(result);
     on_inputs_changed(result);
-    update_locals_index_for_new_term(result);
     update_input_instructions(result);
     dirty_bytecode(branch);
 
@@ -67,30 +66,6 @@ Term* apply(Branch& branch, Term* function, TermList const& inputs, std::string 
         mark_branch_as_having_inlined_state(branch);
 
     return result;
-}
-
-void set_input2(Term* term, int index, Term* input, int outputIndex)
-{
-    assert_valid_term(term);
-    assert_valid_term(input);
-
-    Term* previousInput = NULL;
-    if (index < term->numInputs())
-        previousInput = term->input(index);
-
-    while (index >= term->numInputs())
-        term->inputs.push_back(NULL);
-
-    term->inputs[index] = Term::Input(input, outputIndex);
-
-    // Add 'term' to the user list of 'input'
-    append_user(term, input);
-
-    // Check if we should remove 'term' from the user list of previousInput
-    possibly_prune_user_list(term, previousInput);
-
-    mark_inputs_changed(term);
-    update_input_instructions(term);
 }
 
 void set_input(Term* term, int index, Term* input)
@@ -260,7 +235,6 @@ Term* create_value(Branch& branch, Type* type, std::string const& name)
     change_declared_type(term, type);
     change_type((TaggedValue*) term, type);
     update_unique_name(term);
-    update_locals_index_for_new_term(term);
     update_input_instructions(term);
 
     return term;
@@ -452,41 +426,15 @@ void post_compile_term(Term* term)
     // then copy these outputs to named terms. This is a workaround until we can
     // fully support terms with multiple output names.
     Branch& owningBranch = *term->owningBranch;
-    int numOutputs = get_output_count(term);
-    for (int outputIndex=1; outputIndex < numOutputs; outputIndex++) {
-        const char* name = get_output_name(term, outputIndex);
-        if (strcmp(name, "") != 0) {
-            Term* outputCopy = apply(owningBranch, COPY_FUNC, TermList(), name);
-            set_input2(outputCopy, 0, term, outputIndex);
-
-            respecialize_type(outputCopy);
-            owningBranch.bindName(outputCopy, name);
-        }
+    int numExtraOutputs = get_extra_output_count(term);
+    for (int outputIndex=0; outputIndex < numExtraOutputs; outputIndex++) {
+        const char* name = get_output_name(term, outputIndex+1);
+        Term* extraOutput = apply(owningBranch, EXTRA_OUTPUT_FUNC, TermList(), name);
+        set_input(extraOutput, 0, term);
+        change_declared_type(extraOutput, get_extra_output_type(term, outputIndex+1));
+        if (strcmp(name, "") != 0)
+            owningBranch.bindName(extraOutput, name);
     }
-
-    #if 0
-    int outputIndex = 1;
-    for (int i=0; i < term->numInputs(); i++) {
-        if (function_can_rebind_input(term->function, i)) {
-            if (function_call_rebinds_input(term, i)
-                    && term->input(i) != NULL
-                    && term->input(i)->name != "") {
-
-                std::string name = term->input(i)->name;
-
-                ca_assert(name == get_output_name(term, outputIndex));
-
-                Term* output = apply(owningBranch, COPY_FUNC, TermList(), name);
-                set_input2(output, 0, term, outputIndex);
-
-                respecialize_type(output);
-                owningBranch.bindName(output, term->input(i)->name);
-
-            }
-            outputIndex++;
-        }
-    }
-    #endif
 }
 
 void finish_minor_branch(Branch& branch)

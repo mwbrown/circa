@@ -50,18 +50,6 @@ void local_indexes()
     test_equals(get_frame_distance(ifcase2, a), 1);
 }
 
-void local_indexes_2()
-{
-    Branch branch;
-    Term* block = branch.compile("if 1 == 1 { test_spy(3) }");
-    Term* equals = branch[2];
-    test_equals(equals->function->name, "equals");
-    test_equals(equals->localsIndex, 2);
-    Term* ifcase = block->contents(0);
-    update_bytecode_for_branch(&branch);
-    test_equals(ifcase->inputIsns.inputs[0].index, 2);
-}
-
 void local_indexes_3()
 {
     // Test having a join term that refers to a local inside the block.
@@ -449,7 +437,6 @@ void register_tests()
 {
     REGISTER_TEST_CASE(if_block_tests::test_if_simple_eval);
     REGISTER_TEST_CASE(if_block_tests::local_indexes);
-    REGISTER_TEST_CASE(if_block_tests::local_indexes_2);
     REGISTER_TEST_CASE(if_block_tests::local_indexes_3);
     REGISTER_TEST_CASE(if_block_tests::test_if_joining);
     REGISTER_TEST_CASE(if_block_tests::test_if_elif_else);

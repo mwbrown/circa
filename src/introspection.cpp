@@ -249,6 +249,8 @@ void print_term(std::ostream& out, Term* term, RawOutputPrefs* prefs)
         return;
     }
 
+    out << "[" << term->index << "] ";
+
     out << global_id(term);
 
     if (term->name != "")
@@ -267,10 +269,6 @@ void print_term(std::ostream& out, Term* term, RawOutputPrefs* prefs)
         if (i != 0) out << " ";
         out << global_id(term->input(i));
         
-        int outputIndex = term->inputs[i].outputIndex;
-        if (outputIndex != 0)
-            out << "#" << outputIndex;
-
         InputInstruction *ins = &term->inputIsns.inputs[i];
         if (ins->type == InputInstruction::GLOBAL)
             out << ":g";
@@ -281,19 +279,14 @@ void print_term(std::ostream& out, Term* term, RawOutputPrefs* prefs)
     }
     out << ")";
 
-    int outputCount = get_output_count(term);
-
     out << " -> (";
 
     if (term->function != NULL) {
-        for (int i=0; i < outputCount; i++) {
-            if (i != 0) out << ", ";
-            Type* type = get_output_type(term, i);
-            if (type == NULL)
-                out << "<NULL type>";
-            else
-                out << type->name;
-        }
+        Type* type = declared_type(term);
+        if (type == NULL)
+            out << "<NULL type>";
+        else
+            out << type->name;
     }
     out << ")";
 
@@ -314,8 +307,6 @@ void print_term(std::ostream& out, Term* term, RawOutputPrefs* prefs)
     if (is_value(term))
         out << " val:" << to_string((TaggedValue*) term);
 
-    out << " index:" << term->localsIndex;
-
     if (!is_value(term) && !is_null((TaggedValue*) term)) {
         out << " local:";
         out << ((TaggedValue*) term)->toString();
@@ -330,7 +321,6 @@ void print_term(std::ostream& out, Term* term, RawOutputPrefs* prefs)
     out << "]";
 #endif
 
-    // out << " " << term->localsIndex << "+" << get_output_count(term);
 
     #if 0
     TaggedValue* local = get_local_safe(term);

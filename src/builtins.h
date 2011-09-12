@@ -26,6 +26,7 @@ extern Term* DISCARD_FUNC;
 extern Term* DIV_FUNC;
 extern Term* DO_ONCE_FUNC;
 extern Term* ERRORED_FUNC;
+extern Term* EXTRA_OUTPUT_FUNC;
 extern Term* FEEDBACK_FUNC;
 extern Term* FINISH_MINOR_BRANCH_FUNC;
 extern Term* FREEZE_FUNC;

@@ -158,12 +158,11 @@ void remap_pointers(Term* term, TermMap const& map)
     ca_assert(!map.contains(NULL));
 
     for (int i=0; i < term->numInputs(); i++)
-        set_input2(term, i, map.getRemapped(term->input(i)), term->inputInfo(i)->outputIndex);
+        set_input(term, i, map.getRemapped(term->input(i)));
 
     term->function = map.getRemapped(term->function);
 
     // TODO, call changeType if our type is changed
-    // This was implemented once, and it caused spurious crash bugs
     // Term* newType = map.getRemapped(term->type);
     
     Type::RemapPointers remapPointers = term->type->remapPointers;

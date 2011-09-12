@@ -29,12 +29,11 @@ struct Term : TaggedValue
 
     struct Input {
         Term* term;
-        int outputIndex;
         Dict properties;
 
-        Input() : outputIndex(0) {}
-        Input(Term* t) : term(t), outputIndex(0) {}
-        Input(Term* t, int i) : term(t), outputIndex(i) {}
+        Input() {}
+        Input(Term* t) : term(t) {}
+        Input(Term* t, int i) : term(t) {}
     };
 
     typedef std::vector<Input> InputList;
@@ -71,13 +70,6 @@ struct Term : TaggedValue
     // The index that this term currently holds inside owningBranch
     int index;
 
-    // The location of this term's output in the locals list. If the term has multiple
-    // outputs then this is the first index.
-    int localsIndex;
-
-    // Number of outputs.
-    int outputCount;
-
     // Code which is nested inside this term. This object is created on-demand.
     Branch* nestedContents;
 
@@ -110,8 +102,6 @@ struct Term : TaggedValue
     Term* dependency(int index) const;
     int numDependencies() const;
     void setDependency(int index, Term* term);
-
-    int numOutputs() const;
 
     const char* getName(int index) const;
     int nameCount() const;

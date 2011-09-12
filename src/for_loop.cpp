@@ -206,7 +206,7 @@ CA_FUNCTION(evaluate_for_loop)
             swap(state->get(iteration), &context->currentScopeState);
 
         // copy iterator
-        copy(inputList->getIndex(iteration), get_local(context, 0, iterator, 0));
+        copy(inputList->getIndex(iteration), get_local(context, 0, iterator));
 
         // copy inner rebinds
         for (int i=0; i < innerRebinds.length(); i++) {
@@ -227,7 +227,7 @@ CA_FUNCTION(evaluate_for_loop)
 
         // Save output
         if (saveOutput && !context->forLoopContext.discard) {
-            TaggedValue* localResult = get_local(context, 0, forContents[forContents.outputIndex], 0);
+            TaggedValue* localResult = get_local(context, 0, forContents[forContents.outputIndex]);
             copy(localResult, output->get(nextOutputIndex++));
         }
 
@@ -244,7 +244,7 @@ CA_FUNCTION(evaluate_for_loop)
     output->resize(nextOutputIndex);
 
     // Copy outer rebinds
-    ca_assert(caller->numOutputs() == outerRebinds.length() + 1);
+    //ca_assert(caller->numOutputs() == outerRebinds.length() + 1);
     
     for (int i=0; i < outerRebinds.length(); i++) {
 
@@ -260,7 +260,7 @@ CA_FUNCTION(evaluate_for_loop)
             result = get_input(context, rebindTerm, 1);
         }
 
-        int outputIndex = caller->localsIndex + 1 + i;
+        int outputIndex = caller->index + 1 + i;
         TaggedValue* dest = list_get_index(get_stack_frame(context, 1), outputIndex);
         copy(result, dest);
     }
