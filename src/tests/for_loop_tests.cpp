@@ -144,7 +144,7 @@ void test_produce_output()
 void test_break()
 {
     Branch branch;
-    internal_debug_function::spy_clear();
+    testing_clear_spy();
     branch.compile("for i in [1 2 3 4] { if i == 3 { break } test_spy(i) }");
     evaluate_save_locals(branch);
     test_equals(internal_debug_function::spy_results(), "[1, 2]");
@@ -154,23 +154,23 @@ void test_nested_break()
 {
     Branch branch;
 
-    internal_debug_function::spy_clear();
+    testing_clear_spy();
     branch.compile("for i in ['a' 'b'] "
             "{ for j in [1 2 3] { if j == 2 { break } test_spy([i j]) }}");
     evaluate_save_locals(branch);
 
-    test_equals(internal_debug_function::spy_results(), "[['a', 1], ['b', 1]]");
+    test_equals(testing_get_spy_results(), "[['a', 1], ['b', 1]]");
 }
 
 void test_continue()
 {
     Branch branch;
 
-    internal_debug_function::spy_clear();
+    testing_clear_spy();
     branch.compile("for i in [1 2 3 4] { if i == 3 { continue } test_spy(i) }");
     evaluate_save_locals(branch);
 
-    test_equals(internal_debug_function::spy_results(), "[1, 2, 4]");
+    test_equals(testing_get_spy_results(), "[1, 2, 4]");
 }
 
 void local_indexes()

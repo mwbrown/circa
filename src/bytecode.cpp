@@ -15,7 +15,19 @@ namespace circa {
 
 const int NEW_BYTECODE_DEFAULT_LENGTH = 6;
 
-void print_bytecode_op(Operation* op, std::ostream& out)
+static bool is_input_op_type(OpType type)
+{
+    switch (type) {
+        case OP_INPUT_LOCAL:
+        case OP_INPUT_GLOBAL:
+        case OP_INPUT_NULL:
+            return true;
+        default:
+            return false;
+    }
+}
+
+void print_bytecode_op(Operation* op, int loc, std::ostream& out)
 {
     switch (op->type) {
         case OP_CALL:
@@ -35,7 +47,7 @@ void print_bytecode_op(Operation* op, std::ostream& out)
         }
         case OP_INPUT_LOCAL: {
             OpInputLocal* lop = (OpInputLocal*) op;
-            out << "input_local frame:" << lop->relativeFrame << " index:" << lop->index;
+            out << "input_local frame:" << lop->relativeFrame << " idx:" << lop->index;
             break;
         }
 
@@ -48,17 +60,49 @@ void print_bytecode_op(Operation* op, std::ostream& out)
         case OP_STACK_SIZE:
             out << "stack_size " << ((OpStackSize*) op)->size;
             break;
+        case OP_JUMP:
+            out << "jump " << loc + ((OpJump*) op)->offset;
+            break;
+        case OP_JUMP_IF:
+            out << "jump_if " << loc + ((OpJump*) op)->offset;
+            break;
+        case OP_JUMP_IF_NOT:
+            out << "jump_if_not " << loc + ((OpJump*) op)->offset;
+            break;
+        case OP_JUMP_IF_NOT_EQUAL:
+            out << "jump_if_not_eq " << loc + ((OpJump*) op)->offset;
+            break;
+        case OP_CALL_BRANCH:
+            out << "call_branch " << global_id(((OpCallBranch*) op)->term);
+            break;
+        case OP_POP_STACK:
+            out << "pop_stack";
+            break;
+        case OP_COPY:
+            out << "copy";
+            break;
         default:
-            out << "<unknown opcode>";
+            out << "<unknown opcode " << int(op->type) << ">";
     }
 }
 
 void print_bytecode(BytecodeData* bytecode, std::ostream& out)
 {
     for (int i=0; i < bytecode->operationCount; i++) {
-        if (i != 0)
-            out << "; ";
-        print_bytecode_op(&bytecode->operations[i], out);
+
+        bool isInput = is_input_op_type(bytecode->operations[i].type);
+
+        if (i != 0) {
+            if (isInput)
+                out << "; ";
+            else
+                out << "; " << std::endl;
+        }
+
+        if (!isInput)
+            std::cout << i << ": ";
+
+        print_bytecode_op(&bytecode->operations[i], i, out);
     }
     out << std::endl;
 }
@@ -162,19 +206,69 @@ void bc_return(BytecodeWriter* writer)
 {
     bc_append_op(writer)->type = OP_RETURN;
 }
-OpJumpIf* bc_jump_if(BytecodeWriter* writer)
+void bc_imaginary_call(BytecodeWriter* writer, EvaluateFunc func)
 {
-    OpJumpIf* op = (OpJumpIf*) bc_append_op(writer);
+    OpCall* op = (OpCall*) bc_append_op(writer);
+    op->type = OP_CALL;
+    op->term = NULL;
+    op->func = func;
+}
+void bc_imaginary_call(BytecodeWriter* writer, Term* func)
+{
+    bc_imaginary_call(writer, get_function_attrs(func)->evaluate);
+}
+int bc_jump(BytecodeWriter* writer)
+{
+    int result = writer->writePosition;
+    OpJump* op = (OpJump*) bc_append_op(writer);
+    op->type = OP_JUMP;
+    op->offset = 0;
+    return result;
+}
+int bc_jump_if(BytecodeWriter* writer)
+{
+    int result = writer->writePosition;
+    OpJump* op = (OpJump*) bc_append_op(writer);
     op->type = OP_JUMP_IF;
     op->offset = 0;
-    return op;
+    return result;
 }
-OpJumpIf* bc_jump_if_not(BytecodeWriter* writer)
+int bc_jump_if_not(BytecodeWriter* writer)
 {
-    OpJumpIf* op = (OpJumpIf*) bc_append_op(writer);
+    int result = writer->writePosition;
+    OpJump* op = (OpJump*) bc_append_op(writer);
     op->type = OP_JUMP_IF_NOT;
     op->offset = 0;
-    return op;
+    return result;
+}
+int bc_jump_if_not_equal(BytecodeWriter* writer)
+{
+    int result = writer->writePosition;
+    OpJump* op = (OpJump*) bc_append_op(writer);
+    op->type = OP_JUMP_IF_NOT_EQUAL;
+    op->offset = 0;
+    return result;
+}
+
+void bc_jump_to_here(BytecodeWriter* writer, int jumpPos)
+{
+    OpJump* op = (OpJump*) &writer->data->operations[jumpPos];
+    ca_assert(op->type == OP_JUMP_IF || op->type == OP_JUMP_IF_NOT
+            || op->type == OP_JUMP || op->type == OP_JUMP_IF_NOT_EQUAL);
+    op->offset = writer->writePosition - jumpPos;
+}
+void bc_global_input(BytecodeWriter* writer, TaggedValue* value)
+{
+    OpInputGlobal* gop = (OpInputGlobal*) bc_append_op(writer);
+    gop->type = OP_INPUT_GLOBAL;
+    gop->value = (TaggedValue*) value;
+}
+void bc_local_input(BytecodeWriter* writer, int frame, int index)
+{
+    OpInputLocal *lop = (OpInputLocal*) bc_append_op(writer);
+    lop->type = OP_INPUT_LOCAL;
+    lop->relativeFrame = frame;
+    lop->index = index;
 }
 void bc_write_input(BytecodeWriter* writer, Branch* frame, Term* input)
 {
@@ -217,6 +311,20 @@ void bc_write_local_input(Operation* op, int frame, int index)
     lop->type = OP_INPUT_LOCAL;
     lop->relativeFrame = frame;
     lop->index = index;
+}
+void bc_copy_value(BytecodeWriter* writer)
+{
+    bc_append_op(writer)->type = OP_COPY;
+}
+void bc_call_branch(BytecodeWriter* writer, Term* term)
+{
+    OpCallBranch *cop = (OpCallBranch*) bc_append_op(writer);
+    cop->type = OP_CALL_BRANCH;
+    cop->term = term;
+}
+void bc_pop_stack(BytecodeWriter* writer)
+{
+    bc_append_op(writer)->type = OP_POP_STACK;
 }
 
 void dirty_bytecode(Term* term)
@@ -268,6 +376,13 @@ void bc_finish(BytecodeWriter* writer)
     bc_return(writer);
 }
 
+void bc_reset_writer(BytecodeWriter* writer)
+{
+    writer->writePosition = 0;
+    if (writer->data != NULL)
+        writer->data->operationCount = 0;
+}
+
 void update_bytecode_for_branch(Branch* branch)
 {
     // Don't update if bytecode is not dirty.
@@ -307,17 +422,17 @@ void update_bytecode_for_branch(Branch* branch)
 
 void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
 {
-    int pic = 0;
+    int pc = 0;
 
     if (bytecode == NULL || bytecode->operationCount == 0)
         return;
 
     while (true) {
 
-        ca_assert(pic >= 0);
-        ca_assert(pic < bytecode->operationCount);
+        ca_assert(pc >= 0);
+        ca_assert(pc < bytecode->operationCount);
 
-        Operation* op = &bytecode->operations[pic];
+        Operation* op = &bytecode->operations[pc];
 
         switch (op->type) {
         case OP_CALL: {
@@ -327,8 +442,9 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
 
             OpCall* cop = (OpCall*) op;
             evaluate_single_term(context, cop);
-            int numInputs = cop->term->numInputs();
-            pic += 1 + numInputs;
+            pc += 1;
+
+            // TODO: Should skip over input instructions when possible
 
             // this will be removed:
             if (evaluation_interrupted(context) && !evalWasInterrupted)
@@ -340,8 +456,8 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
         case OP_INPUT_LOCAL:
         case OP_INPUT_GLOBAL:
         case OP_INPUT_NULL:
-            internal_error("bytecode error, interpreter hit an input instruction");
-            return;
+            pc += 1;
+            continue;
 
         case OP_RETURN:
             return;
@@ -349,12 +465,81 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
         case OP_RETURN_ON_ERROR:
             if (context->errorOccurred)
                 return;
-            pic++;
+            pc++;
             continue;
 
         case OP_STACK_SIZE: {
             List* frame = get_stack_frame(context, 0);
             frame->resize(((OpStackSize*) op)->size);
+            pc++;
+            continue;
+        }
+
+        case OP_JUMP: {
+            OpJump* jop = (OpJump*) op;
+            ca_assert(jop->offset != 0);
+            pc += jop->offset;
+            continue;
+        }
+
+        case OP_JUMP_IF: {
+            OpJump* jop = (OpJump*) op;
+            TaggedValue* input = get_input(context, op, 0);
+            ca_assert(is_bool(input));
+            if (as_bool(input)) {
+                ca_assert(jop->offset != 0);
+                pc += jop->offset;
+            } else {
+                pc += 1;
+            }
+            continue;
+        }
+        case OP_JUMP_IF_NOT: {
+            OpJump* jop = (OpJump*) op;
+            TaggedValue* input = get_input(context, op, 0);
+            ca_assert(is_bool(input));
+            if (!as_bool(input)) {
+                ca_assert(jop->offset != 0);
+                pc += jop->offset;
+            } else {
+                pc += 1;
+            }
+            continue;
+        }
+        case OP_JUMP_IF_NOT_EQUAL: {
+            OpJump* jop = (OpJump*) op;
+            TaggedValue* left = get_input(context, op, 0);
+            TaggedValue* right = get_input(context, op, 1);
+            if (!equals(left,right)) {
+                ca_assert(jop->offset != 0);
+                pc += jop->offset;
+            } else {
+                pc += 1;
+            }
+            continue;
+        }
+
+        case OP_CALL_BRANCH: {
+
+            // TODO: Push branch to the stack but continue in this loop
+            OpCallBranch* cop = (OpCallBranch*) op;
+            Branch* branch = &nested_contents(cop->term);
+            push_stack_frame(context, branch);
+            evaluate_branch_with_bytecode(context, branch);
+            pc += 1;
+            continue;
+        }
+        case OP_POP_STACK: {
+            pop_stack_frame(context);
+            pc += 1;
+            continue;
+        }
+
+        case OP_COPY: {
+            TaggedValue* left = get_input(context, op, 0);
+            TaggedValue* right = get_input(context, op, 1);
+            copy(left, right);
+            pc += 1;
             continue;
         }
 

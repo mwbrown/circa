@@ -4,25 +4,29 @@
 //
 // Functions for creating and manipulating Circa bytecode
 //
-// Note: This code is still a work in progress, and isn't actually used yet.
-
-// Operations
-//
 
 #pragma once
 
 namespace circa {
 
-const OpType OP_CALL = 20;
-const OpType OP_RETURN = 21;
-const OpType OP_RETURN_ON_ERROR = 22;
-const OpType OP_STACK_SIZE = 23;
-const OpType OP_JUMP_IF = 27;
-const OpType OP_JUMP_IF_NOT = 27;
+const OpType OP_CALL = 1;
+const OpType OP_CALL_BRANCH = 2;
 
-const OpType OP_INPUT_LOCAL = 24;
-const OpType OP_INPUT_GLOBAL = 25;
-const OpType OP_INPUT_NULL = 26;
+const OpType OP_JUMP = 10;
+const OpType OP_JUMP_IF = 11;
+const OpType OP_JUMP_IF_NOT = 12;
+const OpType OP_JUMP_IF_NOT_EQUAL = 13;
+
+const OpType OP_RETURN = 20;
+const OpType OP_RETURN_ON_ERROR = 21;
+const OpType OP_STACK_SIZE = 22;
+const OpType OP_POP_STACK = 23;
+
+const OpType OP_INPUT_LOCAL = 31;
+const OpType OP_INPUT_GLOBAL = 32;
+const OpType OP_INPUT_NULL = 33;
+
+const OpType OP_COPY = 40;
 
 struct Operation {
     OpType type;
@@ -30,10 +34,15 @@ struct Operation {
     // padding..
     void* ptr1;
     void* ptr2;
+    int padding3;
 };
 
 // OpCall is defined in common_headers.h
 
+struct OpCallBranch {
+    OpType type;
+    Term* term;
+};
 struct OpStackSize {
     OpType type;
     int size;
@@ -50,7 +59,7 @@ struct OpInputGlobal {
     TaggedValue* value;
 };
 
-struct OpJumpIf {
+struct OpJump {
     OpType type;
     int offset;
 };
@@ -92,11 +101,48 @@ std::string get_bytecode_as_string(BytecodeData* bytecode);
 // Building functions
 void bc_write_call_op(BytecodeWriter* writer, Term* term, EvaluateFunc func);
 void bc_return(BytecodeWriter* writer);
-OpJumpIf* bc_jump_if(BytecodeWriter* writer);
-OpJumpIf* bc_jump_if_not(BytecodeWriter* writer);
+
+// Write a CALL instruction with no Term*, just an EvaluateFunc. Input
+// instructions must be appended by the caller. Some functions don't work
+// with a NULL caller.
+void bc_imaginary_call(BytecodeWriter* writer, EvaluateFunc func);
+void bc_imaginary_call(BytecodeWriter* writer, Term* func);
+
+// Write a JUMP instruction. The jump is initialized with a zero offset;
+// caller should use bc_jump_to_here() to set one.
+int bc_jump(BytecodeWriter* writer);
+
+// Write a JUMP_IF instruction. The jump is initialized with a zero offset;
+// caller should use bc_jump_to_here() to set one. One input instruction must
+// follow.
+int bc_jump_if(BytecodeWriter* writer);
+
+// Write a JUMP_IF_NOT operation. See notes for bc_jump_if().
+int bc_jump_if_not(BytecodeWriter* writer);
+
+// Write a JUMP_IF_NOT_EQUAL operation. The jump is initialized with a zero offset;
+// caller should use bc_jump_to_here() to set one. One input instruction must
+// follow.
+int bc_jump_if_not_equal(BytecodeWriter* writer);
+
+// Modify the jump operation to jump to the current write position.
+void bc_jump_to_here(BytecodeWriter* writer, int jumpPos);
+
+void bc_global_input(BytecodeWriter* writer, TaggedValue* value);
+void bc_local_input(BytecodeWriter* writer, int frame, int index);
+
 void bc_write_input(BytecodeWriter* writer, Branch* frame, Term* input);
 void bc_write_global_input(Operation* op, TaggedValue* value);
 void bc_write_local_input(Operation* op, int frame, int index);
+
+// Write a COPY operation. Two input instructions must follow.
+void bc_copy_value(BytecodeWriter* writer);
+
+// Write a CALL_BRANCH operation.
+void bc_call_branch(BytecodeWriter* writer, Term* term);
+
+// Write a POP_STACK operation.
+void bc_pop_stack(BytecodeWriter* writer);
 
 // Mark the term's owning branch as needing to recompute bytecode.
 void dirty_bytecode(Term* term);
@@ -107,6 +153,8 @@ void dirty_bytecode(Branch& branch);
 void bc_call(BytecodeWriter* writer, Term* term);
 
 void bc_finish(BytecodeWriter* writer);
+
+void bc_reset_writer(BytecodeWriter* writer);
 
 // Refresh the branch's bytecode, if it's dirty.
 void update_bytecode_for_branch(Branch* branch);

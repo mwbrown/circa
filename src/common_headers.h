@@ -39,6 +39,7 @@ struct EvalContext;
 struct FeedbackOperation;
 struct FunctionAttrs;
 struct List;
+struct Operation;
 struct OpCall;
 struct RawOutputPrefs;
 struct StaticTypeQuery;
@@ -77,6 +78,7 @@ struct OpCall {
     OpType type;
     Term* term;
     EvaluateFunc func;
+    int numInputs;
 };
 
 // Possibly enable ca_assert and/or ca_test_assert

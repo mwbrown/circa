@@ -38,7 +38,7 @@ void evaluate_single_term(EvalContext* context, OpCall* op)
     // slow, and it should be unnecessary if the function is written correctly. But it's
     // a good test.
     #ifdef CIRCA_TEST_BUILD
-    if (!context->errorOccurred && !is_value(op->term)) {
+    if (!context->errorOccurred && op->term != NULL && !is_value(op->term)) {
         Term* term = op->term;
 
         Type* outputType = declared_type(term);
@@ -136,14 +136,12 @@ void copy_locals_to_terms(EvalContext* context, Branch& branch)
 void evaluate_save_locals(Branch& branch)
 {
     EvalContext context;
-    context.preserveLocals = true;
     evaluate_save_locals(&context, branch);
 }
 
-TaggedValue* get_input(EvalContext* context, OpCall* op, int index)
+TaggedValue* get_input(EvalContext* context, Operation* op, int index)
 {
-    Operation* opList = (Operation*) op;
-    Operation* inputOp = &opList[index + 1];
+    Operation* inputOp = op + 1 + index;
 
     switch (inputOp->type) {
     case OP_INPUT_GLOBAL: {
@@ -161,6 +159,10 @@ TaggedValue* get_input(EvalContext* context, OpCall* op, int index)
         internal_error("not an input instruction");
     }
     return NULL;
+}
+TaggedValue* get_input(EvalContext* context, OpCall* op, int index)
+{
+    return get_input(context, (Operation*) op, index);
 }
 
 TaggedValue* get_input(EvalContext* context, Term* term, int index)

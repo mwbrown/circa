@@ -11,28 +11,28 @@ void test_if_simple_eval()
 {
     Branch branch;
     branch.compile("if true { test_spy(1) }");
-    internal_debug_function::spy_clear();
+    testing_clear_spy();
     evaluate_save_locals(branch);
-    test_equals(internal_debug_function::spy_results(), "[1]");
+    test_equals(testing_get_spy_results(), "[1]");
 
     branch.clear();
     branch.compile("if false { test_spy(1) }");
-    internal_debug_function::spy_clear();
+    testing_clear_spy();
     evaluate_save_locals(branch);
-    test_equals(internal_debug_function::spy_results(), "[]");
+    test_equals(testing_get_spy_results(), "[]");
 
     branch.clear();
     branch.compile("if 1 == 1 { test_spy(3) }");
     update_bytecode_for_branch(&branch);
-    internal_debug_function::spy_clear();
+    testing_clear_spy();
     evaluate_save_locals(branch);
-    test_equals(internal_debug_function::spy_results(), "[3]");
+    test_equals(testing_get_spy_results(), "[3]");
 
     branch.clear();
     branch.compile("if false { test_spy(3) } else { test_spy(4) } ");
-    internal_debug_function::spy_clear();
+    testing_clear_spy();
     evaluate_save_locals(branch);
-    test_equals(internal_debug_function::spy_results(), "[4]");
+    test_equals(testing_get_spy_results(), "[4]");
 }
 
 void local_indexes()
@@ -157,7 +157,7 @@ void test_execution()
 {
     Branch branch;
 
-    internal_debug_function::spy_clear();
+    testing_clear_spy();
 
     // Start off with some simple expressions
     branch.compile("if true { test_spy('Success 1') }");
@@ -166,11 +166,11 @@ void test_execution()
     branch.compile("if (1 + 2) < 1 { test_spy('Fail') }");
     evaluate_save_locals(branch);
     test_assert(branch);
-    test_equals(internal_debug_function::spy_results(), "['Success 1', 'Success 2']");
+    test_equals(testing_get_spy_results(), "['Success 1', 'Success 2']");
     
     // Use 'else'
     branch.clear();
-    internal_debug_function::spy_clear();
+    testing_clear_spy();
     branch.compile("if true { test_spy('Success 1') } else { test_spy('Fail') }");
     branch.compile("if false { test_spy('Fail') } else { test_spy('Success 2') }");
     branch.compile("if true { test_spy('Success 3-1') test_spy('Success 3-2') test_spy('Success 3-3') } "
@@ -179,46 +179,46 @@ void test_execution()
                 "else { test_spy('Success 4-1') test_spy('Success 4-2') test_spy('Success 4-3') }");
     evaluate_save_locals(branch);
     test_assert(branch);
-    test_equals(internal_debug_function::spy_results(),
+    test_equals(testing_get_spy_results(),
             "['Success 1', 'Success 2', 'Success 3-1', 'Success 3-2', 'Success 3-3', "
             "'Success 4-1', 'Success 4-2', 'Success 4-3']");
 
     // Do some nested blocks
 
     branch.clear();
-    internal_debug_function::spy_clear();
+    testing_clear_spy();
     branch.compile("if true { if false { test_spy('Error!') } else { test_spy('Nested 1') } } "
                 "else { test_spy('Error!') }");
     evaluate_save_locals(branch);
     test_assert(branch);
-    test_equals(internal_debug_function::spy_results(), "['Nested 1']");
+    test_equals(testing_get_spy_results(), "['Nested 1']");
 
     branch.clear();
-    internal_debug_function::spy_clear();
+    testing_clear_spy();
     branch.compile("if false { test_spy('Error!') } else { if false { test_spy('Error!') } "
                 "else { test_spy('Nested 2') } }");
     evaluate_save_locals(branch);
     test_assert(branch);
-    test_equals(internal_debug_function::spy_results(), "['Nested 2']");
+    test_equals(testing_get_spy_results(), "['Nested 2']");
     
     branch.clear();
-    internal_debug_function::spy_clear();
+    testing_clear_spy();
     branch.compile("if false { test_spy('Error!') }"
                 "else { if true { test_spy('Nested 3') } else { test_spy('Error!') } }");
     evaluate_save_locals(branch);
     test_assert(branch);
-    test_equals(internal_debug_function::spy_results(), "['Nested 3']");
+    test_equals(testing_get_spy_results(), "['Nested 3']");
 
     branch.clear();
-    internal_debug_function::spy_clear();
+    testing_clear_spy();
     branch.compile("if true { if false { test_spy('Error!') } else { test_spy('Nested 4') } } "
                 "else { test_spy('Error!') }");
     evaluate_save_locals(branch);
     test_assert(branch);
-    test_equals(internal_debug_function::spy_results(), "['Nested 4']");
+    test_equals(testing_get_spy_results(), "['Nested 4']");
 
     branch.clear();
-    internal_debug_function::spy_clear();
+    testing_clear_spy();
     branch.compile(
     "if (false)\n"
     "  test_spy('Error!')\n"
@@ -238,7 +238,7 @@ void test_execution()
             );
     evaluate_save_locals(branch);
     test_assert(branch);
-    test_equals(internal_debug_function::spy_results(), "['Nested 5']");
+    test_equals(testing_get_spy_results(), "['Nested 5']");
 }
 
 void test_execution_with_elif()
@@ -252,10 +252,10 @@ void test_execution_with_elif()
                 "elif x == 5 { test_spy('Success')} "
                 "else { test_spy('Fail') }");
 
-    internal_debug_function::spy_clear();
+    testing_clear_spy();
     evaluate_save_locals(branch);
     test_assert(branch);
-    test_equals(internal_debug_function::spy_results(), "['Success']");
+    test_equals(testing_get_spy_results(), "['Success']");
 }
 
 void test_parse_with_no_line_endings()

@@ -5,9 +5,6 @@
 namespace circa {
 namespace switch_function {
 
-    CA_FUNCTION(evaluate_case) { }
-    CA_FUNCTION(evaluate_default_case) { }
-
     void switch_formatSource(StyledSource* source, Term* term)
     {
         format_name_binding(source, term);
@@ -63,17 +60,17 @@ namespace switch_function {
 
     void setup(Branch& kernel)
     {
-        SWITCH_FUNC = import_function(kernel, evaluate_switch, "switch(any input) -> any");
+        SWITCH_FUNC = import_function(kernel, NULL, "switch(any input) -> any");
         get_function_attrs(SWITCH_FUNC)->formatSource = switch_formatSource;
         get_function_attrs(SWITCH_FUNC)->getOutputCount = switch_getOutputCount;
         get_function_attrs(SWITCH_FUNC)->getOutputName = switch_getOutputName;
         get_function_attrs(SWITCH_FUNC)->getOutputType = switch_getOutputType;
-        //FIXME get_function_attrs(SWITCH_FUNC)->writeBytecode = switch_block_write_bytecode;
+        get_function_attrs(SWITCH_FUNC)->writeBytecode = switch_block_write_bytecode;
 
-        CASE_FUNC = import_function(kernel, evaluate_case, "case(any input)");
+        CASE_FUNC = import_function(kernel, NULL, "case(any input)");
         get_function_attrs(CASE_FUNC)->formatSource = case_formatSource;
 
-        DEFAULT_CASE_FUNC = import_function(kernel, evaluate_default_case, "default_case()");
+        DEFAULT_CASE_FUNC = import_function(kernel, NULL, "default_case()");
     }
 
 } // namespace switch_function

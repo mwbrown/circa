@@ -349,4 +349,13 @@ void test_branch_as_assertions_list(Branch& branch, std::string const& contextSt
     }
 }
 
+void testing_clear_spy()
+{
+    internal_debug_function::spy_clear();
+}
+List* testing_get_spy_results()
+{
+    return internal_debug_function::spy_results();
+}
+
 }

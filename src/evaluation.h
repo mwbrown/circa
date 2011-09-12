@@ -101,6 +101,7 @@ void evaluate(Term* function, List* inputs);
 
 // Get the input value (which might be a local or global) for the given term and index.
 TaggedValue* get_input(EvalContext* context, Term* term, int index);
+TaggedValue* get_input(EvalContext* context, Operation* op, int index);
 TaggedValue* get_input(EvalContext* context, OpCall* op, int index);
 
 // consume_input will assign 'dest' to the value of the given input. It may copy the

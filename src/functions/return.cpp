@@ -1,7 +1,8 @@
 // Copyright (c) 2007-2010 Paul Hodge. All rights reserved
 
-#include <circa.h>
-#include <importing_macros.h>
+#include "circa.h"
+#include "bytecode.h"
+#include "importing_macros.h"
 
 namespace circa {
 namespace return_function {

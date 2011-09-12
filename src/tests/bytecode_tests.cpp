@@ -73,11 +73,53 @@ void test_input_override()
     test_equals(sum, "10");
 }
 
+void test_jump_if()
+{
+    BytecodeWriter writer;
+    EvalContext context;
+
+    TaggedValue s;
+    TaggedValue b;
+
+    // Sanity check, write bytecode to call test_spy()
+    bc_imaginary_call(&writer, get_global("test_spy"));
+    bc_global_input(&writer, &s);
+    bc_finish(&writer);
+
+    set_string(&s, "1");
+    testing_clear_spy();
+    evaluate_bytecode(&context, writer.data);
+    test_equals(testing_get_spy_results(), "['1']");
+
+    // First test, use jump_if to avoid a call.
+    bc_reset_writer(&writer);
+    int jump = bc_jump_if(&writer);
+    bc_global_input(&writer, &b);
+    set_bool(&b, true);
+
+    bc_imaginary_call(&writer, get_global("test_spy"));
+    bc_global_input(&writer, &s);
+    bc_jump_to_here(&writer, jump);
+    bc_finish(&writer);
+
+    testing_clear_spy();
+    evaluate_bytecode(&context, writer.data);
+    test_equals(testing_get_spy_results(), "[]");
+
+    // Rerun bytecode, this time send 'false' to the jump_if instruction.
+    set_bool(&b, false);
+    set_string(&s, "2");
+    testing_clear_spy();
+    evaluate_bytecode(&context, writer.data);
+    test_equals(testing_get_spy_results(), "['2']");
+}
+
 void register_tests()
 {
     REGISTER_TEST_CASE(bytecode_tests::test_simple_write);
     REGISTER_TEST_CASE(bytecode_tests::test_no_instructions_for_value);
     REGISTER_TEST_CASE(bytecode_tests::test_input_override);
+    REGISTER_TEST_CASE(bytecode_tests::test_jump_if);
 }
 
 }
