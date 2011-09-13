@@ -142,11 +142,11 @@ CA_FUNCTION(evaluate_subroutine)
     }
 
     // Fetch state container
-    TaggedValue prevScopeState;
-    swap(&context->currentScopeState, &prevScopeState);
+    push_scope_state(context);
 
     if (is_function_stateful(function))
-        fetch_state_container(caller, &prevScopeState, &context->currentScopeState);
+        fetch_state_container(caller, get_scope_state(context, 1),
+                get_scope_state(context, 0));
 
     // Evaluate contents
     List outputs;
@@ -154,8 +154,7 @@ CA_FUNCTION(evaluate_subroutine)
 
     // Preserve state
     if (is_function_stateful(function))
-        save_and_consume_state(caller, &prevScopeState, &context->currentScopeState);
-    swap(&context->currentScopeState, &prevScopeState);
+        save_and_pop_scope_state(context, caller);
 
     // Write output
     TaggedValue* outputDest = get_output(context, caller);

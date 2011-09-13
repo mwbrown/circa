@@ -15,7 +15,7 @@ namespace preserve_state_result_function {
 
         // Use 'name' here, not uniqueName.
         const char* name = INPUT_TERM(0)->name.c_str();
-        Dict* state = Dict::lazyCast(&CONTEXT->currentScopeState);
+        Dict* state = get_scope_state(CONTEXT, 0);
         swap(&result, state->insert(name));
         set_null(OUTPUT);
     }

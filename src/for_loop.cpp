@@ -181,11 +181,10 @@ CA_FUNCTION(evaluate_for_loop)
     // Prepare state container
     bool useState = has_implicit_state(CALLER);
     TaggedValue localState;
-    TaggedValue prevScopeState;
     List* state = NULL;
     if (useState) {
-        swap(&context->currentScopeState, &prevScopeState);
-        fetch_state_container(CALLER, &prevScopeState, &localState);
+        push_scope_state(context);
+        fetch_state_container(CALLER, get_scope_state(context, 1), &localState);
 
         state = List::lazyCast(&localState);
         state->resize(inputListLength);
@@ -203,7 +202,7 @@ CA_FUNCTION(evaluate_for_loop)
 
         // load state for this iteration
         if (useState)
-            swap(state->get(iteration), &context->currentScopeState);
+            swap(state->get(iteration), get_scope_state(context, 0));
 
         // copy iterator
         copy(inputList->getIndex(iteration), get_local(context, 0, iterator));
@@ -231,9 +230,9 @@ CA_FUNCTION(evaluate_for_loop)
             copy(localResult, output->get(nextOutputIndex++));
         }
 
-        // Unload state
+        // Save state
         if (useState)
-            swap(&context->currentScopeState, state->get(iteration));
+            swap(state->get(iteration), get_scope_state(context, 0));
 
         if (context->forLoopContext.breakCalled
                 || context->interruptSubroutine)
@@ -269,8 +268,8 @@ CA_FUNCTION(evaluate_for_loop)
     context->forLoopContext = prevLoopContext;
 
     if (useState) {
-        save_and_consume_state(CALLER, &prevScopeState, &localState);
-        swap(&prevScopeState, &context->currentScopeState);
+        pop_scope_state(context);
+        save_and_consume_state(CALLER, get_scope_state(context, 0), &localState);
     }
 
     context->callStack.pop();

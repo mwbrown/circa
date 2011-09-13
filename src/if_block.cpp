@@ -142,11 +142,11 @@ CA_FUNCTION(evaluate_if_block)
     context->callStack.append(caller);
 
     TaggedValue localState;
-    TaggedValue prevScopeState;
     List* state = NULL;
     if (useState) {
-        swap(&prevScopeState, &context->currentScopeState);
-        fetch_state_container(caller, &prevScopeState, &localState);
+        push_scope_state(context);
+        fetch_state_container(CALLER, get_scope_state(context, 1), &localState);
+
         state = List::lazyCast(&localState);
         state->resize(numBranches);
     }
@@ -167,13 +167,13 @@ CA_FUNCTION(evaluate_if_block)
             push_stack_frame(context, acceptedBranch);
 
             if (useState)
-                swap(state->get(branchIndex), &context->currentScopeState);
+                swap(state->get(branchIndex), get_scope_state(context, 0));
 
             // Evaluate contents
             evaluate_branch_with_bytecode(context, acceptedBranch);
 
             if (useState)
-                swap(state->get(branchIndex), &context->currentScopeState);
+                swap(state->get(branchIndex), get_scope_state(context, 0));
 
             acceptedBranchIndex = branchIndex;
             break;
@@ -186,8 +186,8 @@ CA_FUNCTION(evaluate_if_block)
             if ((i != acceptedBranchIndex))
                 set_null(state->get(i));
         }
-        save_and_consume_state(caller, &prevScopeState, &localState);
-        swap(&prevScopeState, &context->currentScopeState);
+        pop_scope_state(context);
+        save_and_consume_state(CALLER, get_scope_state(context, 0), &localState);
     }
 
     // Copy joined values to output slots

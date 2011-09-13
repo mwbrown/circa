@@ -25,7 +25,7 @@ void test_snippet(std::string const& source)
     TaggedValue trash;
     strip_orphaned_state(branch, &context.state, &trash);
 
-    if (!is_null(&trash)) {
+    if (!is_null(&trash) && !is_empty_dict(&trash)) {
         std::cout << "Falsely orphaned state in " << get_current_test_name() << std::endl;
         std::cout << "Code = " << source << std::endl;
         std::cout << "Trash = " << trash.toString() << std::endl;

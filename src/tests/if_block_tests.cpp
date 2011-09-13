@@ -375,7 +375,7 @@ void test_state_is_reset_when_if_fails()
     set_bool(c, false);
 
     evaluate_save_locals(&context, branch);
-    test_equals(&context.state, "{_if_block: [null, null]}");
+    test_equals(&context.state, "{_if_block: [null, {}]}");
 
     set_bool(c, true);
 
@@ -408,7 +408,7 @@ void test_state_is_reset_when_if_fails2()
 
     set_bool(a, false);
     evaluate_save_locals(&context, branch);
-    test_equals(&context.state, "{_if_block: [null, null]}");
+    test_equals(&context.state, "{_if_block: [null, {}]}");
 
     set_bool(a, true);
     evaluate_save_locals(&context, branch);

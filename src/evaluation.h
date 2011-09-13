@@ -35,10 +35,6 @@ struct EvalContext
     // Tree of persistent state
     TaggedValue state;
 
-    // State that should be used for the current branch. This is a temporary value
-    // only used during evaluation.
-    TaggedValue currentScopeState;
-
     // State used for the current for loop
     ForLoopContext forLoopContext;
 
@@ -58,6 +54,8 @@ struct EvalContext
 
     // Current stack of in-progress terms. Used for introspection.
     TermList callStack;
+
+    List stateStack;
 
     EvalContext()
       : preserveLocals(false),
@@ -121,7 +119,12 @@ void error_occurred(EvalContext* context, Term* errorTerm, std::string const& me
 void print_runtime_error_formatted(EvalContext& context, std::ostream& output);
 
 Dict* get_current_scope_state(EvalContext* cxt);
+Dict* get_scope_state(EvalContext* cxt, int frame);
+void push_scope_state(EvalContext* cxt);
+void push_scope_state_for_term(EvalContext* cxt, Term* term);
+void pop_scope_state(EvalContext* cxt);
 void fetch_state_container(Term* term, TaggedValue* container, TaggedValue* output);
+void save_and_pop_scope_state(EvalContext* cxt, Term* term);
 
 // Saves the state result inside 'result' into the given container, according to
 // the unique name of 'term'. This call will consume the value inside 'result',

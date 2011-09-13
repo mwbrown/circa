@@ -77,7 +77,7 @@ namespace internal_debug_function {
 
     CA_DEFINE_FUNCTION(dump_scope_state, "dump_scope_state() -> any")
     {
-        copy(&CONTEXT->currentScopeState, OUTPUT);
+        copy(get_scope_state(CONTEXT, 0), OUTPUT);
     }
 
     bool g_initializedHandleType;

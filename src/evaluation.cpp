@@ -88,21 +88,20 @@ void evaluate_branch_internal_with_state(EvalContext* context, Term* term,
         Branch& branch)
 {
     // Store currentScopeState and fetch the container for this branch
-    TaggedValue prevScopeState;
-    swap(&context->currentScopeState, &prevScopeState);
-    fetch_state_container(term, &prevScopeState, &context->currentScopeState);
+    push_scope_state_for_term(context, term);
 
     evaluate_branch_internal(context, branch);
 
     // Store container and replace currentScopeState
-    save_and_consume_state(term, &prevScopeState, &context->currentScopeState);
-    swap(&context->currentScopeState, &prevScopeState);
+    save_and_pop_scope_state(context, term);
 }
 
 void evaluate_branch(EvalContext* context, Branch& branch)
 {
     push_stack_frame(context, &branch);
-    copy(&context->state, &context->currentScopeState);
+    push_scope_state(context);
+    Dict::lazyCast(&context->state);
+    copy(&context->state, get_current_scope_state(context));
 
     evaluate_branch_with_bytecode(context, &branch);
 
@@ -111,8 +110,8 @@ void evaluate_branch(EvalContext* context, Branch& branch)
 
     pop_stack_frame(context);
 
-    swap(&context->currentScopeState, &context->state);
-    set_null(&context->currentScopeState);
+    swap(get_current_scope_state(context), &context->state);
+    pop_scope_state(context);
 }
 
 void evaluate_save_locals(EvalContext* context, Branch& branch)
@@ -259,13 +258,40 @@ void print_runtime_error_formatted(EvalContext& context, std::ostream& output)
 
 Dict* get_current_scope_state(EvalContext* cxt)
 {
-    return Dict::lazyCast(&cxt->currentScopeState);
+    ca_assert(cxt->stateStack.length() > 0);
+    return Dict::checkCast(cxt->stateStack.getFromEnd(0));
+}
+Dict* get_scope_state(EvalContext* cxt, int frame)
+{
+    return Dict::lazyCast(cxt->stateStack.getFromEnd(frame));
+}
+void push_scope_state(EvalContext* cxt)
+{
+    set_dict(cxt->stateStack.append());
+}
+void pop_scope_state(EvalContext* cxt)
+{
+    ca_assert(cxt->stateStack.length() > 0);
+    cxt->stateStack.pop();
+}
+void push_scope_state_for_term(EvalContext* cxt, Term* term)
+{
+    TaggedValue* currentScope = cxt->stateStack.append();
+    Dict* prevScope = Dict::lazyCast(cxt->stateStack.getFromEnd(1));
+    fetch_state_container(term, prevScope, currentScope);
 }
 
 void fetch_state_container(Term* term, TaggedValue* container, TaggedValue* output)
 {
     Dict* containerDict = Dict::lazyCast(container);
     copy(containerDict->insert(term->uniqueName.name.c_str()), output);
+}
+void save_and_pop_scope_state(EvalContext* cxt, Term* term)
+{
+    Dict* prevScope = Dict::lazyCast(cxt->stateStack.getFromEnd(1));
+    Dict* currentScope = Dict::lazyCast(cxt->stateStack.getFromEnd(0));
+    save_and_consume_state(term, prevScope, currentScope);
+    pop_scope_state(cxt);
 }
 
 void save_and_consume_state(Term* term, TaggedValue* container, TaggedValue* result)
@@ -291,6 +317,7 @@ void evaluate_range(EvalContext* context, Branch& branch, int start, int end)
     bc_finish(&bytecode);
 
     push_stack_frame(context, &branch);
+    push_scope_state(context);
     evaluate_bytecode(context, bytecode.data);
 
     // copy locals back to terms
@@ -305,6 +332,7 @@ void evaluate_range(EvalContext* context, Branch& branch, int start, int end)
     }
 
     pop_stack_frame(context);
+    pop_scope_state(context);
 }
 
 void push_stack_frame(EvalContext* context, int size)

@@ -98,6 +98,7 @@ void set_function_pointer(TaggedValue* value, Term* function);
 void set_int(TaggedValue* value, int i);
 List* set_list(TaggedValue* value);
 List* set_list(TaggedValue* value, int size);
+Dict* set_dict(TaggedValue* value);
 void set_null(TaggedValue* value);
 void set_opaque_pointer(TaggedValue* value, void* addr);
 void set_string(TaggedValue* value, const char* s);

@@ -95,14 +95,12 @@ namespace include_function {
                     get_static_errors_formatted(contents));
 
         // Store currentScopeState and fetch the container for this branch
-        TaggedValue prevScopeState;
-        swap(&context->currentScopeState, &prevScopeState);
-        fetch_state_container(CALLER, &prevScopeState, &context->currentScopeState);
+        push_scope_state_for_term(CONTEXT, CALLER);
 
         // Possibly strip out state that isn't referenced any more.
         if (fileChanged) {
             TaggedValue trash;
-            strip_orphaned_state(contents, &context->currentScopeState, &trash);
+            strip_orphaned_state(contents, get_scope_state(context, 0), &trash);
         }
 
         context->callStack.append(CALLER);
@@ -112,8 +110,7 @@ namespace include_function {
         context->callStack.pop();
 
         // Store container and replace currentScopeState
-        save_and_consume_state(CALLER, &prevScopeState, &context->currentScopeState);
-        swap(&context->currentScopeState, &prevScopeState);
+        save_and_pop_scope_state(CONTEXT, CALLER);
 
         set_branch(OUTPUT, &contents);
     }

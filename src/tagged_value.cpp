@@ -453,6 +453,12 @@ List* set_list(TaggedValue* value, int size)
     return list;
 }
 
+Dict* set_dict(TaggedValue* value)
+{
+    change_type(value, &DICT_T);
+    return (Dict*) value;
+}
+
 void set_type(TaggedValue* value, Type* type)
 {
     set_null(value);

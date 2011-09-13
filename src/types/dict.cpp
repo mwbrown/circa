@@ -275,6 +275,8 @@ void remove(DictData* data, const char* key)
 
 int count(DictData* data)
 {
+    if (data == NULL)
+        return 0;
     return data->count;
 }
 
@@ -592,6 +594,12 @@ int Dict::getInt(const char* key, int defaultTaggedValue)
 bool is_dict(TaggedValue* value)
 {
     return value->value_type == &DICT_T;
+}
+bool is_empty_dict(TaggedValue* value)
+{
+    if (!is_dict(value))
+        return false;
+    return ((Dict*) value)->empty();
 }
 Dict* make_dict(TaggedValue* value)
 {

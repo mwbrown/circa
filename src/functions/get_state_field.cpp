@@ -21,7 +21,7 @@ namespace get_state_field_function {
             stateContainer = Dict::checkCast(INPUT(0));
 
         if (stateContainer == NULL)
-            stateContainer = Dict::lazyCast(&CONTEXT->currentScopeState);
+            stateContainer = get_scope_state(CONTEXT, 0);
 
         ca_assert(stateContainer != NULL);
 
