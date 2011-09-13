@@ -62,13 +62,6 @@ int get_frame_distance(Branch* frame, Term* input)
 
     Branch* inputFrame = input->owningBranch;
 
-    // Special case for if_block. Terms inside #joining can see terms inside each case.
-    Term* termParent = frame->owningTerm;
-    if (termParent != NULL
-            && termParent->name == "#joining"
-            && termParent->owningBranch == get_parent_branch(*inputFrame))
-        return 0;
-
     // If the input's branch doesn't create a separate stack frame, then look
     // at the parent branch.
     if (!branch_creates_separate_stack_frame(inputFrame))

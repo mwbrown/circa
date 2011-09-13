@@ -23,17 +23,6 @@ void switch_block_post_compile(Term* term)
 
 void switch_block_write_bytecode(Term* caller, BytecodeWriter* writer)
 {
-    // start_switch <input count>
-    //  <input list>
-    // call_branch
-    // copy output from stack
-    // pop_stack
-
-    // jump_if_not next_case
-    //  input0
-    // do stuff for this case
-    // next_case: jump_if_not next_case_2
-
     Branch& contents = nested_contents(caller);
     Branch* parentBranch = caller->owningBranch;
 
@@ -57,7 +46,7 @@ void switch_block_write_bytecode(Term* caller, BytecodeWriter* writer)
         for (int i=0; i < joining.length(); i++) {
             Term* joinTerm = joining[i];
             bc_copy_value(writer);
-            bc_write_input(writer, &contents, joinTerm->input(caseIndex));
+            bc_write_input(writer, &nested_contents(caseTerm), joinTerm->input(caseIndex));
             bc_local_input(writer, 1, caller->index + 1 + i);
         }
 

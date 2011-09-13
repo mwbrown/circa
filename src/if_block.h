@@ -14,4 +14,6 @@ Branch* if_block_get_branch(Term* ifCall, int index);
 
 CA_FUNCTION(evaluate_if_block);
 
+void if_block_write_bytecode(Term* caller, BytecodeWriter* writer);
+
 } // namespace circa

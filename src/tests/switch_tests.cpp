@@ -47,13 +47,20 @@ void test_case_expressions_arent_constant()
     test_equals(testing_get_spy_results(), "[3]");
 }
 
-void test_join_locals()
+void joining_terms()
 {
     Branch branch;
     branch.compile("a = 1");
     branch.compile("switch 2 { case 1 { a = 'wrong' } case 2 { a = 'right' } case 3 { a = 'alsoWrong' }}");
 
-    testing_clear_spy();
+    evaluate_save_locals(branch);
+    test_equals(branch["a"], "right");
+
+    // Test again, but the joined values are locals
+    branch.clear();
+    branch.compile("a = 1+1");
+    branch.compile("switch 2 { case 1 { a = 'wrong' } case 2 { a = concat('ri', 'ght') } case 3 { a = 'alsoWrong' }}");
+
     evaluate_save_locals(branch);
     test_equals(branch["a"], "right");
 }
@@ -62,7 +69,7 @@ void register_tests()
 {
     REGISTER_TEST_CASE(switch_tests::test_simple);
     REGISTER_TEST_CASE(switch_tests::test_case_expressions_arent_constant);
-    REGISTER_TEST_CASE(switch_tests::test_join_locals);
+    REGISTER_TEST_CASE(switch_tests::joining_terms);
 }
 
 }

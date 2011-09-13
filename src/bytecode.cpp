@@ -197,6 +197,7 @@ void bc_write_call_op(BytecodeWriter* writer, Term* term, EvaluateFunc func)
                 index = 1 + input->index;
 
             int relativeFrame = get_frame_distance(term, input);
+            ca_assert(relativeFrame >= 0);
             bc_write_local_input(inputOp, relativeFrame, index);
         }
     }
@@ -296,6 +297,7 @@ void bc_write_input(BytecodeWriter* writer, Branch* frame, Term* input)
         bc_write_global_input(inputOp, (TaggedValue*) input);
     } else {
         int relativeFrame = get_frame_distance(frame, input);
+        ca_assert(relativeFrame >= 0);
         bc_write_local_input(inputOp, relativeFrame, input->index);
     }
 }
