@@ -19,12 +19,14 @@ const OpType OP_JUMP_IF_NOT_EQUAL = 13;
 
 const OpType OP_RETURN = 20;
 const OpType OP_RETURN_ON_ERROR = 21;
+const OpType OP_RETURN_ON_EVAL_INTERRUPTED = 24; // deprecated
 const OpType OP_STACK_SIZE = 22;
 const OpType OP_POP_STACK = 23;
 
 const OpType OP_INPUT_LOCAL = 31;
 const OpType OP_INPUT_GLOBAL = 32;
 const OpType OP_INPUT_NULL = 33;
+const OpType OP_INPUT_INT = 34;
 
 const OpType OP_COPY = 40;
 
@@ -57,6 +59,11 @@ struct OpInputLocal {
 struct OpInputGlobal {
     OpType type;
     TaggedValue* value;
+};
+
+struct OpInputInt {
+    OpType type;
+    int value;
 };
 
 struct OpJump {
@@ -100,13 +107,15 @@ std::string get_bytecode_as_string(BytecodeData* bytecode);
 
 // Building functions
 void bc_write_call_op(BytecodeWriter* writer, Term* term, EvaluateFunc func);
+void bc_write_call_op_with_func(BytecodeWriter* writer, Term* term, Term* func);
 void bc_return(BytecodeWriter* writer);
+void bc_return_on_evaluation_interrupted(BytecodeWriter* writer);
 
 // Write a CALL instruction with no Term*, just an EvaluateFunc. Input
 // instructions must be appended by the caller. Some functions don't work
 // with a NULL caller.
-void bc_imaginary_call(BytecodeWriter* writer, EvaluateFunc func);
-void bc_imaginary_call(BytecodeWriter* writer, Term* func);
+void bc_imaginary_call(BytecodeWriter* writer, EvaluateFunc func, int output);
+void bc_imaginary_call(BytecodeWriter* writer, Term* func, int output);
 
 // Write a JUMP instruction. The jump is initialized with a zero offset;
 // caller should use bc_jump_to_here() to set one.
@@ -134,6 +143,7 @@ void bc_local_input(BytecodeWriter* writer, int frame, int index);
 void bc_write_input(BytecodeWriter* writer, Branch* frame, Term* input);
 void bc_write_global_input(Operation* op, TaggedValue* value);
 void bc_write_local_input(Operation* op, int frame, int index);
+void bc_write_int_input(BytecodeWriter* writer, int value);
 
 // Write a COPY operation. Two input instructions must follow.
 void bc_copy_value(BytecodeWriter* writer);
@@ -143,6 +153,13 @@ void bc_call_branch(BytecodeWriter* writer, Term* term);
 
 // Write a POP_STACK operation.
 void bc_pop_stack(BytecodeWriter* writer);
+
+void bc_unpack_scope_state(BytecodeWriter* writer, Term* container, int local);
+void bc_repack_scope_state(BytecodeWriter* writer, Term* container, int local);
+void bc_resize_list(BytecodeWriter* writer, int listLocal, int size);
+void bc_set_null(BytecodeWriter* writer, int local);
+void bc_push_state_from_list(BytecodeWriter* writer, int local, int index);
+void bc_pop_state_back_to_list(BytecodeWriter* writer, int local, int index);
 
 // Mark the term's owning branch as needing to recompute bytecode.
 void dirty_bytecode(Term* term);

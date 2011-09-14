@@ -21,6 +21,7 @@ static bool is_input_op_type(OpType type)
         case OP_INPUT_LOCAL:
         case OP_INPUT_GLOBAL:
         case OP_INPUT_NULL:
+        case OP_INPUT_INT:
             return true;
         default:
             return false;
@@ -50,12 +51,19 @@ void print_bytecode_op(Operation* op, int loc, std::ostream& out)
             out << "input_local frame:" << lop->relativeFrame << " idx:" << lop->index;
             break;
         }
-
+        case OP_INPUT_INT: {
+            OpInputInt* iop = (OpInputInt*) op;
+            out << "input_int " << iop->value;
+            break;
+        }
         case OP_RETURN:
             out << "return";
             break;
         case OP_RETURN_ON_ERROR:
             out << "return_on_error";
+            break;
+        case OP_RETURN_ON_EVAL_INTERRUPTED:
+            out << "return_on_eval_interrupt";
             break;
         case OP_STACK_SIZE:
             out << "stack_size " << ((OpStackSize*) op)->size;
@@ -163,6 +171,7 @@ void bc_write_call_op(BytecodeWriter* writer, Term* term, EvaluateFunc func)
     op->type = OP_CALL;
     op->term = term;
     op->func = func;
+    op->outputIndex = term->index;
 
     // Write information for each input
     for (int i=0; i < term->numInputs(); i++) {
@@ -197,26 +206,35 @@ void bc_write_call_op(BytecodeWriter* writer, Term* term, EvaluateFunc func)
                 index = 1 + input->index;
 
             int relativeFrame = get_frame_distance(term, input);
-            ca_assert(relativeFrame >= 0);
+            //ca_assert(relativeFrame >= 0);
             bc_write_local_input(inputOp, relativeFrame, index);
         }
     }
+}
+void bc_write_call_op_with_func(BytecodeWriter* writer, Term* term, Term* func)
+{
+    bc_write_call_op(writer, term, get_function_attrs(func)->evaluate);
 }
 
 void bc_return(BytecodeWriter* writer)
 {
     bc_append_op(writer)->type = OP_RETURN;
 }
-void bc_imaginary_call(BytecodeWriter* writer, EvaluateFunc func)
+void bc_return_on_evaluation_interrupted(BytecodeWriter* writer)
+{
+    bc_append_op(writer)->type = OP_RETURN_ON_EVAL_INTERRUPTED;
+}
+void bc_imaginary_call(BytecodeWriter* writer, EvaluateFunc func, int output)
 {
     OpCall* op = (OpCall*) bc_append_op(writer);
     op->type = OP_CALL;
     op->term = NULL;
     op->func = func;
+    op->outputIndex = output;
 }
-void bc_imaginary_call(BytecodeWriter* writer, Term* func)
+void bc_imaginary_call(BytecodeWriter* writer, Term* func, int output)
 {
-    bc_imaginary_call(writer, get_function_attrs(func)->evaluate);
+    bc_imaginary_call(writer, get_function_attrs(func)->evaluate, output);
 }
 int bc_jump(BytecodeWriter* writer)
 {
@@ -314,6 +332,12 @@ void bc_write_local_input(Operation* op, int frame, int index)
     lop->relativeFrame = frame;
     lop->index = index;
 }
+void bc_write_int_input(BytecodeWriter* writer, int value)
+{
+    OpInputInt *iop = (OpInputInt*) bc_append_op(writer);
+    iop->type = OP_INPUT_INT;
+    iop->value = value;
+}
 void bc_copy_value(BytecodeWriter* writer)
 {
     bc_append_op(writer)->type = OP_COPY;
@@ -364,10 +388,8 @@ void bc_call(BytecodeWriter* writer, Term* term)
     FunctionAttrs::WriteBytecode writeBytecode =
         get_function_attrs(term->function)->writeBytecode;
 
-    if (writeBytecode != NULL) {
-        writeBytecode(term, writer);
-        return;
-    }
+    if (writeBytecode != NULL)
+        return writeBytecode(term, writer);
 
     // Default: Add an OP_CALL
     bc_write_call_op(writer, term, get_function_attrs(term->function)->evaluate);
@@ -439,7 +461,7 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
         switch (op->type) {
         case OP_CALL: {
 
-            // this will be removed:
+            // TODO: Remove this once control flow is fully bytecoded:
             bool evalWasInterrupted = evaluation_interrupted(context);
 
             OpCall* cop = (OpCall*) op;
@@ -448,7 +470,7 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
 
             // TODO: Should skip over input instructions when possible
 
-            // this will be removed:
+            // TODO: Remove this once control flow is fully bytecoded:
             if (evaluation_interrupted(context) && !evalWasInterrupted)
                 return;
 
@@ -458,6 +480,7 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
         case OP_INPUT_LOCAL:
         case OP_INPUT_GLOBAL:
         case OP_INPUT_NULL:
+        case OP_INPUT_INT:
             pc += 1;
             continue;
 
@@ -466,6 +489,12 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
 
         case OP_RETURN_ON_ERROR:
             if (context->errorOccurred)
+                return;
+            pc++;
+            continue;
+
+        case OP_RETURN_ON_EVAL_INTERRUPTED:
+            if (evaluation_interrupted(context))
                 return;
             pc++;
             continue;
@@ -529,6 +558,7 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
             push_stack_frame(context, branch);
             evaluate_branch_with_bytecode(context, branch);
             pc += 1;
+
             continue;
         }
         case OP_POP_STACK: {

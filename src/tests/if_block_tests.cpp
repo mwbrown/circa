@@ -348,15 +348,14 @@ void test_state_in_function()
     Term* call1 = branch.compile("my_func()");
 
     evaluate_save_locals(&context, branch);
-
     test_assert(as_int(call1) == 1);
 
     evaluate_save_locals(&context, branch);
+    test_equals(as_int(call1), 2);
+
     evaluate_save_locals(&context, branch);
-
-    test_assert(context);
-
     test_equals(as_int(call1), 3);
+    test_assert(context);
 }
 
 void test_state_is_reset_when_if_fails()
@@ -368,13 +367,16 @@ void test_state_is_reset_when_if_fails()
     branch.compile("if c { state i = 0; i += 1 } else { 'hi' }");
 
     evaluate_save_locals(&context, branch);
-    test_equals(&context.state, "{_if_block: [{i: 1}, null]}");
+    //test_equals(&context.state, "{_if_block: [{i: 1}, null]}");
+    test_equals(&context.state, "{_if_block: [{i: 1}]}");
 
     evaluate_save_locals(&context, branch);
-    test_equals(&context.state, "{_if_block: [{i: 2}, null]}");
+    //test_equals(&context.state, "{_if_block: [{i: 2}, null]}");
+    test_equals(&context.state, "{_if_block: [{i: 2}]}");
 
     evaluate_save_locals(&context, branch);
-    test_equals(&context.state, "{_if_block: [{i: 3}, null]}");
+    //test_equals(&context.state, "{_if_block: [{i: 3}, null]}");
+    test_equals(&context.state, "{_if_block: [{i: 3}]}");
 
     set_bool(c, false);
 
@@ -384,7 +386,8 @@ void test_state_is_reset_when_if_fails()
     set_bool(c, true);
 
     evaluate_save_locals(&context, branch);
-    test_equals(&context.state, "{_if_block: [{i: 1}, null]}");
+    //test_equals(&context.state, "{_if_block: [{i: 1}, null]}");
+    test_equals(&context.state, "{_if_block: [{i: 1}]}");
 }
 
 void test_state_is_reset_when_if_fails2()
@@ -405,10 +408,12 @@ void test_state_is_reset_when_if_fails2()
 
     EvalContext context;
     evaluate_save_locals(&context, branch);
-    test_equals(&context.state, "{_if_block: [{s: 1}, null]}");
+    //test_equals(&context.state, "{_if_block: [{s: 1}, null]}");
+    test_equals(&context.state, "{_if_block: [{s: 1}]}");
 
     evaluate_save_locals(&context, branch);
-    test_equals(&context.state, "{_if_block: [{s: 1}, null]}");
+    //test_equals(&context.state, "{_if_block: [{s: 1}, null]}");
+    test_equals(&context.state, "{_if_block: [{s: 1}]}");
 
     set_bool(a, false);
     evaluate_save_locals(&context, branch);
@@ -416,7 +421,8 @@ void test_state_is_reset_when_if_fails2()
 
     set_bool(a, true);
     evaluate_save_locals(&context, branch);
-    test_equals(&context.state, "{_if_block: [{s: 2}, null]}");
+    //test_equals(&context.state, "{_if_block: [{s: 2}, null]}");
+    test_equals(&context.state, "{_if_block: [{s: 2}]}");
 }
 
 void test_nested_state()

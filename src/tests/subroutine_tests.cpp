@@ -5,6 +5,17 @@
 namespace circa {
 namespace subroutine_tests {
 
+void test_return_simple()
+{
+    Branch branch;
+    branch.compile("def f() -> number { return 4.0 }");
+    Term* call = branch.compile("f()");
+
+    test_assert(branch);
+    evaluate_save_locals(branch);
+
+    test_equals(call, "4.0");
+}
 void test_return_from_conditional()
 {
     Branch branch;
@@ -17,10 +28,15 @@ void test_return_from_conditional()
 
     test_assert(branch);
 
-    test_equals(branch.eval("my_max(3,8)")->toFloat(), 8);
-    test_equals(branch.eval("my_max(3,3)")->toFloat(), 3);
+    Term* call0 = branch.compile("my_max(3,8)");
+    Term* call1 = branch.compile("my_max(3,3)");
+    Term* call2 = branch.compile("my_max(11,8)");
 
-    test_equals(branch.eval("my_max(11,0)")->toFloat(), 11);
+    evaluate_save_locals(branch);
+
+    test_equals(call0, "8.0");
+    test_equals(call1, "3.0");
+    test_equals(call2, "11.0");
 }
 
 void test_recursion()
@@ -378,6 +394,7 @@ void multiple_outputs()
 
 void register_tests()
 {
+    REGISTER_TEST_CASE(subroutine_tests::test_return_simple);
     REGISTER_TEST_CASE(subroutine_tests::test_return_from_conditional);
     REGISTER_TEST_CASE(subroutine_tests::test_recursion);
     REGISTER_TEST_CASE(subroutine_tests::subroutine_stateful_term);

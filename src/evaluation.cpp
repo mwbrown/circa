@@ -154,14 +154,29 @@ TaggedValue* get_input(EvalContext* context, Operation* op, int index)
     }
     case OP_INPUT_NULL:
         return NULL;
+    case OP_INPUT_INT:
+        internal_error("Can't access INPUT_INT from get_input()");
     default:
         internal_error("not an input instruction");
     }
     return NULL;
 }
+
 TaggedValue* get_input(EvalContext* context, OpCall* op, int index)
 {
     return get_input(context, (Operation*) op, index);
+}
+
+int get_int_input(EvalContext* context, OpCall* op, int index)
+{
+    Operation* inputOp = ((Operation*) op) + 1 + index;
+
+    if (inputOp->type == OP_INPUT_INT) {
+        OpInputInt* iop = (OpInputInt*) inputOp;
+        return iop->value;
+    } else {
+        return as_int(get_input(context, op, index));
+    }
 }
 
 TaggedValue* get_input(EvalContext* context, Term* term, int index)
@@ -195,6 +210,12 @@ TaggedValue* get_output(EvalContext* context, Term* term)
 {
     TaggedValue* frame = get_stack_frame(context, 0);
     return list_get_index(frame, term->index);
+}
+
+TaggedValue* get_output(EvalContext* context, OpCall* op)
+{
+    TaggedValue* frame = get_stack_frame(context, 0);
+    return list_get_index(frame, op->outputIndex);
 }
 
 TaggedValue* get_extra_output(EvalContext* context, Term* term, int index)
@@ -285,6 +306,16 @@ void fetch_state_container(Term* term, TaggedValue* container, TaggedValue* outp
 {
     Dict* containerDict = Dict::lazyCast(container);
     copy(containerDict->insert(term->uniqueName.name.c_str()), output);
+}
+void consume_scope_state_field(Term* term, Dict* scopeState, TaggedValue* output)
+{
+    TaggedValue* value = scopeState->get(term->uniqueName.name.c_str());
+    if (value == NULL) {
+        set_null(output);
+        return;
+    }
+    swap(value, output);
+    set_null(value);
 }
 void save_and_pop_scope_state(EvalContext* cxt, Term* term)
 {

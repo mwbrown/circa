@@ -216,6 +216,7 @@ void if_block_write_bytecode(Term* caller, BytecodeWriter* writer)
 {
     Branch& contents = nested_contents(caller);
     Branch* parentBranch = caller->owningBranch;
+    bool useState = has_any_inlined_state(contents);
 
     std::vector<int> jumpsToFinish;
 
@@ -228,7 +229,17 @@ void if_block_write_bytecode(Term* caller, BytecodeWriter* writer)
             bc_write_input(writer, parentBranch, caseTerm->input(0));
         }
 
+        if (useState) {
+            bc_write_call_op_with_func(writer, caller, IF_BLOCK_UNPACK_STATE_FUNC);
+            bc_write_int_input(writer, caseIndex);
+        }
+
         bc_call_branch(writer, caseTerm);
+
+        if (useState) {
+            bc_write_call_op_with_func(writer, caller, IF_BLOCK_PACK_STATE_FUNC);
+            bc_write_int_input(writer, caseIndex);
+        }
 
         // Copy joined locals
         Branch& joining = nested_contents(contents.getFromEnd(0));
@@ -242,6 +253,8 @@ void if_block_write_bytecode(Term* caller, BytecodeWriter* writer)
 
         // Finish, clean up stack and wrap up jumps.
         bc_pop_stack(writer);
+
+        bc_return_on_evaluation_interrupted(writer);
 
         jumpsToFinish.push_back(bc_jump(writer));
 

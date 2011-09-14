@@ -91,7 +91,8 @@ void if_blocks()
     test_snippet("if true { state a }");
     test_snippet("if true { state a } else { state b }");
 
-    test_trimmed_state("if true { state a }", "", "{_if_block: [{a: <any>}, null]}");
+    //test_trimmed_state("if true { state a }", "", "{_if_block: [{a: <any>}, null]}");
+    test_trimmed_state("if true { state a }", "", "{_if_block: [{a: <any>}]}");
 }
 
 void function_calls()

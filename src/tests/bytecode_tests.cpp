@@ -6,6 +6,17 @@
 namespace circa {
 namespace bytecode_tests {
 
+void test_static_assertions()
+{
+    test_assert(sizeof(Operation) >= sizeof(OpCall));
+    test_assert(sizeof(Operation) >= sizeof(OpCallBranch));
+    test_assert(sizeof(Operation) >= sizeof(OpStackSize));
+    test_assert(sizeof(Operation) >= sizeof(OpInputLocal));
+    test_assert(sizeof(Operation) >= sizeof(OpInputGlobal));
+    test_assert(sizeof(Operation) >= sizeof(OpInputInt));
+    test_assert(sizeof(Operation) >= sizeof(OpJump));
+}
+
 void test_simple_write()
 {
     Branch branch;
@@ -82,7 +93,7 @@ void test_jump_if()
     TaggedValue b;
 
     // Sanity check, write bytecode to call test_spy()
-    bc_imaginary_call(&writer, get_global("test_spy"));
+    bc_imaginary_call(&writer, get_global("test_spy"), -1);
     bc_global_input(&writer, &s);
     bc_finish(&writer);
 
@@ -97,7 +108,7 @@ void test_jump_if()
     bc_global_input(&writer, &b);
     set_bool(&b, true);
 
-    bc_imaginary_call(&writer, get_global("test_spy"));
+    bc_imaginary_call(&writer, get_global("test_spy"), -1);
     bc_global_input(&writer, &s);
     bc_jump_to_here(&writer, jump);
     bc_finish(&writer);
@@ -116,6 +127,7 @@ void test_jump_if()
 
 void register_tests()
 {
+    REGISTER_TEST_CASE(bytecode_tests::test_static_assertions);
     REGISTER_TEST_CASE(bytecode_tests::test_simple_write);
     REGISTER_TEST_CASE(bytecode_tests::test_no_instructions_for_value);
     REGISTER_TEST_CASE(bytecode_tests::test_input_override);

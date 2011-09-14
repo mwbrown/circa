@@ -81,6 +81,55 @@ namespace if_block_function {
         return find_common_type(&types);
     }
 
+    CA_FUNCTION(if_block_unpack_state)
+    {
+        Term* caller = CALLER;
+        EvalContext* context = CONTEXT;
+
+        push_scope_state(context);
+        Dict* prevScope = get_scope_state(context, 1);
+
+        TaggedValue* stateEntry = prevScope->get(get_unique_name(caller));
+
+        if (stateEntry == NULL)
+            return;
+
+        List* ifBlockState = List::lazyCast(stateEntry);
+        int caseIndex = get_int_input(CONTEXT, CALL_OPERATION, 0);
+
+        const bool resetStateForUnusedBranches = true;
+
+        if (ifBlockState->length() <= caseIndex) {
+            if (resetStateForUnusedBranches) set_null(stateEntry);
+            return;
+        }
+
+        TaggedValue* stateItem = ifBlockState->get(caseIndex);
+        if (!is_dict(stateItem))
+            set_dict(stateItem);
+        swap(stateItem, get_scope_state(context, 0));
+        set_null(stateItem);
+
+        if (resetStateForUnusedBranches)
+            set_null(stateEntry);
+    }
+
+    CA_FUNCTION(if_block_pack_state)
+    {
+        EvalContext* context = CONTEXT;
+        Term* caller = CALLER;
+
+        Dict* prevScope = get_scope_state(context, 1);
+        List* stateEntry = List::lazyCast(prevScope->insert(get_unique_name(caller)));
+
+        int caseIndex = get_int_input(CONTEXT, CALL_OPERATION, 0);
+        if (stateEntry->length() <= caseIndex)
+            stateEntry->resize(caseIndex + 1);
+
+        swap(get_scope_state(context, 0), stateEntry->get(caseIndex));
+        pop_scope_state(context);
+    }
+
     void setup(Branch& kernel)
     {
         IF_BLOCK_FUNC = import_function(kernel, evaluate_if_block, "if_block() -> any");
@@ -88,10 +137,15 @@ namespace if_block_function {
         get_function_attrs(IF_BLOCK_FUNC)->getOutputCount = getOutputCount;
         get_function_attrs(IF_BLOCK_FUNC)->getOutputName = getOutputName;
         get_function_attrs(IF_BLOCK_FUNC)->getOutputType = getOutputType;
-        //get_function_attrs(IF_BLOCK_FUNC)->writeBytecode = if_block_write_bytecode;
+        get_function_attrs(IF_BLOCK_FUNC)->writeBytecode = if_block_write_bytecode;
 
         JOIN_FUNC = import_function(kernel, NULL, "join(any...) -> any");
         get_function_attrs(JOIN_FUNC)->specializeType = joinFunc_specializeType;
+
+        IF_BLOCK_UNPACK_STATE_FUNC = import_function(kernel, if_block_unpack_state,
+                "if_block_unpack_state(int caseIndex)");
+        IF_BLOCK_PACK_STATE_FUNC = import_function(kernel, if_block_pack_state,
+                "if_block_pack_state(int caseIndex)");
     }
 }
 }

@@ -101,6 +101,7 @@ void evaluate(Term* function, List* inputs);
 TaggedValue* get_input(EvalContext* context, Term* term, int index);
 TaggedValue* get_input(EvalContext* context, Operation* op, int index);
 TaggedValue* get_input(EvalContext* context, OpCall* op, int index);
+int get_int_input(EvalContext* context, OpCall* op, int index);
 
 // consume_input will assign 'dest' to the value of the given input. It may copy the
 // input value. But, if it's safe to do so, this function will instead swap the value,
@@ -108,6 +109,7 @@ TaggedValue* get_input(EvalContext* context, OpCall* op, int index);
 void consume_input(EvalContext* context, Term* term, int index, TaggedValue* dest);
 
 TaggedValue* get_output(EvalContext* context, Term* term);
+TaggedValue* get_output(EvalContext* context, OpCall* op);
 TaggedValue* get_extra_output(EvalContext* context, Term* term, int index);
 TaggedValue* get_state_input(EvalContext* cxt, Term* term);
 
@@ -124,6 +126,7 @@ void push_scope_state(EvalContext* cxt);
 void push_scope_state_for_term(EvalContext* cxt, Term* term);
 void pop_scope_state(EvalContext* cxt);
 void fetch_state_container(Term* term, TaggedValue* container, TaggedValue* output);
+void consume_scope_state_field(Term* term, Dict* scopeState, TaggedValue* output);
 void save_and_pop_scope_state(EvalContext* cxt, Term* term);
 
 // Saves the state result inside 'result' into the given container, according to

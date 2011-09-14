@@ -78,7 +78,7 @@ struct OpCall {
     OpType type;
     Term* term;
     EvaluateFunc func;
-    int numInputs;
+    int outputIndex;
 };
 
 // Possibly enable ca_assert and/or ca_test_assert
