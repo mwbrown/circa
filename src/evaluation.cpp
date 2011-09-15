@@ -51,7 +51,8 @@ void evaluate_single_term(EvalContext* context, OpCall* op)
 
         else if (!cast_possible(output, outputType)) {
             std::stringstream msg;
-            msg << "Function " << term->function->name << " produced output "
+            msg << "term " << global_id(term) << ", function " << term->function->name
+                << " produced output "
                 << output->toString()
                 << " which doesn't fit output type "
                 << outputType->name;

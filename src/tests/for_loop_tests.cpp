@@ -68,15 +68,23 @@ void test_rebind_internally()
     evaluate_save_locals(branch);
     test_assert(branch);
     test_equals(branch["a"], "3");
+}
 
+void test_rebind_internally_2()
+{
+    Branch branch;
     branch.compile("found_3 = false");
-    branch.compile("for n in [5 3 1 9 0] { if n == 3 { found_3 = true } }; found_3=found_3");
+    branch.compile("for n in [5 3 1 9 0] { if n == 3 { found_3 = true } }");
     evaluate_save_locals(branch);
 
     test_assert(branch["found_3"]->asBool());
+}
 
+void test_rebind_internally_3()
+{
+    Branch branch;
     branch.compile("found_3 = false");
-    branch.compile("for n in [2 4 6 8] { if n == 3 { found_3 = true } } found_3=found_3");
+    branch.compile("for n in [2 4 6 8] { if n == 3 { found_3 = true } }");
     evaluate_save_locals(branch);
     test_assert(branch["found_3"]->asBool() == false);
 }
@@ -173,23 +181,14 @@ void test_continue()
     test_equals(testing_get_spy_results(), "[1, 2, 4]");
 }
 
-void local_indexes()
-{
-    Branch branch;
-    branch.compile("a = 1");
-    Term* block = branch.compile("for i in [] { a += 2 }");
-
-    Term* a_innerRebind = block->contents("#inner_rebinds")->contents("a");
-    Term* a_insideLoop = block->contents("a");
-    test_equals(get_frame_distance(a_insideLoop, a_innerRebind), 0);
-}
-
 void register_tests()
 {
     REGISTER_TEST_CASE(for_loop_tests::test_simple);
     REGISTER_TEST_CASE(for_loop_tests::type_inference_for_iterator);
     REGISTER_TEST_CASE(for_loop_tests::test_rebind_external);
     REGISTER_TEST_CASE(for_loop_tests::test_rebind_internally);
+    REGISTER_TEST_CASE(for_loop_tests::test_rebind_internally_2);
+    REGISTER_TEST_CASE(for_loop_tests::test_rebind_internally_3);
     REGISTER_TEST_CASE(for_loop_tests::test_rewrite_input_list);
     REGISTER_TEST_CASE(for_loop_tests::test_state_simple);
     REGISTER_TEST_CASE(for_loop_tests::test_state_nested);
@@ -197,7 +196,6 @@ void register_tests()
     REGISTER_TEST_CASE(for_loop_tests::test_break);
     REGISTER_TEST_CASE(for_loop_tests::test_nested_break);
     REGISTER_TEST_CASE(for_loop_tests::test_continue);
-    REGISTER_TEST_CASE(for_loop_tests::local_indexes);
 }
 
 } // for_loop_tests

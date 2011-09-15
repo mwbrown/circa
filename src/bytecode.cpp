@@ -32,7 +32,8 @@ void print_bytecode_op(Operation* op, int loc, std::ostream& out)
 {
     switch (op->type) {
         case OP_CALL:
-            out << "call " << get_unique_name(((OpCall*) op)->term);
+            out << "call " << get_unique_name(((OpCall*) op)->term)
+                << " out:" << ((OpCall*) op)->outputIndex;
             break;
         case OP_INPUT_NULL:
             out << "input_null";
@@ -391,8 +392,14 @@ void bc_call(BytecodeWriter* writer, Term* term)
     if (writeBytecode != NULL)
         return writeBytecode(term, writer);
 
+    EvaluateFunc evaluateFunc = get_function_attrs(term->function)->evaluate;
+
+    // NULL evaluateFunc: no bytecode
+    if (evaluateFunc == NULL)
+        return;
+
     // Default: Add an OP_CALL
-    bc_write_call_op(writer, term, get_function_attrs(term->function)->evaluate);
+    bc_write_call_op(writer, term, evaluateFunc);
 }
 
 void bc_finish(BytecodeWriter* writer)
@@ -496,6 +503,7 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
         case OP_RETURN_ON_EVAL_INTERRUPTED:
             if (evaluation_interrupted(context))
                 return;
+
             pc++;
             continue;
 
@@ -554,10 +562,20 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
 
             // TODO: Push branch to the stack but continue in this loop
             OpCallBranch* cop = (OpCallBranch*) op;
+
+            Term* termForCallStack = cop->term;
+            if (get_parent_term(termForCallStack) != NULL
+                && get_parent_term(termForCallStack)->function == IF_BLOCK_FUNC)
+                termForCallStack = get_parent_term(termForCallStack);
+
+            context->callStack.append(termForCallStack);
+
             Branch* branch = &nested_contents(cop->term);
             push_stack_frame(context, branch);
             evaluate_branch_with_bytecode(context, branch);
             pc += 1;
+
+            context->callStack.pop();
 
             continue;
         }
@@ -571,6 +589,7 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
             TaggedValue* left = get_input(context, op, 0);
             TaggedValue* right = get_input(context, op, 1);
             copy(left, right);
+
             pc += 1;
             continue;
         }

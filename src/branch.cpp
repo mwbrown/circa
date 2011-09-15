@@ -139,6 +139,16 @@ Term* Branch::appendNew()
     term->index = _terms.length()-1;
     return term;
 }
+void Branch::insertEmptySlots(int index, int count)
+{
+    int prevLength = _terms.length();
+    _terms.resize(_terms.length() + count);
+    for (int i = prevLength-1; i >= index; i--) {
+        _terms.setAt(i + count, _terms[i]);
+        _terms[i + count]->index = i + count;
+        _terms.setAt(i, NULL);
+    }
+}
 
 void Branch::set(int index, Term* term)
 {

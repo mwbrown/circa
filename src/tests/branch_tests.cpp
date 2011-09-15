@@ -379,6 +379,33 @@ void test_move()
     test_assert(four->index == 2);
 }
 
+void test_insert_empty_slots()
+{
+    Branch branch;
+
+    Term* t0 = create_void(branch);
+    Term* t1 = create_void(branch);
+    Term* t2 = create_void(branch);
+    Term* t3 = create_void(branch);
+    Term* t4 = create_void(branch);
+
+    test_assert(branch[0] == t0);
+    test_assert(branch[1] == t1);
+    test_assert(branch[2] == t2);
+    test_assert(branch[3] == t3);
+    test_assert(branch[4] == t4);
+
+    branch.insertEmptySlots(2,2);
+
+    test_assert(branch[0] == t0);
+    test_assert(branch[1] == t1);
+    test_assert(branch[2] == NULL);
+    test_assert(branch[3] == NULL);
+    test_assert(branch[4] == t2);
+    test_assert(branch[5] == t3);
+    test_assert(branch[6] == t4);
+}
+
 void register_tests()
 {
     REGISTER_TEST_CASE(branch_tests::test_insert);
@@ -394,6 +421,7 @@ void register_tests()
     REGISTER_TEST_CASE(branch_tests::test_duplicate_destination_has_different_type);
     REGISTER_TEST_CASE(branch_tests::find_name_in_outer_branch);
     REGISTER_TEST_CASE(branch_tests::test_move);
+    REGISTER_TEST_CASE(branch_tests::test_insert_empty_slots);
 }
 
 }

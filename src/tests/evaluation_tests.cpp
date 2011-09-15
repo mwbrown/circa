@@ -124,7 +124,7 @@ void test_term_stack()
     internal_debug_function::spy_clear();
     branch.eval("if_block = if true { h_call = h() }");
     test_equals(internal_debug_function::spy_results()->get(0),
-            "['if_block', '', 'h_call', 'g_call', 'f_call']");
+            "['if_block', 'h_call', 'g_call', 'f_call']");
 }
 
 void register_tests()

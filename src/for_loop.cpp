@@ -24,15 +24,14 @@ namespace circa {
 /* Organization of for loop contents:
    [0] #attributes
      [0] #modify_list
-   [1] #inner_rebinds
-   [2] iterator
+   [i] iterator
+   [1..i] join() terms for inner rebinds
    [...] contents
    [n-1] #outer_rebinds
 */
 
-static const int inner_rebinds_location = 1;
-static const int iterator_location = 2;
-static const int loop_contents_location = 3;
+static const int iterator_location = 1;
+static const int inner_rebinds_location = 2;
 
 Term* get_for_loop_iterator(Term* forTerm)
 {
@@ -46,11 +45,6 @@ Term* get_for_loop_modify_list(Term* forTerm)
     return term;
 }
 
-Branch& get_for_loop_inner_rebinds(Term* forTerm)
-{
-    return nested_contents(forTerm->contents(1));
-}
-
 Branch& get_for_loop_outer_rebinds(Term* forTerm)
 {
     Branch& contents = nested_contents(forTerm);
@@ -62,9 +56,6 @@ void setup_for_loop_pre_code(Term* forTerm)
     Branch& forContents = nested_contents(forTerm);
     Branch& attributes = create_branch(forContents, "#attributes");
     create_bool(attributes, false, "#modify_list");
-
-    Branch& innerRebinds = create_branch(forContents, "#inner_rebinds");
-    innerRebinds.owningTerm->setBoolProp("exposesNames", true);
 }
 
 Term* setup_for_loop_iterator(Term* forTerm, const char* name)
@@ -73,6 +64,7 @@ Term* setup_for_loop_iterator(Term* forTerm, const char* name)
     Term* result = apply(nested_contents(forTerm), INPUT_PLACEHOLDER_FUNC, TermList(), name);
     change_declared_type(result, iteratorType);
     hide_from_source(result);
+    ca_assert(result->index == iterator_location);
     return result;
 }
 
@@ -85,7 +77,6 @@ void setup_for_loop_post_code(Term* forTerm)
     finish_minor_branch(forContents);
 
     // Create a branch that has all the names which are rebound in this loop
-    Branch& innerRebinds = get_for_loop_inner_rebinds(forTerm);
     Branch& outerRebinds = create_branch(forContents, "#outer_rebinds");
 
     std::vector<std::string> reboundNames;
@@ -108,8 +99,11 @@ void setup_for_loop_post_code(Term* forTerm)
 
         // First input to both of these should be 'original', but we need to wait until
         // after remap_pointers before setting this.
-        Term* innerRebind = apply(innerRebinds, JOIN_FUNC, TermList(NULL, loopResult), name);
+        Term* innerRebind = apply(forContents, JOIN_FUNC, TermList(NULL, loopResult), name);
+
         change_declared_type(innerRebind, original->type);
+        forContents.move(innerRebind, inner_rebinds_location + i);
+
         Term* outerRebind = apply(outerRebinds, JOIN_FUNC, TermList(NULL, loopResult), name);
 
         // Rewrite the loop code to use our local copies of these rebound variables.
@@ -163,7 +157,6 @@ CA_FUNCTION(evaluate_for_loop)
     Term* caller = CALLER;
     EvalContext* context = CONTEXT;
     Branch& forContents = nested_contents(caller);
-    Branch& innerRebinds = get_for_loop_inner_rebinds(caller);
     Branch& outerRebinds = get_for_loop_outer_rebinds(caller);
     Term* iterator = get_for_loop_iterator(caller);
 
@@ -208,14 +201,21 @@ CA_FUNCTION(evaluate_for_loop)
         copy(inputList->getIndex(iteration), get_local(context, 0, iterator));
 
         // copy inner rebinds
-        for (int i=0; i < innerRebinds.length(); i++) {
-            Term* rebindTerm = innerRebinds[i];
-            TaggedValue* dest = get_local(context, 0, 1 + i);
+        {
+            int index = inner_rebinds_location;
+            while (forContents[index]->function == JOIN_FUNC) {
+                Term* rebindTerm = forContents[index];
+                TaggedValue* dest = get_local(context, 0, index);
 
-            if (firstIter)
-                copy(get_input(context, rebindTerm, 0), dest);
-            else
-                copy(get_input(context, rebindTerm, 1), dest);
+                if (firstIter)
+                    copy(get_input(context, rebindTerm, 0), dest);
+                else
+                    copy(get_input(context, rebindTerm, 1), dest);
+
+                //ca_assert(cast_possible(dest, declared_type(rebindTerm)));
+
+                index++;
+            }
         }
 
         context->forLoopContext.discard = false;

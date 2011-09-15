@@ -90,6 +90,7 @@ struct Branch
     void insert(int index, Term* term);
     void append(Term* term);
     Term* appendNew();
+    void insertEmptySlots(int index, int count);
 
     void set(int index, Term* term);
     void setNull(int index);

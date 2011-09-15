@@ -98,6 +98,17 @@ int run_command_line(std::vector<std::string> args)
         return 0;
     }
 
+    // Show compiled code then evaluate
+    if (args[0] == "-pe") {
+        Branch branch;
+        parse_script(branch, args[1]);
+
+        print_branch(std::cout, branch);
+
+        evaluate_save_locals(branch);
+        return 0;
+    }
+
     // Evaluate and show compiled code
     if (args[0] == "-ep") {
         Branch branch;

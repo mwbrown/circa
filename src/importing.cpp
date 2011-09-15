@@ -22,10 +22,6 @@ CA_FUNCTION(empty_evaluate_no_touch_output)
 Term* import_function(Branch& branch, EvaluateFunc evaluate, std::string const& header)
 {
     Term* result = parser::compile(branch, parser::function_decl, header);
-
-    if (evaluate == NULL)
-        evaluate = empty_evaluate_function;
-
     get_function_attrs(result)->evaluate = evaluate;
     return result;
 }
