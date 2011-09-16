@@ -41,9 +41,14 @@ void print_usage()
 
 int run_command_line(std::vector<std::string> args)
 {
-    // No arguments, run tests
+    // No arguments. If unit tests are included then run those. Otherwise, print
+    // out help text.
     if (args.size() == 0) {
+#if CIRCA_TEST_BUILD
         run_all_tests();
+#else
+        print_usage();
+#endif
         return 0;
     }
 
@@ -57,7 +62,7 @@ int run_command_line(std::vector<std::string> args)
     }
 
     // Print help
-    if (args[0] == "-help") {
+    if (args[0] == "-help" || args[0] == "--help") {
         print_usage();
         return 0;
     }
