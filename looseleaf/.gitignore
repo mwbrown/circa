@@ -1,0 +1,5 @@
+
+*.o
+looseleaf.app
+moc_*
+/Makefile
