@@ -20,7 +20,6 @@ void repl_evaluate_line(Branch& branch, std::string const& input, std::ostream& 
 
     bool anyErrors = false;
 
-
     int resultIndex = -1;
 
     // Look for static errors

@@ -83,7 +83,8 @@ void copy_locals_to_terms(EvalContext* context, Branch& branch);
 // Shorthand to call evaluate_save_locals with a new EvalContext:
 void evaluate_save_locals(Branch& branch);
 
-// Evaluate only the terms between 'start' and 'end'.
+// Evaluate only a range of terms, beginning at the term at index 'start', and ending at
+// (but not including) the term at index 'end'.
 void evaluate_range(EvalContext* context, Branch& branch, int start, int end);
 
 // Evaluate 'term' and every term that it depends on. Will only reevaluate terms

@@ -54,7 +54,7 @@ TermPtr evaluate(Branch& branch, ParsingStep step, std::string const& input)
 
     EvalContext context;
 
-    evaluate_range(&context, branch, prevHead, branch.length() - 1);
+    evaluate_range(&context, branch, prevHead, branch.length());
 
     return result;
 }

@@ -344,7 +344,7 @@ void evaluate_range(EvalContext* context, Branch& branch, int start, int end)
 {
     BytecodeWriter bytecode;
 
-    for (int i=start; i <= end; i++)
+    for (int i=start; i < end; i++)
         bc_call(&bytecode, branch[i]);
     bc_finish(&bytecode);
 
@@ -352,8 +352,8 @@ void evaluate_range(EvalContext* context, Branch& branch, int start, int end)
     push_scope_state(context);
     evaluate_bytecode(context, bytecode.data);
 
-    // copy locals back to terms
-    for (int i=start; i <= end; i++) {
+    // Copy locals back to terms
+    for (int i=start; i < end; i++) {
         Term* term = branch[i];
         if (is_value(term))
             continue;
@@ -466,7 +466,7 @@ void evaluate(EvalContext* context, Branch& branch, std::string const& input)
 {
     int prevHead = branch.length();
     parser::compile(branch, parser::statement_list, input);
-    evaluate_range(context, branch, prevHead, branch.length() - 1);
+    evaluate_range(context, branch, prevHead, branch.length());
 }
 
 void evaluate(Branch& branch, Term* function, List* inputs)
@@ -481,7 +481,7 @@ void evaluate(Branch& branch, Term* function, List* inputs)
 
     int prevHead = branch.length();
     apply(branch, function, inputTerms);
-    evaluate_range(&context, branch, prevHead, branch.length() - 1);
+    evaluate_range(&context, branch, prevHead, branch.length());
 }
 
 void evaluate(Term* function, List* inputs)
