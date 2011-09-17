@@ -50,7 +50,7 @@ void compound_type_usage()
     test_equals(as_string(astr), "");
 
     test_equals(inst2->getIndex(1)->asString(), "hello");
-    //TEST_DISABLED test_assert(inst2->type == MyType); // type specialization
+    test_assert(inst2->type == as_type(MyType)); // type specialization
 
     test_assert(is_string(astr2));
     test_equals(as_string(astr2), "hello");

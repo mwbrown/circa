@@ -171,15 +171,6 @@ void hash_collision()
     test_assert(dict_t::get_value(dict, bucketToStr[1][0].c_str()) != NULL);
     test_assert(dict_t::get_value(dict, bucketToStr[0][1].c_str()) != NULL);
 
-    // Disabled these tests, currently there's a bug where keys are not always relocated
-    // as best they can be. This bug isn't causing any wrong behavior, it's just a
-    // performance concern.
-    
-    // TEST_DISABLED test_assert(dict_t::insert(&dict, bucketToStr[0][1].c_str()) == 0);
-
-    // Insert the first string again, now it should go to [2]
-    // TEST_DISABLED test_assert(dict_t::insert(&dict, bucketToStr[0][0].c_str()) == 2);
-
     dict_t::free_dict(dict);
 }
 

@@ -54,7 +54,6 @@ void test_get_relative_name()
     Term* c = branch.compile("[1 1] -> Point");
     test_assert(c->function->name == "cast");
     test_assert(c->type->name == "Point");
-    //TEST_DISABLED test_equals(get_relative_name(c, c->type), "Point");
 }
 
 void test_get_relative_name_from_hidden_branch()
@@ -265,6 +264,12 @@ void test_global_name2()
     test_assert(find_term_from_global_name("not:a:real:name") == NULL);
 }
 
+void get_parent_branch_0()
+{
+    Branch branch;
+    test_assert(get_parent_branch(branch, 0) == &branch);
+}
+
 void register_tests()
 {
     REGISTER_TEST_CASE(names_tests::test_find_name);
@@ -282,6 +287,7 @@ void register_tests()
     REGISTER_TEST_CASE(names_tests::name_with_colons);
     REGISTER_TEST_CASE(names_tests::test_global_name);
     REGISTER_TEST_CASE(names_tests::test_global_name2);
+    REGISTER_TEST_CASE(names_tests::get_parent_branch_0);
 }
 
 } // namespace names_tests

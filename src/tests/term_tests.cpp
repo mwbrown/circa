@@ -7,25 +7,6 @@
 namespace circa {
 namespace term_tests {
 
-void simple_refcounting()
-{
-    #if 0
-    TEST_DISABLED
-    Term* term = NULL;
-    Ref ref;
-
-    {
-        Branch myBranch;
-        term = myBranch.appendNew();
-        test_assert(term->refCount == 1);
-        ref = term;
-        test_assert(term->refCount == 2);
-    }
-
-    test_assert(term->refCount == 1);
-    #endif
-}
-
 void duplicate_nested_contents()
 {
     Branch branch;
@@ -58,7 +39,6 @@ void duplicate_nested_contents()
 
 void register_tests()
 {
-    REGISTER_TEST_CASE(term_tests::simple_refcounting);
     REGISTER_TEST_CASE(term_tests::duplicate_nested_contents);
 }
 

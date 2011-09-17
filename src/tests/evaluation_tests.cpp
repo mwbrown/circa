@@ -127,6 +127,31 @@ void test_term_stack()
             "['if_block', 'h_call', 'g_call', 'f_call']");
 }
 
+void evaluate_range_remapped_locals()
+{
+    // Call evaluate_range() using some terms that have non-evaluated terms as
+    // input. The evaluation should use those term's global values instead.
+    
+    Branch branch;
+    EvalContext context;
+
+    Term* a = branch.compile("a = add_i(1, 2)");
+    int a_pos = branch.length();
+
+    evaluate_range(&context, branch, 0, a_pos);
+    test_equals(a, "3");
+
+    Term* b = branch.compile("b = add_i(a, a)");
+    evaluate_range(&context, branch, a_pos, branch.length());
+    test_equals(b, "6");
+
+    // Do the same test but cheat; insert a fake result for 'a' and make
+    // sure that it is used.
+    set_int(a, 7);
+    evaluate_range(&context, branch, a_pos, branch.length());
+    test_equals(b, "14");
+}
+
 void register_tests()
 {
     REGISTER_TEST_CASE(evaluation_tests::test_manual_evaluate_branch);
@@ -135,6 +160,7 @@ void register_tests()
     REGISTER_TEST_CASE(evaluation_tests::test_evaluate_minimum2);
     REGISTER_TEST_CASE(evaluation_tests::test_evaluate_minimum_ignores_meta_inputs);
     REGISTER_TEST_CASE(evaluation_tests::test_term_stack);
+    REGISTER_TEST_CASE(evaluation_tests::evaluate_range_remapped_locals);
 }
 
 } // evaluation_tests

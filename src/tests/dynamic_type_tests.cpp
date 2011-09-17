@@ -5,24 +5,6 @@
 namespace circa {
 namespace dynamic_type_tests {
 
-void test_copy()
-{
-    #if 0
-    TEST_DISABLED
-    Branch branch;
-    Term* a = branch.compile("a = 5");
-    Term* copy = branch.compile("copy(a)");
-
-    evaluate_save_locals(branch);
-    test_assert(is_int(copy));
-
-    change_declared_type(a, STRING_TYPE);
-    set_string(a, "hi");
-    evaluate_save_locals(branch);
-    test_assert(is_string(copy));
-    #endif
-}
-
 void test_subroutine()
 {
     Branch branch;
@@ -51,10 +33,10 @@ void test_field_access()
     Branch branch;
     EvalContext context;
 
-    /*Term* T =*/ branch.compile("type T { int a, string b }");
+    Term* T = branch.compile("type T { int a, string b }");
     branch.compile("def f() -> any { return(T([4, 's'])) }");
     Branch& f = nested_contents(branch["f"]);
-    /*Term* r =*/ branch.compile("r = f()");
+    Term* r = branch.compile("r = f()");
 
     test_assert(branch);
     evaluate_save_locals(branch);
@@ -65,7 +47,6 @@ void test_field_access()
     evaluate_save_locals(&context, branch);
     test_assert(context);
 
-#if 0 // TEST_DISABLED - need to fix evaluate_range
     branch.eval("r.a");
     Term* eq1 = branch.eval("r.a == 4");
     Term* eq2 = branch.eval("r.b == 's'");
@@ -79,7 +60,6 @@ void test_field_access()
 
     branch.compile("r.b = 's2'");
     test_assert(branch);
-#endif
 }
 
 void test_subroutine_input_and_output()
@@ -136,7 +116,6 @@ void test_dynamic_overload()
 
 void register_tests()
 {
-    REGISTER_TEST_CASE(dynamic_type_tests::test_copy);
     REGISTER_TEST_CASE(dynamic_type_tests::test_subroutine);
     REGISTER_TEST_CASE(dynamic_type_tests::test_field_access);
     REGISTER_TEST_CASE(dynamic_type_tests::test_subroutine_input_and_output);

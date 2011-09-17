@@ -9,6 +9,7 @@ namespace source_repro_tests {
 // originally produced by the parser, to make sure it still looks sane.
 
 void generate_source_for_function_calls() {
+#if 0 //TEST_DISABLED
     Branch branch;
 
     Term* a = create_int(branch, 5, "a");
@@ -26,8 +27,6 @@ void generate_source_for_function_calls() {
     Term* e = create_int(branch, 4);
     /*Term* f =*/ apply(branch, "add", TermList(d,e));
 
-    /*
-    TODO, fix this
     test_assert(!should_print_term_source_line(d));
     test_assert(!should_print_term_source_line(e));
     test_assert(should_print_term_source_line(f));
@@ -43,7 +42,7 @@ void generate_source_for_function_calls() {
     apply(branch, "add", TermList(a,b));
 
     test_equals(get_branch_source_text(branch), "a = 1\nb = 2\nc = 3\nd = 4\nadd(c, d)");
-    */
+#endif
 }
 
 void bug_reproducing_list_after_eval()

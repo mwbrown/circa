@@ -147,6 +147,15 @@ Term* get_parent_term(Term* term)
 
     return term->owningBranch->owningTerm;
 }
+Branch* get_parent_branch(Branch& branch, int levels)
+{
+    Branch* result = &branch;
+
+    while (levels-- > 0 && result != NULL)
+        result = get_parent_branch(*result);
+
+    return result;
+}
 
 bool name_is_reachable_from(Term* term, Branch& branch)
 {

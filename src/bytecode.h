@@ -143,13 +143,6 @@ void bc_call_branch(BytecodeWriter* writer, Term* term);
 // Write a POP_STACK operation.
 void bc_pop_stack(BytecodeWriter* writer);
 
-void bc_unpack_scope_state(BytecodeWriter* writer, Term* container, int local);
-void bc_repack_scope_state(BytecodeWriter* writer, Term* container, int local);
-void bc_resize_list(BytecodeWriter* writer, int listLocal, int size);
-void bc_set_null(BytecodeWriter* writer, int local);
-void bc_push_state_from_list(BytecodeWriter* writer, int local, int index);
-void bc_pop_state_back_to_list(BytecodeWriter* writer, int local, int index);
-
 // Mark the term's owning branch as needing to recompute bytecode.
 void dirty_bytecode(Term* term);
 void dirty_bytecode(Branch& branch);

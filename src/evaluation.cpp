@@ -342,12 +342,48 @@ bool evaluation_interrupted(EvalContext* context)
 
 void evaluate_range(EvalContext* context, Branch& branch, int start, int end)
 {
+    // Genrate bytecode for this range.
     BytecodeWriter bytecode;
 
     for (int i=start; i < end; i++)
         bc_call(&bytecode, branch[i]);
     bc_finish(&bytecode);
 
+    // Now go back and slightly rewrite the bytecode. Any calls that expect a local-value
+    // input from a term outside our range, should instead use the term's global value.
+    int stackDepth = 0;
+    
+    for (int i=0; i < bytecode.data->operationCount; i++) {
+        Operation* op = &bytecode.data->operations[i];
+        if (op->type == OP_INPUT_LOCAL) {
+            OpInputLocal* lop = (OpInputLocal*) op;
+
+            bool shouldRemap = false;
+            
+            if (lop->relativeFrame > stackDepth)
+                shouldRemap = true;
+
+            if ((lop->relativeFrame == stackDepth)
+                    && (lop->index < start || lop->index >= end))
+                shouldRemap = true;
+
+            if (shouldRemap) {
+                // convert this input instruction to a global input;
+                OpInputGlobal* gop = (OpInputGlobal*) op;
+                gop->type = OP_INPUT_GLOBAL;
+                Branch* inputBranch = get_parent_branch(branch, lop->relativeFrame - stackDepth);
+                Term* global = inputBranch->get(lop->index);
+                assert_valid_term(global);
+                gop->value = global;
+            }
+        } else if (op->type == OP_CALL_BRANCH) {
+            stackDepth++;
+        } else if (op->type == OP_POP_STACK) {
+            stackDepth--;
+        }
+    }
+
+    // Run bytecode
     push_stack_frame(context, &branch);
     push_scope_state(context);
     evaluate_bytecode(context, bytecode.data);
