@@ -15,19 +15,17 @@ namespace circa {
 void repl_evaluate_line(Branch& branch, std::string const& input, std::ostream& output)
 {
     int previousHead = branch.length();
-    parser::compile(branch, parser::statement_list, input);
+    Term* resultTerm = parser::compile(branch, parser::statement_list, input);
     int newHead = branch.length();
 
-    bool anyErrors = false;
-
-    int resultIndex = -1;
 
     // Look for static errors
+    bool anyErrors = false;
     for (int i=previousHead; i < newHead; i++) {
         Term* result = branch[i];
 
         if (has_static_error(result)) {
-            output << "error: ";
+            output << "static error: ";
             print_static_error(result, output);
             output << std::endl;
             anyErrors = true;
@@ -35,18 +33,24 @@ void repl_evaluate_line(Branch& branch, std::string const& input, std::ostream& 
         }
     }
 
+    if (anyErrors)
+        return;
+
+    // Evaluate
     EvalContext context;
     context.preserveLocals = true;
-    if (!anyErrors)
-        evaluate_range(&context, branch, previousHead, newHead);
+    evaluate_range(&context, branch, previousHead, newHead);
+
+    if (context.errorOccurred) {
+        std::cout << "runtime error: ";
+        print_runtime_error_formatted(context, std::cout);
+        std::cout << std::endl;
+        return;
+    }
 
     // Print results of the last expression
-    if (!anyErrors && resultIndex != -1) {
-        Term* result = branch[resultIndex];
-        if (result->type != as_type(VOID_TYPE)) {
-            output << ((TaggedValue*) result)->toString() << std::endl;
-        }
-    }
+    if (resultTerm->type != &VOID_T)
+        output << ((TaggedValue*) resultTerm)->toString() << std::endl;
 }
 
 int run_repl()
