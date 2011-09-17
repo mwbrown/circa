@@ -85,19 +85,10 @@ struct BytecodeWriter
     int listLength;
     BytecodeData* data;
 
-    // If an InputOverride function is installed, it will be called whenever
-    // writing an input instruction. The function can change whether the result
-    // is a local or global.
-    typedef void (*InputOverride)(void* cxt, Term* term, Operation* op);
-    InputOverride inputOverride;
-    void* inputOverrideContext;
-
     BytecodeWriter()
       : writePosition(0),
         listLength(0),
-        data(NULL),
-        inputOverride(NULL),
-        inputOverrideContext(NULL)
+        data(NULL)
     {}
     ~BytecodeWriter() { free(data); }
 };
@@ -141,8 +132,6 @@ void bc_global_input(BytecodeWriter* writer, TaggedValue* value);
 void bc_local_input(BytecodeWriter* writer, int frame, int index);
 
 void bc_write_input(BytecodeWriter* writer, Branch* frame, Term* input);
-void bc_write_global_input(Operation* op, TaggedValue* value);
-void bc_write_local_input(Operation* op, int frame, int index);
 void bc_write_int_input(BytecodeWriter* writer, int value);
 
 // Write a COPY operation. Two input instructions must follow.

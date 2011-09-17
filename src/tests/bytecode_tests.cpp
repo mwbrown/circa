@@ -50,40 +50,6 @@ void test_no_instructions_for_value()
     test_assert(branch.bytecode->operations[0].type == OP_RETURN);
 }
 
-TaggedValue globalForInputOverride;
-
-void input_override_for_test(void*, Term* term, Operation* op)
-{
-    if (term->name == "override_me")
-        bc_write_global_input(op, &globalForInputOverride);
-}
-
-void test_input_override()
-{
-    Branch branch;
-    branch.compile("override_me = 1");
-    Term* sum = branch.compile("sum = add_i(override_me override_me)");
-
-    // test run, no override
-    EvalContext context;
-    context.preserveLocals = true;
-    evaluate_branch(&context, branch);
-    test_equals(sum, "2");
-
-    // now install an override
-    BytecodeWriter writer;
-    writer.inputOverride = input_override_for_test;
-    set_int(&globalForInputOverride, 5);
-
-    push_stack_frame(&context, &branch);
-    bc_call(&writer, sum);
-    bc_finish(&writer);
-    evaluate_bytecode(&context, writer.data);
-    copy_locals_to_terms(&context, branch);
-
-    test_equals(sum, "10");
-}
-
 void test_jump_if()
 {
     BytecodeWriter writer;
@@ -130,7 +96,6 @@ void register_tests()
     REGISTER_TEST_CASE(bytecode_tests::test_static_assertions);
     REGISTER_TEST_CASE(bytecode_tests::test_simple_write);
     REGISTER_TEST_CASE(bytecode_tests::test_no_instructions_for_value);
-    REGISTER_TEST_CASE(bytecode_tests::test_input_override);
     REGISTER_TEST_CASE(bytecode_tests::test_jump_if);
 }
 

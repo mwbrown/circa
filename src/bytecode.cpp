@@ -175,43 +175,10 @@ void bc_write_call_op(BytecodeWriter* writer, Term* term, EvaluateFunc func)
     op->outputIndex = term->index;
 
     // Write information for each input
-    for (int i=0; i < term->numInputs(); i++) {
-        Term* input = term->input(i);
-        if (input == NULL) {
-            bc_append_op(writer)->type = OP_INPUT_NULL;
-            continue;
-        }
-
-        Operation* inputOp = bc_append_op(writer);
-
-        // Use InputOverride if there is one
-        if (writer->inputOverride != NULL) {
-            // write NULL to the type. If the override leaves it as NULL then we'll
-            // continue on to the default behavior.
-            inputOp->type = OP_INPUT_NULL;
-            writer->inputOverride(writer->inputOverrideContext, input, inputOp);
-
-            if (inputOp->type != OP_INPUT_NULL) {
-                ca_assert(inputOp->type == OP_INPUT_GLOBAL || inputOp->type == OP_INPUT_LOCAL);
-                continue;
-            }
-        }
-
-        if (is_value(input)) {
-            bc_write_global_input(inputOp, (TaggedValue*) input);
-        } else {
-            int index = input->index;
-
-            // Fun special case for for-loop locals
-            if (input->function == JOIN_FUNC && get_parent_term(input)->name == "#inner_rebinds")
-                index = 1 + input->index;
-
-            int relativeFrame = get_frame_distance(term, input);
-            //ca_assert(relativeFrame >= 0);
-            bc_write_local_input(inputOp, relativeFrame, index);
-        }
-    }
+    for (int i=0; i < term->numInputs(); i++)
+        bc_write_input(writer, term->owningBranch, term->input(i));
 }
+
 void bc_write_call_op_with_func(BytecodeWriter* writer, Term* term, Term* func)
 {
     bc_write_call_op(writer, term, get_function_attrs(func)->evaluate);
@@ -297,41 +264,12 @@ void bc_write_input(BytecodeWriter* writer, Branch* frame, Term* input)
         return;
     }
 
-    Operation* inputOp = bc_append_op(writer);
-
-    // Use InputOverride if there is one
-    if (writer->inputOverride != NULL) {
-        // write NULL to the type. If the override leaves it as NULL then we'll
-        // continue on to the default behavior.
-        inputOp->type = OP_INPUT_NULL;
-        writer->inputOverride(writer->inputOverrideContext, input, inputOp);
-
-        if (inputOp->type != OP_INPUT_NULL) {
-            ca_assert(inputOp->type == OP_INPUT_GLOBAL || inputOp->type == OP_INPUT_LOCAL);
-            return;
-        }
-    }
-
     if (is_value(input)) {
-        bc_write_global_input(inputOp, (TaggedValue*) input);
+        bc_global_input(writer, (TaggedValue*) input);
     } else {
         int relativeFrame = get_frame_distance(frame, input);
-        ca_assert(relativeFrame >= 0);
-        bc_write_local_input(inputOp, relativeFrame, input->index);
+        bc_local_input(writer, relativeFrame, input->index);
     }
-}
-void bc_write_global_input(Operation* op, TaggedValue* value)
-{
-    OpInputGlobal* gop = (OpInputGlobal*) op;
-    gop->type = OP_INPUT_GLOBAL;
-    gop->value = (TaggedValue*) value;
-}
-void bc_write_local_input(Operation* op, int frame, int index)
-{
-    OpInputLocal *lop = (OpInputLocal*) op;
-    lop->type = OP_INPUT_LOCAL;
-    lop->relativeFrame = frame;
-    lop->index = index;
 }
 void bc_write_int_input(BytecodeWriter* writer, int value)
 {
