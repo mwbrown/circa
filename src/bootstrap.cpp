@@ -78,9 +78,9 @@ void create_primitive_types()
     // errors are just stored as strings for now
     string_t::setup_type(&ERROR_T);
 
-    symbol_t::assign_new_symbol("repeat", &REPEAT_SYMBOL);
-    symbol_t::assign_new_symbol("out", &OUT_SYMBOL);
-    symbol_t::assign_new_symbol("unknown", &UNKNOWN_SYMBOL);
+    symbol_t::assign(&REPEAT_SYMBOL, "repeat");
+    symbol_t::assign(&OUT_SYMBOL, "out");
+    symbol_t::assign(&UNKNOWN_SYMBOL, "unknown");
 }
 
 void update_bootstrapped_term(Term* term)

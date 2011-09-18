@@ -103,6 +103,7 @@ void set_null(TaggedValue* value);
 void set_opaque_pointer(TaggedValue* value, void* addr);
 void set_string(TaggedValue* value, const char* s);
 void set_string(TaggedValue* value, std::string const& s);
+void set_symbol(TaggedValue* value, const char* name);
 void set_type(TaggedValue* value, Type* type);
 
 bool        as_bool(TaggedValue* value);

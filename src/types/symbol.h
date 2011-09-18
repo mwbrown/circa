@@ -3,10 +3,10 @@
 namespace circa {
 namespace symbol_t {
 
-    // Create a symbol with the given name, and copy it to 'result'.
-    void assign_new_symbol(const char* name, TaggedValue* result);
-
+    void assign(TaggedValue* result, const char* name);
     void setup_type(Type* type);
 
 } // namespace symbol_t
+
+
 } // namespace circa

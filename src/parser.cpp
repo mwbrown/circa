@@ -2,16 +2,29 @@
 
 #include "common_headers.h"
 
-#include "circa.h"
-
+#include "building.h"
+#include "builtins.h"
 #include "branch.h"
 #include "bytecode.h"
+#include "evaluation.h"
+#include "for_loop.h"
+#include "function.h"
+#include "if_block.h"
+#include "introspection.h"
 #include "list_shared.h"
+#include "locals.h"
 #include "parser.h"
+#include "refactoring.h"
+#include "source_repro.h"
+#include "static_checking.h"
+#include "subroutine.h"
 #include "switch_block.h"
 #include "term.h"
 #include "token.h"
+#include "type.h"
 #include "update_cascades.h"
+
+#include "types/symbol.h"
 
 namespace circa {
 namespace parser {
@@ -1720,6 +1733,10 @@ ParseResult atom(Branch& branch, TokenStream& tokens, ParserCxt* context)
     else if (tokens.nextIs(LBRACKET))
         result = literal_list(branch, tokens, context);
 
+    // literal symbol?
+    else if (tokens.nextIs(SYMBOL))
+        result = literal_symbol(branch, tokens, context);
+
     // plain branch?
     else if (tokens.nextIs(LBRACE))
         result = plain_branch(branch, tokens, context);
@@ -1973,6 +1990,19 @@ ParseResult literal_list(Branch& branch, TokenStream& tokens, ParserCxt* context
     term->setBoolProp("syntax:literal-list", true);
     set_source_location(term, startPosition, tokens);
 
+    return ParseResult(term);
+}
+
+ParseResult literal_symbol(Branch& branch, TokenStream& tokens, ParserCxt* context)
+{
+    int startPosition = tokens.getPosition();
+
+    std::string text = tokens.consume(SYMBOL);
+
+    TaggedValue value;
+    symbol_t::assign(&value, text.c_str() + 1);
+    Term* term = create_symbol_value(branch, &value);
+    set_source_location(term, startPosition, tokens);
     return ParseResult(term);
 }
 

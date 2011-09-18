@@ -8,6 +8,7 @@
 #include "tagged_value.h"
 #include "type.h"
 
+#include "types/symbol.h"
 #include "types/ref.h"
 
 namespace circa {
@@ -410,10 +411,16 @@ bool equals(TaggedValue* lhs, TaggedValue* rhs)
     return lhs->value_data.asint == rhs->value_data.asint;
 }
 
-void set_int(TaggedValue* value, int i)
+void set_bool(TaggedValue* value, bool b)
 {
-    change_type(value, &INT_T);
-    value->value_data.asint = i;
+    change_type(value, &BOOL_T);
+    value->value_data.asbool = b;
+}
+
+Dict* set_dict(TaggedValue* value)
+{
+    change_type(value, &DICT_T);
+    return (Dict*) value;
 }
 
 void set_float(TaggedValue* value, float f)
@@ -422,21 +429,10 @@ void set_float(TaggedValue* value, float f)
     value->value_data.asfloat = f;
 }
 
-void set_string(TaggedValue* value, const char* s)
+void set_int(TaggedValue* value, int i)
 {
-    change_type(value, &STRING_T);
-    *((std::string*) value->value_data.ptr) = s;
-}
-
-void set_string(TaggedValue* value, std::string const& s)
-{
-    set_string(value, s.c_str());
-}
-
-void set_bool(TaggedValue* value, bool b)
-{
-    change_type(value, &BOOL_T);
-    value->value_data.asbool = b;
+    change_type(value, &INT_T);
+    value->value_data.asint = i;
 }
 
 List* set_list(TaggedValue* value)
@@ -453,10 +449,19 @@ List* set_list(TaggedValue* value, int size)
     return list;
 }
 
-Dict* set_dict(TaggedValue* value)
+void set_string(TaggedValue* value, const char* s)
 {
-    change_type(value, &DICT_T);
-    return (Dict*) value;
+    change_type(value, &STRING_T);
+    *((std::string*) value->value_data.ptr) = s;
+}
+
+void set_string(TaggedValue* value, std::string const& s)
+{
+    set_string(value, s.c_str());
+}
+void set_symbol(TaggedValue* value, const char* name)
+{
+    symbol_t::assign(value, name);
 }
 
 void set_type(TaggedValue* value, Type* type)

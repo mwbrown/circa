@@ -114,6 +114,26 @@ void test_namespace()
     dealloc_term(term2);
 }
 
+void test_symbols()
+{
+    Branch branch;
+    Term* a = branch.compile("a = :symbol1");
+    Term* b = branch.compile("b = :symbol2");
+    Term* c = branch.compile("c = :symbol1");
+
+    test_assert(!equals(a, b));
+    test_assert(!equals(b, c));
+    test_assert(equals(a, c));
+
+    test_equals(a, ":symbol1");
+
+    // create a TaggedValue directly
+    TaggedValue value;
+    set_symbol(&value, "symbol2");
+    test_equals(&value, ":symbol2");
+    test_assert(equals(b, &value));
+}
+
 void register_tests()
 {
     REGISTER_TEST_CASE(builtin_type_tests::test_reference);
@@ -121,6 +141,7 @@ void register_tests()
     REGISTER_TEST_CASE(builtin_type_tests::test_set);
     REGISTER_TEST_CASE(builtin_type_tests::test_list);
     REGISTER_TEST_CASE(builtin_type_tests::test_namespace);
+    REGISTER_TEST_CASE(builtin_type_tests::test_symbols);
 }
 
 } // namespace builtin_type_tests
