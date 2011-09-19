@@ -63,6 +63,10 @@ public:
     void initialize(Branch* branch, const char* name)
     {
         Type* type = get_declared_type(branch, name);
+
+        if (type == NULL)
+            internal_error("HandleWrapper::initialize couldn't find type");
+
         handle_t::setup_type<T>(type);
     }
     void set(TaggedValue* tv, T* value)

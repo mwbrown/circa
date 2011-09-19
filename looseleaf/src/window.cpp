@@ -1,3 +1,4 @@
+// Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
 #include <QtGui>
 
