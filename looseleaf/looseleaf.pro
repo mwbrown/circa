@@ -1,11 +1,12 @@
 
 INCLUDEPATH += ../src
 
-HEADERS = glwidget.h \
-          window.h
+HEADERS = src/glwidget.h \
+          src/window.h
 
-SOURCES = glwidget.cpp \
-          window.cpp \
-          main.cpp
+SOURCES = src/glwidget.cpp \
+          src/window.cpp \
+          src/main.cpp
+LIBS += -L../build -lcirca_t
 
 QT += opengl

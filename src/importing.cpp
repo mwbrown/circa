@@ -42,4 +42,11 @@ Term* import_type(Branch& branch, Type* type)
     return term;
 }
 
+void install_function(Branch* branch, EvaluateFunc evaluate, const char* name)
+{
+    Term* term = find_name(branch, name);
+    ca_assert(term != NULL);
+    function_set_evaluate_func(term, evaluate);
+}
+
 } // namespace circa

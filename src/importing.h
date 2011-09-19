@@ -24,4 +24,7 @@ void install_function(Term* function, EvaluateFunc evaluate);
 
 Term* import_type(Branch& branch, Type* type);
 
+Term* find_term_from_mangled_name(Term* term, const char* name);
+void install_function(Branch* branch, EvaluateFunc evaluate, const char* name);
+
 } // namespace circa

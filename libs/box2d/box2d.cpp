@@ -396,46 +396,6 @@ CA_FUNCTION(box2d__MouseJoint_set_target)
     set_null(OUTPUT);
 }
 
-#if 0
-void run_global_refcount_check()
-{
-    std::cout << "run_global_refcount_check" << std::endl;
-
-    TaggedValue evalContext;
-    TaggedValue usersBranch;
-    TaggedValue runtimeBranch;
-        
-    app::App* app = &app::get_global_app();
-    set_transient_value(&evalContext, &app->_evalContext, &EVAL_CONTEXT_T);
-    set_transient_value(&usersBranch, app->_usersBranch, &BRANCH_T);
-    set_transient_value(&runtimeBranch, app->_runtimeBranch, &BRANCH_T);
-
-    //recursive_dump_heap(&evalContext, "evalContext");
-    //recursive_dump_heap(&usersBranch, "usersBranch");
-    //recursive_dump_heap(&runtimeBranch, "runtimeBranch");
-
-    ObjectListElement* element = g_bodyHandles.first;
-
-    while (element != NULL) {
-        Body* body = (Body*) element->obj;
-
-        List references;
-        list_references_to_pointer(&evalContext, body, &references);
-        list_references_to_pointer(&usersBranch, body, &references);
-        list_references_to_pointer(&runtimeBranch, body, &references);
-
-        for (int i=0; i < references.length(); i++)
-            std::cout << references[i]->asString() << std::endl;
-
-        element = element->next;
-    }
-
-    cleanup_transient_value(&evalContext);
-    cleanup_transient_value(&usersBranch);
-    cleanup_transient_value(&runtimeBranch);
-}
-#endif
-
 void on_load(Branch* branch)
 {
     g_body_t = get_declared_type(branch, "box2d:Body");
@@ -443,26 +403,6 @@ void on_load(Branch* branch)
 
     handle_t::setup_type<Body>(g_body_t);
     handle_t::setup_type<MouseJoint>(g_mouseJoint_t);
-
-#if 0
-    install_function(ns["step"], step);
-    install_function(ns["gravity"], gravity);
-    install_function(ns["create_body"], create_body);
-    install_function(ns["Body.set_fixtures"], set_body_fixtures);
-    install_function(ns["Body.get_points"], get_body_points);
-    install_function(ns["Body.get_position"], get_body_position);
-    install_function(ns["Body.get_rotation"], get_body_rotation);
-    install_function(ns["Body.get_position"], set_body_position);
-    install_function(ns["Body.set_rotation"], set_body_rotation);
-    install_function(ns["Body.get_linear_velocity"], get_linear_velocity);
-    install_function(ns["Body.set_linear_velocity"], set_linear_velocity);
-    install_function(ns["Body.apply_torque"], apply_torque);
-    install_function(ns["Body.apply_linear_impulse"], apply_linear_impulse);
-    install_function(ns["Body.apply_angular_impulse"], apply_angular_impulse);
-    install_function(ns["Body.create_mouse_joint"], create_mouse_joint);
-    install_function(ns["MouseJoint.set_target"], mouse_joint_set_target);
-    install_function(ns["body_contains_point"], body_contains_point);
-#endif
 }
 
 } // extern "C"

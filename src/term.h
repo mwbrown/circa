@@ -33,7 +33,6 @@ struct Term : TaggedValue
 
         Input() {}
         Input(Term* t) : term(t) {}
-        Input(Term* t, int i) : term(t) {}
     };
 
     typedef std::vector<Input> InputList;

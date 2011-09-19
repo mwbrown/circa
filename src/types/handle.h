@@ -53,4 +53,27 @@ Type* setup_type_as_handle(Branch* branch, const char* name)
     return type;
 }
 
+template <typename T>
+class HandleWrapper {
+public:
+    Type* type;
+
+    HandleWrapper() : type(NULL) {}
+
+    void initialize(Branch* branch, const char* name)
+    {
+        Type* type = get_declared_type(branch, name);
+        handle_t::setup_type<T>(type);
+    }
+    void set(TaggedValue* tv, T* value)
+    {
+        ca_assert(type != NULL);
+        handle_t::set(tv, type, value);
+    }
+    T* get(TaggedValue* tv)
+    {
+        return (T*) handle_t::get_ptr(tv);
+    }
+};
+
 } // namespace circa

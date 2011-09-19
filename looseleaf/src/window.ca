@@ -1,0 +1,5 @@
+
+type Window;
+
+def create_window() -> Window
+def Window.resize(Point size)
