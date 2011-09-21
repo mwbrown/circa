@@ -6,26 +6,49 @@
 
 using namespace circa;
 
-ScriptEnv g_env;
+circa::Branch g_globalEnv;
 
 // Setup functions that are implemented elsewhere:
 void window_setup(Branch* branch);
 
-
 void initialize_script_env()
 {
     circa_initialize();
+    circa_use_default_filesystem_interface();
 
     // Load circa scripts
-    parse_script(g_env.branch, "src/window.ca");
+    parse_script(g_globalEnv, "src/window.ca");
 
     // Install C++ functions to scripts
-    window_setup(&g_env.branch);
+    window_setup(&g_globalEnv);
+
+    // Load 'main'
+    parse_script(g_globalEnv, "runtime/main.ca");
+
+    create_branch(g_globalEnv, "files");
+}
+
+void ScriptEnv::loadScript(const char* filename)
+{
+    Branch* branch = NULL;
+    Branch* files = &nested_contents(g_globalEnv["files"]);
+    if (files->get(filename) == NULL)
+        branch = &create_branch(*files, filename);
+    else
+        branch = &nested_contents(files->get(filename));
+
+    clear_branch(branch);
+    parse_script(*branch, filename);
+}
+
+void ScriptEnv::tick()
+{
+    evaluate_branch_with_bytecode(&context, branch);
 }
 
 void destroy_script_env()
 {
-    clear_branch(&g_env.branch);
+    clear_branch(&g_globalEnv);
     circa_shutdown();
 }
 

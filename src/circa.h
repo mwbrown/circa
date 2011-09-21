@@ -8,6 +8,7 @@
 #include "branch.h"
 #include "building.h"
 #include "builtins.h"
+#include "bytecode.h"
 #include "code_iterators.h"
 #include "codegen.h"
 #include "command_line.h"

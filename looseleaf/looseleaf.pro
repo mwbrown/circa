@@ -1,12 +1,10 @@
 
 INCLUDEPATH += ../src
 
-HEADERS = src/glwidget.h \
-          src/scriptenv.h \
+HEADERS = src/scriptenv.h \
           src/window.h
 
-SOURCES = src/glwidget.cpp \
-          src/main.cpp \
+SOURCES = src/main.cpp \
           src/scriptenv.cpp \
           src/window.cpp
 
