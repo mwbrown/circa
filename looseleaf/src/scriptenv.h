@@ -9,7 +9,7 @@ struct ScriptEnv
     circa::Branch* branch;
     circa::EvalContext context;
 
-    void loadScript(const char* filename);
+    circa::Branch* loadScript(const char* filename);
     void tick();
 };
 

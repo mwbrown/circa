@@ -21,7 +21,7 @@ Window::Window()
     mainLayout->addWidget(glWidget);
     setLayout(mainLayout);
 
-    QObject::connect(&updateTimer, SIGNAL(TIMEOUT()), this, SLOT(tick()));
+    QObject::connect(&updateTimer, SIGNAL(timeout()), this, SLOT(tick()));
     updateTimer.start(updateInterval);
 
     setWindowTitle("Looseleaf");
@@ -30,10 +30,12 @@ void Window::tick()
 {
     glWidget->updateGL();
     updateTimer.start(updateInterval);
+
+    glWidget->scriptEnv.tick();
 }
-void Window::loadScript(const char* filename)
+circa::Branch* Window::loadScript(const char* filename)
 {
-    glWidget->scriptEnv.loadScript(filename);
+    return glWidget->scriptEnv.loadScript(filename);
 }
 
 void Window::keyPressEvent(QKeyEvent *e)
@@ -46,6 +48,8 @@ void Window::keyPressEvent(QKeyEvent *e)
 
 CA_FUNCTION(create_window)
 {
+    std::cout << "create_window: " << STRING_INPUT(0) << std::endl;
+
     Window* window = new Window();
     window->show();
     window->loadScript(STRING_INPUT(0));

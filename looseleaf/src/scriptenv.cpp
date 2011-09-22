@@ -28,9 +28,9 @@ void initialize_script_env()
     create_branch(g_globalEnv, "files");
 }
 
-void ScriptEnv::loadScript(const char* filename)
+Branch* ScriptEnv::loadScript(const char* filename)
 {
-    Branch* branch = NULL;
+    branch = NULL;
     Branch* files = &nested_contents(g_globalEnv["files"]);
     if (files->get(filename) == NULL)
         branch = &create_branch(*files, filename);
@@ -39,11 +39,12 @@ void ScriptEnv::loadScript(const char* filename)
 
     clear_branch(branch);
     parse_script(*branch, filename);
+    return branch;
 }
 
 void ScriptEnv::tick()
 {
-    evaluate_branch_with_bytecode(&context, branch);
+    evaluate_branch(&context, *branch);
 }
 
 void destroy_script_env()

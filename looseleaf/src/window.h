@@ -16,8 +16,10 @@ class Window : public QWidget
 public:
     Window();
     void setHidden();
+    circa::Branch* loadScript(const char* filename);
+
+public slots:
     void tick();
-    void loadScript(const char* filename);
 
 protected:
     void keyPressEvent(QKeyEvent *event);

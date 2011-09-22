@@ -5,8 +5,12 @@
 #include <QDir>
 #include <QFileInfo>
 
+#include "circa.h"
+
 #include "window.h"
 #include "scriptenv.h"
+
+using namespace circa;
 
 int main(int argc, char *argv[])
 {
@@ -29,7 +33,13 @@ int main(int argc, char *argv[])
     initialize_script_env();
 
     Window rootWindow;
-    rootWindow.loadScript("runtime/main.ca");
+    Branch* mainScript = rootWindow.loadScript("runtime/main.ca");
+
+    if (circa::print_static_errors_formatted(*mainScript, std::cout))
+        return -1;
+
+    circa::dump(*mainScript);
+
     rootWindow.tick();
 
     int result = app.exec();

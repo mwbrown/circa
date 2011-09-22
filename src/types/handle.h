@@ -62,7 +62,7 @@ public:
 
     void initialize(Branch* branch, const char* name)
     {
-        Type* type = get_declared_type(branch, name);
+        type = get_declared_type(branch, name);
 
         if (type == NULL)
             internal_error("HandleWrapper::initialize couldn't find type");
