@@ -13,8 +13,8 @@ namespace branch_t {
         Branch& branch = *as_branch(value);
         TaggedValue relIdent;
 
-        set_string(&relIdent, "fileSignature");
-        callback(&branch.fileSignature, &relIdent, context);
+        set_string(&relIdent, "origin");
+        callback(&branch.origin, &relIdent, context);
 
         set_string(&relIdent, "hasInlinedState");
         callback(&branch.hasInlinedState, &relIdent, context);

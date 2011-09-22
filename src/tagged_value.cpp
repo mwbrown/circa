@@ -411,6 +411,22 @@ bool equals(TaggedValue* lhs, TaggedValue* rhs)
     return lhs->value_data.asint == rhs->value_data.asint;
 }
 
+bool equals_string(TaggedValue* value, const char* s)
+{
+    if (is_string(value))
+        return strcmp(as_cstring(value), s) == 0;
+    else
+        return false;
+}
+
+bool equals_int(TaggedValue* value, int i)
+{
+    if (is_int(value))
+        return as_int(value) == i;
+    else
+        return false;
+}
+
 void set_bool(TaggedValue* value, bool b)
 {
     change_type(value, &BOOL_T);
