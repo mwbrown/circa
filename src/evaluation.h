@@ -63,10 +63,6 @@ struct EvalContext
         errorOccurred(false) {}
 };
 
-// Evaluate a single term. This is not usually called directly, it's called
-// by the interpreter.
-void evaluate_single_term(EvalContext* context, OpCall* op);
-
 void evaluate_branch_internal(EvalContext* context, Branch& branch);
 void evaluate_branch_internal(EvalContext* context, Branch& branch, TaggedValue* output);
 

@@ -10,6 +10,7 @@
 #include "locals.h"
 #include "refactoring.h"
 #include "term.h"
+#include "type.h"
 
 namespace circa {
 
@@ -410,7 +411,44 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
             bool evalWasInterrupted = evaluation_interrupted(context);
 
             OpCall* cop = (OpCall*) op;
-            evaluate_single_term(context, cop);
+
+            #if CIRCA_THROW_ON_ERROR
+            try {
+            #endif
+
+            cop->func(context, cop);
+
+            #if CIRCA_THROW_ON_ERROR
+            } catch (std::exception const& e) { error_occurred(context, cop->term, e.what()); }
+            #endif
+
+            // For a test build, we check the type of the output of every single call. This is
+            // slow, and it should be unnecessary if the function is written correctly. But it's
+            // a good test.
+            #ifdef CIRCA_TEST_BUILD
+            if (!context->errorOccurred && cop->term != NULL && !is_value(cop->term)) {
+                Term* term = cop->term;
+
+                Type* outputType = declared_type(term);
+                TaggedValue* output = get_output(context, term);
+
+                // Special case, if the function's output type is void then we don't care
+                // if the output value is null or not.
+                if (outputType == &VOID_T)
+                    ;
+
+                else if (!cast_possible(output, outputType)) {
+                    std::stringstream msg;
+                    msg << "term " << global_id(term) << ", function " << term->function->name
+                        << " produced output "
+                        << output->toString()
+                        << " which doesn't fit output type "
+                        << outputType->name;
+                    internal_error(msg.str());
+                }
+            }
+            #endif
+            
             pc += 1;
 
             // TODO: Should skip over input instructions when possible

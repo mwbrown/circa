@@ -22,46 +22,6 @@
 
 namespace circa {
 
-void evaluate_single_term(EvalContext* context, OpCall* op)
-{
-    #if CIRCA_THROW_ON_ERROR
-    try {
-    #endif
-
-    op->func(context, op);
-
-    #if CIRCA_THROW_ON_ERROR
-    } catch (std::exception const& e) { return error_occurred(context, op->term, e.what()); }
-    #endif
-
-    // For a test build, we check the type of the output of every single call. This is
-    // slow, and it should be unnecessary if the function is written correctly. But it's
-    // a good test.
-    #ifdef CIRCA_TEST_BUILD
-    if (!context->errorOccurred && op->term != NULL && !is_value(op->term)) {
-        Term* term = op->term;
-
-        Type* outputType = declared_type(term);
-        TaggedValue* output = get_output(context, term);
-
-        // Special case, if the function's output type is void then we don't care
-        // if the output value is null or not.
-        if (outputType == &VOID_T)
-            ;
-
-        else if (!cast_possible(output, outputType)) {
-            std::stringstream msg;
-            msg << "term " << global_id(term) << ", function " << term->function->name
-                << " produced output "
-                << output->toString()
-                << " which doesn't fit output type "
-                << outputType->name;
-            internal_error(msg.str());
-        }
-    }
-    #endif
-}
-
 void evaluate_branch_internal(EvalContext* context, Branch& branch)
 {
     push_stack_frame(context, &branch);
