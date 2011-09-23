@@ -39,6 +39,9 @@ Branch* ScriptEnv::loadScript(const char* filename)
 
     clear_branch(branch);
     parse_script(*branch, filename);
+
+    print_static_errors_formatted(*branch, std::cout);
+
     return branch;
 }
 

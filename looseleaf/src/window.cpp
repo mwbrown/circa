@@ -29,7 +29,6 @@ Window::Window()
 void Window::tick()
 {
     glWidget->updateGL();
-    glWidget->scriptEnv.tick();
 }
 circa::Branch* Window::loadScript(const char* filename)
 {
@@ -81,25 +80,32 @@ void GLWidget::initializeGL()
 {
     //qglClearColor();
 
-    glEnable(GL_DEPTH_TEST);
+    glDisable(GL_DEPTH_TEST);
+    glDepthFunc(GL_LEQUAL);
     glEnable(GL_CULL_FACE);
     glShadeModel(GL_SMOOTH);
-    glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0);
-    glEnable(GL_MULTISAMPLE);
+    glDisable(GL_LIGHTING);
 
-    static GLfloat lightPosition[4] = { 0.5, 5.0, 7.0, 1.0 };
-    glLightfv(GL_LIGHT0, GL_POSITION, lightPosition);
+    glPolygonMode(GL_FRONT, GL_FILL);
+    glDisable(GL_CULL_FACE);
 }
 
 void GLWidget::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    glLoadIdentity();
+
+    scriptEnv.tick();
 }
 
-void GLWidget::resizeGL()
+void GLWidget::resizeGL(int width, int height)
 {
+    glViewport(0, 0, width, height);
+     
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    glOrtho(0, width, height, 0, -1000.0f, 1000.0f);
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
 }
 
 void GLWidget::mousePressEvent(QMouseEvent *event)

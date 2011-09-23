@@ -54,7 +54,7 @@ void gl_ignore_error()
     glGetError();
 }
 
-CA_FUNCTION(opengl__draw_quad)
+CA_FUNCTION(gl__draw_quad)
 {
     float x1(0), y1(0), x2(0), y2(0);
     get_rect(INPUT(0), &x1, &y1, &x2, &y2);
@@ -70,7 +70,7 @@ CA_FUNCTION(opengl__draw_quad)
     glEnd();
 }
 
-CA_FUNCTION(opengl__new_texture_handle)
+CA_FUNCTION(gl__new_texture_handle)
 {
     // TODO: Need to do garbage collection to reclaim IDs
     GLuint texture_id;
@@ -78,7 +78,247 @@ CA_FUNCTION(opengl__new_texture_handle)
     set_int(OUTPUT, texture_id);
 }
 
-CA_FUNCTION(opengl__draw_texture_as_quad)
+void write_2d_vector_list_to_buffer(TaggedValue* list, GLfloat* buffer)
+{
+    int numElements = list->numElements();
+    int write = 0;
+    for (int i=0; i < numElements; i++) {
+        float x = list->getIndex(i)->getIndex(0)->toFloat();
+        float y = list->getIndex(i)->getIndex(1)->toFloat();
+
+        buffer[write++] = x;
+        buffer[write++] = y;
+        buffer[write++] = 0;
+    }
+}
+
+void set_gl_color(TaggedValue* color)
+{
+    glColor4f(color->getIndex(0)->toFloat(),
+              color->getIndex(1)->toFloat(),
+              color->getIndex(2)->toFloat(),
+              color->getIndex(3)->toFloat());
+}
+
+void clear_gl_color()
+{
+    glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+}
+
+CA_FUNCTION(gl__triangles)
+{
+    TaggedValue* list = INPUT(0);
+    TaggedValue* color = INPUT(1);
+
+    set_gl_color(color);
+    glBindTexture(GL_TEXTURE_2D, 0);
+
+    int numElements = list->numElements();
+    GLfloat* buffer = (GLfloat*) malloc(sizeof(GLfloat) * numElements * 3);
+
+    write_2d_vector_list_to_buffer(list, buffer);
+
+    glVertexPointer(3, GL_FLOAT, 0, buffer);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glDrawArrays(GL_TRIANGLES, 0, numElements);
+
+    clear_gl_color();
+    glDisableClientState(GL_VERTEX_ARRAY);
+    gl_check_error(CONTEXT, CALLER);
+
+    free(buffer);
+}
+
+CA_FUNCTION(gl__line_strip)
+{
+    TaggedValue* list = INPUT(0);
+    TaggedValue* color = INPUT(1);
+
+    set_gl_color(color);
+
+    int numElements = list->numElements();
+    GLfloat* buffer = (GLfloat*) malloc(sizeof(GLfloat) * numElements * 3);
+
+    write_2d_vector_list_to_buffer(list, buffer);
+    
+    glVertexPointer(3, GL_FLOAT, 0, buffer);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glDrawArrays(GL_LINE_STRIP, 0, numElements);
+
+    clear_gl_color();
+    glDisableClientState(GL_VERTEX_ARRAY);
+    gl_check_error(CONTEXT, CALLER);
+
+    free(buffer);
+}
+
+CA_FUNCTION(gl__line_loop)
+{
+    TaggedValue* list = INPUT(0);
+    TaggedValue* color = INPUT(1);
+
+    set_gl_color(color);
+
+    int numElements = list->numElements();
+    GLfloat* buffer = (GLfloat*) malloc(sizeof(GLfloat) * numElements * 3);
+
+    write_2d_vector_list_to_buffer(list, buffer);
+    
+    glVertexPointer(3, GL_FLOAT, 0, buffer);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glDrawArrays(GL_LINE_LOOP, 0, numElements);
+
+    clear_gl_color();
+    glDisableClientState(GL_VERTEX_ARRAY);
+    gl_check_error(CONTEXT, CALLER);
+    free(buffer);
+}
+
+CA_FUNCTION(gl__lines)
+{
+    TaggedValue* list = INPUT(0);
+    TaggedValue* color = INPUT(1);
+
+    set_gl_color(color);
+
+    int numElements = list->numElements();
+    GLfloat* buffer = (GLfloat*) malloc(sizeof(GLfloat) * numElements * 3);
+
+    write_2d_vector_list_to_buffer(list, buffer);
+    
+    glVertexPointer(3, GL_FLOAT, 0, buffer);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glDrawArrays(GL_LINES, 0, numElements);
+
+    clear_gl_color();
+    glDisableClientState(GL_VERTEX_ARRAY);
+    gl_check_error(CONTEXT, CALLER);
+    free(buffer);
+}
+
+CA_FUNCTION(gl__points)
+{
+    TaggedValue* list = INPUT(0);
+    TaggedValue* color = INPUT(1);
+
+    set_gl_color(color);
+
+    int numElements = list->numElements();
+    GLfloat* buffer = (GLfloat*) malloc(sizeof(GLfloat) * numElements * 3);
+
+    write_2d_vector_list_to_buffer(list, buffer);
+
+    glVertexPointer(3, GL_FLOAT, 0, buffer);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glDrawArrays(GL_POINTS, 0, numElements);
+
+    clear_gl_color();
+    glDisableClientState(GL_VERTEX_ARRAY);
+    gl_check_error(CONTEXT, CALLER);
+    free(buffer);
+}
+
+CA_FUNCTION(gl__circle)
+{
+    Point* loc = Point::checkCast(INPUT(0));
+    float x = loc->getX();
+    float y = loc->getY();
+    float radius = FLOAT_INPUT(1);
+    TaggedValue* color = INPUT(2);
+    set_gl_color(color);
+
+    std::cout << "circle " << x << " " << y << std::endl;
+
+    // Dumb guess on how many polygons to use
+    int control_points = int(radius/3) + 10;
+    if (control_points < 15) control_points = 15;
+
+    GLfloat* buffer = (GLfloat*) malloc(sizeof(GLfloat) * control_points * 3);
+    int write = 0;
+
+    buffer[write++] = x;
+    buffer[write++] = y;
+    buffer[write++] = 0;
+
+    for (int i=0; i <= control_points; i++) {
+        float angle_0 = float(float(i) / control_points * M_PI * 2);
+        float angle_1 = float(float(i+1) / control_points * M_PI * 2);
+
+        buffer[write++] = x + radius * std::cos(angle_0);
+        buffer[write++] = y + radius * std::sin(angle_0);
+        buffer[write++] = 0;
+
+        buffer[write++] = x + radius * std::cos(angle_1);
+        buffer[write++] = y + radius * std::sin(angle_1);
+        buffer[write++] = 0;
+    }
+
+    glVertexPointer(3, GL_FLOAT, 0, buffer);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, 1 + control_points*2);
+
+    clear_gl_color();
+    glDisableClientState(GL_VERTEX_ARRAY);
+    gl_check_error(CONTEXT, CALLER);
+    free(buffer);
+}
+
+CA_FUNCTION(gl__pie)
+{
+    Point* loc = Point::checkCast(INPUT(0));
+    float x = loc->getX();
+    float y = loc->getY();
+    float radius = FLOAT_INPUT(1);
+    float angle_start = FLOAT_INPUT(2);
+    float angle_fin = FLOAT_INPUT(3);
+    TaggedValue* color = INPUT(4);
+    set_gl_color(color);
+
+    if (angle_start > angle_fin) {
+        float swap = angle_start; angle_start = angle_fin; angle_fin = swap;
+    }
+    float angle_span = angle_fin - angle_start;
+
+    // Dumb guess on how many polygons to use
+    int control_points = int(radius/3) + 10;
+    if (control_points < 15) control_points = 15;
+
+    GLfloat* buffer = (GLfloat*) malloc(sizeof(GLfloat) * control_points * 3);
+    int write = 0;
+
+    buffer[write++] = x;
+    buffer[write++] = y;
+    buffer[write++] = 0;
+
+    for (int i=0; i < control_points; i++) {
+
+        float angle_0 = float(float(i) / control_points * angle_span + angle_start);
+        float angle_1 = float(float(i+1) / control_points * angle_span + angle_start);
+
+        // Convert from 0..1 to radians
+        angle_0 *= M_PI * 2;
+        angle_1 *= M_PI * 2;
+
+        // Use (sin,-cos) so that angle 0 starts at the top and increases clockwise.
+        buffer[write++] = x + radius * std::sin(angle_0);
+        buffer[write++] = y + radius * -std::cos(angle_0);
+        buffer[write++] = 0;
+
+        buffer[write++] = x + radius * std::sin(angle_1);
+        buffer[write++] = y + radius * -std::cos(angle_1);
+        buffer[write++] = 0;
+    }
+
+    glVertexPointer(3, GL_FLOAT, 0, buffer);
+    glEnableClientState(GL_VERTEX_ARRAY);
+    glDrawArrays(GL_TRIANGLE_FAN, 0, control_points*2 + 1);
+
+    clear_gl_color();
+    glDisableClientState(GL_VERTEX_ARRAY);
+    gl_check_error(CONTEXT, CALLER);
+}
+
+CA_FUNCTION(gl__draw_texture_as_quad)
 {
     int texture_id = as_int(INPUT(0));
     float x1(0), y1(0), x2(0), y2(0);
@@ -98,17 +338,17 @@ CA_FUNCTION(opengl__draw_texture_as_quad)
     glBindTexture(GL_TEXTURE_2D, 0);
 }
 
-CA_FUNCTION(opengl__activeTexture)
+CA_FUNCTION(gl__activeTexture)
 {
     glActiveTexture(GL_TEXTURE0 + INT_INPUT(0));
 }
 
-CA_FUNCTION(opengl__bind_texture)
+CA_FUNCTION(gl__bind_texture)
 {
     glBindTexture(GL_TEXTURE_2D, INT_INPUT(0));
 }
 
-CA_FUNCTION(opengl__load_shader)
+CA_FUNCTION(gl__load_shader)
 {
     std::string vertText = circa::read_text_file_as_str(STRING_INPUT(0));
     std::string fragText = circa::read_text_file_as_str(STRING_INPUT(1));
@@ -159,7 +399,7 @@ CA_FUNCTION(opengl__load_shader)
     set_int(OUTPUT, program);
 }
 
-CA_FUNCTION(opengl__load_shader_text)
+CA_FUNCTION(gl__load_shader_text)
 {
     const char* vertText = STRING_INPUT(0);
     const char* fragText = STRING_INPUT(1);
@@ -206,7 +446,7 @@ CA_FUNCTION(opengl__load_shader_text)
     set_int(OUTPUT, program);
 }
 
-CA_FUNCTION(opengl__shader_quad)
+CA_FUNCTION(gl__shader_quad)
 {
     glUseProgram(INT_INPUT(0));
 
@@ -242,14 +482,14 @@ CA_FUNCTION(opengl__shader_quad)
     gl_check_error(CONTEXT, CALLER);
 }
 
-CA_FUNCTION(opengl__get_uniform_location)
+CA_FUNCTION(gl__get_uniform_location)
 {
 //std::cout << "name: " << STRING_INPUT(1) << std::endl;
     set_int(OUTPUT, glGetUniformLocation(INT_INPUT(0), STRING_INPUT(1)));
 //std::cout << "result: " << OUTPUT->toString() << std::endl;
     gl_check_error(CONTEXT, CALLER);
 }
-CA_FUNCTION(opengl__uniform)
+CA_FUNCTION(gl__uniform)
 {
     GLuint uniform = INT_INPUT(0);
     TaggedValue* value = INPUT(1);
@@ -262,7 +502,7 @@ CA_FUNCTION(opengl__uniform)
 
     gl_check_error(CONTEXT, CALLER);
 }
-CA_FUNCTION(opengl__use_program)
+CA_FUNCTION(gl__use_program)
 {
     glUseProgram(INT_INPUT(0));
     gl_check_error(CONTEXT, CALLER);
@@ -294,7 +534,7 @@ CA_FUNCTION(set_uniform)
 }
 #endif
 
-CA_FUNCTION(opengl__generate_frame_buffer)
+CA_FUNCTION(gl__generate_frame_buffer)
 {
     gl_ignore_error();
 
@@ -346,7 +586,7 @@ CA_FUNCTION(opengl__generate_frame_buffer)
     buffer->fbo_id = fbo_id;
 }
 
-CA_FUNCTION(opengl__FrameBuffer_bind)
+CA_FUNCTION(gl__FrameBuffer_bind)
 {
     gl_ignore_error();
 
@@ -360,7 +600,7 @@ CA_FUNCTION(opengl__FrameBuffer_bind)
     }
 }
 
-CA_FUNCTION(opengl__FrameBuffer_draw_quad)
+CA_FUNCTION(gl__FrameBuffer_draw_quad)
 {
     FrameBuffer* buffer = (FrameBuffer*) handle_t::get_ptr(INPUT(0));
 
@@ -387,20 +627,20 @@ CA_FUNCTION(opengl__FrameBuffer_draw_quad)
 
     gl_check_error(CONTEXT, CALLER);
 }
-CA_FUNCTION(opengl__FrameBuffer_get_tex_id)
+CA_FUNCTION(gl__FrameBuffer_get_tex_id)
 {
     FrameBuffer* buffer = (FrameBuffer*) handle_t::get_ptr(INPUT(0));
     set_int(OUTPUT, buffer->tex_id);
 }
 
-CA_FUNCTION(opengl__bind_main_frame_buffer)
+CA_FUNCTION(gl__bind_main_frame_buffer)
 {
     glBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 }
 
 void on_load(Branch* branch)
 {
-    g_frameBuffer_t = setup_type_as_handle<FrameBuffer>(branch, "opengl:FrameBuffer");
+    g_frameBuffer_t = setup_type_as_handle<FrameBuffer>(branch, "gl:FrameBuffer");
 }
 
 } // extern "C"

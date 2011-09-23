@@ -2,8 +2,19 @@
 
 patch_with_dll(reflect:this_branch(), 'opengl' -> rpath)
 
-namespace opengl
+namespace gl
     def draw_quad(Rect rect)
+
+    -- Simple drawing
+    def triangles(List, Color) "Render a list of points as triangles."
+    def line_strip(List, Color) "Render a list of points as a line strip."
+    def line_loop(List, Color) "Render a list of points as a line loop."
+    def lines(List, Color) "Render a list of points as a line list."
+    def points(List, Color) "Render a list of points."
+    def circle(Point loc, number radius, Color)
+        "Render a circle."
+    def pie(Point loc, number radius, number angle_start, number angle_fin, Color)
+        "Render a pie slice."
 
     -- Textures
     def new_texture_handle() -> int
