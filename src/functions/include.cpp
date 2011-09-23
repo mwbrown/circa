@@ -49,7 +49,7 @@ namespace include_function {
         {
             clear_branch(&contents);
 
-            parse_script(contents, filename.c_str());
+            load_script(&contents, filename.c_str());
 
             if (caller->owningBranch != NULL && exposeNames) {
                 expose_all_names(contents, *caller->owningBranch);

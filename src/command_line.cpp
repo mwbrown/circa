@@ -98,7 +98,7 @@ int run_command_line(std::vector<std::string> args)
     // Show compiled code
     if (args[0] == "-p") {
         Branch branch;
-        parse_script(branch, args[1].c_str());
+        load_script(&branch, args[1].c_str());
         print_branch(std::cout, branch);
         return 0;
     }
@@ -106,7 +106,7 @@ int run_command_line(std::vector<std::string> args)
     // Show compiled code then evaluate
     if (args[0] == "-pe") {
         Branch branch;
-        parse_script(branch, args[1].c_str());
+        load_script(&branch, args[1].c_str());
 
         print_branch(std::cout, branch);
 
@@ -117,7 +117,7 @@ int run_command_line(std::vector<std::string> args)
     // Evaluate and show compiled code
     if (args[0] == "-ep") {
         Branch branch;
-        parse_script(branch, args[1].c_str());
+        load_script(&branch, args[1].c_str());
 
         evaluate_save_locals(branch);
 
@@ -128,7 +128,7 @@ int run_command_line(std::vector<std::string> args)
     // Show compiled code with properties
     if (args[0] == "-pp") {
         Branch branch;
-        parse_script(branch, args[1].c_str());
+        load_script(&branch, args[1].c_str());
         print_branch_with_properties(std::cout, branch);
         return 0;
     }
@@ -136,7 +136,7 @@ int run_command_line(std::vector<std::string> args)
     // Reproduce source
     if (args[0] == "-s") {
         Branch branch;
-        parse_script(branch, args[1].c_str());
+        load_script(&branch, args[1].c_str());
         std::cout << get_branch_source_text(branch) << std::endl;
         return 0;
     }
@@ -153,7 +153,7 @@ int run_command_line(std::vector<std::string> args)
     #if 0
     if (args[0] == "-f") {
         Branch branch;
-        parse_script(branch, args[1]);
+        load_script(&branch, args[1]);
 
         Branch &trainable_names = branch["_trainable"]->nestedContents;
         for (int i=0; i < trainable_names.length(); i++)
@@ -181,7 +181,7 @@ int run_command_line(std::vector<std::string> args)
     // Generate cpp headers
     if (args[0] == "-gh") {
         Branch branch;
-        parse_script(branch, args[1].c_str());
+        load_script(&branch, args[1].c_str());
 
         if (has_static_errors(branch)) {
             print_static_errors_formatted(branch, std::cout);
@@ -218,7 +218,7 @@ int run_command_line(std::vector<std::string> args)
 
     // Otherwise, load args[0] as a script and run it
     Branch& main_branch = create_branch(kernel());
-    parse_script(main_branch, args[0].c_str());
+    load_script(&main_branch, args[0].c_str());
 
     if (has_static_errors(main_branch)) {
         print_static_errors_formatted(main_branch, std::cout);

@@ -216,6 +216,23 @@ void load_nonexistant_file()
     test_assert(has_static_errors(branch));
 }
 
+void test_include_script()
+{
+    // test the include_script() func
+    Branch branch;
+    FakeFileSystem files;
+    files.set("a", "x = 1");
+
+    include_script(&branch, "a");
+    branch.compile("y = x");
+    evaluate_save_locals(branch);
+    test_equals(branch["y"], "1");
+
+    files.set("a", "x = 2");
+    evaluate_save_locals(branch);
+    test_equals(branch["y"], "2");
+}
+
 void register_tests()
 {
     REGISTER_TEST_CASE(file_based_tests::test_the_test);
@@ -228,6 +245,7 @@ void register_tests()
     REGISTER_TEST_CASE(file_based_tests::test_include_with_state);
     REGISTER_TEST_CASE(file_based_tests::test_call_function_from_included_file);
     REGISTER_TEST_CASE(file_based_tests::load_nonexistant_file);
+    REGISTER_TEST_CASE(file_based_tests::test_include_script);
 }
 
 } // namespace file_based_tests

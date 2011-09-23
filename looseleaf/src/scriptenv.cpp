@@ -18,6 +18,7 @@ void initialize_script_env()
 
     // Load circa scripts
     parse_script(g_globalEnv, "src/window.ca");
+    include_script(g_globalEnv, "../libs/opengl/opengl.ca");
 
     // Install C++ functions to scripts
     window_setup(&g_globalEnv);
@@ -26,6 +27,10 @@ void initialize_script_env()
     parse_script(g_globalEnv, "runtime/main.ca");
 
     create_branch(g_globalEnv, "files");
+
+    print_static_errors_formatted(g_globalEnv, std::cout);
+
+    dump(g_globalEnv);
 }
 
 Branch* ScriptEnv::loadScript(const char* filename)

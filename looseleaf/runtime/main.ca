@@ -1,5 +1,3 @@
 
-include("../../libs/opengl/opengl.ca"->rpath)
-
 state window = create_window('mywindow.ca')
 window.resize([400 400])

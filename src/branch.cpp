@@ -553,11 +553,6 @@ void duplicate_branch(Branch& source, Branch& dest)
     dest.names.remapPointers(newTermMap);
 }
 
-void parse_script(Branch& branch, const char* filename)
-{
-    return load_script(&branch, filename);
-}
-
 void load_script(Branch* branch, const char* filename)
 {
     // Store the file origin
@@ -582,8 +577,15 @@ void load_script(Branch* branch, const char* filename)
 
 void evaluate_script(Branch& branch, const char* filename)
 {
-    parse_script(branch, filename);
+    load_script(&branch, filename);
     evaluate_save_locals(branch);
+}
+
+void include_script(Branch* branch, const char* filename)
+{
+    Term* filenameTerm = create_string(*branch, filename);
+    Term* includeFunc = apply(*branch, INCLUDE_FUNC, TermList(filenameTerm));
+    post_compile_term(includeFunc);
 }
 
 void persist_branch_to_file(Branch& branch)
