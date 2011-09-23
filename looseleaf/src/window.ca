@@ -2,4 +2,6 @@
 type Window;
 
 def create_window(string scriptFile) -> Window
-def Window.resize(Point size)
+
+
+def Window.resize(w, Point size)

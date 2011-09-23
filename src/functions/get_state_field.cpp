@@ -64,7 +64,8 @@ namespace get_state_field_function {
 
             if (!cast_success) {
                 std::stringstream msg;
-                msg << "Couldn't cast default value to type " <<
+                msg << "Couldn't cast default value from type "
+                    << input.value_type->name << " to type " <<
                     declared_type(CALLER)->name;
                 return error_occurred(CONTEXT, CALLER, msg.str());
             }
