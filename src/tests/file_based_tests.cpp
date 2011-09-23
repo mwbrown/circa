@@ -208,6 +208,12 @@ void load_nonexistant_file()
     clear_branch(&branch);
     load_script(&branch, "a");
     test_assert(!has_static_errors(branch));
+
+    // Also try using include() on a nonexistant file
+    clear_branch(&branch);
+    branch.compile("include('b')");
+    evaluate_save_locals(branch);
+    test_assert(has_static_errors(branch));
 }
 
 void register_tests()

@@ -49,11 +49,6 @@ namespace include_function {
         {
             clear_branch(&contents);
 
-            if (!file_exists(filename.c_str())) {
-                error_occurred(cxt, caller, "File not found: "+filename);
-                return false;
-            }
-
             parse_script(contents, filename.c_str());
 
             if (caller->owningBranch != NULL && exposeNames) {

@@ -15,7 +15,6 @@ class Window : public QWidget
 
 public:
     Window();
-    void setHidden();
     circa::Branch* loadScript(const char* filename);
 
 public slots:

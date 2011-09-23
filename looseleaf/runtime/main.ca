@@ -1,2 +1,5 @@
 
+include('../src/window.ca')
+
 state window = create_window('mywindow.ca')
+window.resize([200 200])

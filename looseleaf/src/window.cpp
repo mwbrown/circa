@@ -29,8 +29,6 @@ Window::Window()
 void Window::tick()
 {
     glWidget->updateGL();
-    updateTimer.start(updateInterval);
-
     glWidget->scriptEnv.tick();
 }
 circa::Branch* Window::loadScript(const char* filename)
@@ -69,7 +67,6 @@ void window_setup(Branch* branch)
     install_function(branch, create_window, "create_window");
     install_function(branch, Window__resize, "Window.resize");
 }
-
 
 GLWidget::GLWidget(QWidget* parent)
   : QGLWidget(QGLFormat(QGL::SampleBuffers), parent)

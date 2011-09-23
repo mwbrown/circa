@@ -26,8 +26,10 @@ int main(int argc, char *argv[])
 
         QDir::setCurrent(parent.path());
 
-        if (steps++ > 100)
-            break;
+        if (steps++ > 100) {
+            printf("Couldn't find 'runtime' directory\n");
+            return -1;
+        }
     } 
 
     initialize_script_env();
@@ -37,8 +39,6 @@ int main(int argc, char *argv[])
 
     if (circa::print_static_errors_formatted(*mainScript, std::cout))
         return -1;
-
-    circa::dump(*mainScript);
 
     rootWindow.tick();
 
