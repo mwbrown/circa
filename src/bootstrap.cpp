@@ -180,8 +180,7 @@ void pre_setup_types(Branch& kernel)
     // Declare input_placeholder first because it's used while compiling functions
     INPUT_PLACEHOLDER_FUNC = import_function(kernel, NULL, "input_placeholder() -> any");
     get_function_attrs(INPUT_PLACEHOLDER_FUNC)->writeBytecode = null_bytecode_writer;
-    ADDITIONAL_OUTPUT_FUNC = import_function(kernel, empty_evaluate_no_touch_output,
-            "additional_output() -> any");
+    ADDITIONAL_OUTPUT_FUNC = import_function(kernel, NULL, "additional_output() -> any");
 
     // FileSignature is used in some builtin functions
     FILE_SIGNATURE_T = unbox_type(parse_type(kernel,
