@@ -1,3 +1,4 @@
 
 state window = create_window('mywindow.ca')
-window.resize([400 400])
+if once()
+    window.resize([400 400])

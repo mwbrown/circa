@@ -32,5 +32,6 @@ Branch* ScriptEnv::loadScript(const char* filename)
 
 void ScriptEnv::tick()
 {
+    refresh_script(branch);
     evaluate_branch(&context, *branch);
 }

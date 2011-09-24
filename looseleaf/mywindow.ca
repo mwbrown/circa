@@ -1,2 +1,2 @@
 
-gl:circle([30 30] 20.0 #f00)
+gl:circle([30 30] 40.0 #fff)
