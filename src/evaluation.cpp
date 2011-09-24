@@ -365,11 +365,13 @@ void evaluate_range(EvalContext* context, Branch& branch, int start, int end)
 
 void push_stack_frame(EvalContext* context, int size)
 {
+    ca_assert(context != NULL);
     set_list(context->stack.append(), size);
 }
 
 void push_stack_frame(EvalContext* context, Branch* branch)
 {
+    ca_assert(branch != NULL);
     push_stack_frame(context, branch->length());
 }
 

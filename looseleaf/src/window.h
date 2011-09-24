@@ -16,12 +16,12 @@ class Window : public QWidget
 public:
     Window();
     circa::Branch* loadScript(const char* filename);
+    void keyPressEvent(QKeyEvent *e);
 
 public slots:
     void tick();
 
 protected:
-    void keyPressEvent(QKeyEvent *event);
     GLWidget *glWidget;
     QTimer updateTimer;
 };

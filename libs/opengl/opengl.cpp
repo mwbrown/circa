@@ -227,13 +227,11 @@ CA_FUNCTION(gl__circle)
     TaggedValue* color = INPUT(2);
     set_gl_color(color);
 
-    std::cout << "circle " << x << " " << y << std::endl;
-
     // Dumb guess on how many polygons to use
     int control_points = int(radius/3) + 10;
     if (control_points < 15) control_points = 15;
 
-    GLfloat* buffer = (GLfloat*) malloc(sizeof(GLfloat) * control_points * 3);
+    GLfloat* buffer = (GLfloat*) malloc(sizeof(GLfloat) * (2 + control_points) * 6);
     int write = 0;
 
     buffer[write++] = x;
@@ -283,7 +281,7 @@ CA_FUNCTION(gl__pie)
     int control_points = int(radius/3) + 10;
     if (control_points < 15) control_points = 15;
 
-    GLfloat* buffer = (GLfloat*) malloc(sizeof(GLfloat) * control_points * 3);
+    GLfloat* buffer = (GLfloat*) malloc(sizeof(GLfloat) * (2 + control_points) * 6);
     int write = 0;
 
     buffer[write++] = x;

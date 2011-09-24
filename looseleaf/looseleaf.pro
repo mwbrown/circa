@@ -2,7 +2,8 @@
 INCLUDEPATH += ../src
 
 HEADERS = src/scriptenv.h \
-          src/window.h
+          src/window.h \
+          src/backgroundscript.h
 
 SOURCES = src/main.cpp \
           src/scriptenv.cpp \

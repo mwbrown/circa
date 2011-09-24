@@ -7,10 +7,14 @@
 
 #include "circa.h"
 
+#include "backgroundscript.h"
 #include "window.h"
 #include "scriptenv.h"
 
 using namespace circa;
+
+// Setup functions that are implemented elsewhere:
+void window_setup(Branch* branch);
 
 int main(int argc, char *argv[])
 {
@@ -32,19 +36,31 @@ int main(int argc, char *argv[])
         }
     } 
 
-    initialize_script_env();
+    circa_initialize();
+    circa_use_default_filesystem_interface();
 
-    Window rootWindow;
-    Branch* mainScript = rootWindow.loadScript("runtime/main.ca");
+    Branch kernel;
+    BackgroundScript kernelRunner(&kernel);
 
-    if (circa::print_static_errors_formatted(*mainScript, std::cout))
+    // Install Looseleaf bindings
+    load_script_term(&kernel, "src/window.ca");
+    window_setup(&kernel);
+
+    include_script(&kernel, "../libs/opengl/opengl.ca");
+    include_script(&kernel, "runtime/main.ca");
+
+    Branch* filesBranch = create_branch_unevaluated(&kernel, "files");
+    set_files_branch_global(filesBranch);
+
+    if (has_static_errors(kernel))
         return -1;
 
-    rootWindow.tick();
+    kernelRunner.start();
 
     int result = app.exec();
 
-    destroy_script_env();
+    clear_branch(&kernel);
+    circa_shutdown();
 
     return result;
 }

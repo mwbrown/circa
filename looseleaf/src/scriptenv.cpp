@@ -6,47 +6,27 @@
 
 using namespace circa;
 
-circa::Branch g_globalEnv;
+Branch* g_filesBranch = NULL;
 
-// Setup functions that are implemented elsewhere:
-void window_setup(Branch* branch);
-
-void initialize_script_env()
+void set_files_branch_global(Branch* branch)
 {
-    circa_initialize();
-    circa_use_default_filesystem_interface();
+    g_filesBranch = branch;
+}
 
-    // Load circa scripts
-    parse_script(g_globalEnv, "src/window.ca");
-    include_script(g_globalEnv, "../libs/opengl/opengl.ca");
+ScriptEnv::ScriptEnv()
+  : branch(NULL)
+{
+}
 
-    // Install C++ functions to scripts
-    window_setup(&g_globalEnv);
-
-    // Load 'main'
-    parse_script(g_globalEnv, "runtime/main.ca");
-
-    create_branch(g_globalEnv, "files");
-
-    print_static_errors_formatted(g_globalEnv, std::cout);
-
-    dump(g_globalEnv);
+ScriptEnv::ScriptEnv(Branch* b)
+  : branch(b)
+{
 }
 
 Branch* ScriptEnv::loadScript(const char* filename)
 {
-    branch = NULL;
-    Branch* files = &nested_contents(g_globalEnv["files"]);
-    if (files->get(filename) == NULL)
-        branch = &create_branch(*files, filename);
-    else
-        branch = &nested_contents(files->get(filename));
-
-    clear_branch(branch);
-    parse_script(*branch, filename);
-
+    branch = load_script_term(g_filesBranch, filename);
     print_static_errors_formatted(*branch, std::cout);
-
     return branch;
 }
 
@@ -54,10 +34,3 @@ void ScriptEnv::tick()
 {
     evaluate_branch(&context, *branch);
 }
-
-void destroy_script_env()
-{
-    clear_branch(&g_globalEnv);
-    circa_shutdown();
-}
-

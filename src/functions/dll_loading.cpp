@@ -133,13 +133,10 @@ namespace dll_loading_function {
 
                 // Patch in this function and record the affected term
                 if (newEvaluateFunc != NULL) {
-                    std::cout << "found DLL func for " << searchName << std::endl;
                     function_set_evaluate_func(term, (EvaluateFunc) newEvaluateFunc);
                     dll->affectedTerms.append(term);
                     dll->loadedFunctions.insert(newEvaluateFunc);
-                } else {
-                    std::cout << "did not find DLL func for " << searchName << std::endl;
-                }
+                } 
             }
         }
     }

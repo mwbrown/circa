@@ -9,10 +9,10 @@ struct ScriptEnv
     circa::Branch* branch;
     circa::EvalContext context;
 
+    ScriptEnv();
+    ScriptEnv(circa::Branch* b);
     circa::Branch* loadScript(const char* filename);
     void tick();
 };
 
-void initialize_script_env();
-void run_script();
-void destroy_script_env();
+void set_files_branch_global(circa::Branch* branch);
