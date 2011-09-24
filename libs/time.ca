@@ -1,0 +1,31 @@
+
+time_delta = delta(time)
+
+def alternate_over_time(number period) -> bool
+    "Stateful function, alternates between true and false according to the given period."
+    state number time_started = time
+    return round((time - time_started) / period) % 2 == 0
+
+def linear_fadein(number total_time) -> number
+    <<<
+    Stateful function, starts out at 0 and increases linearly. After 'total_time'
+    has passed, it will return 1.0 and stay there.
+    >>>
+    state number time_started = time
+    elapsed = (time - time_started) / total_time
+    return min(elapsed, 1.0)
+
+def elapsed() -> number
+    "Stateful function, returns the number of seconds that has passed since this function was first called"
+    state number time_started = time
+    return time - time_started
+
+def every(number seconds) -> bool
+    "Stateful function, returns true once every 'seconds'"
+    state time_remaining = seconds
+    time_remaining -= time_delta
+    if time_remaining < 0
+        time_remaining += seconds
+        return true
+    else
+        return false
