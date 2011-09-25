@@ -4,8 +4,6 @@
 
 namespace circa {
 
-extern "C" {
-
 extern Branch* KERNEL;
 
 extern Term* ADD_FUNC;
@@ -95,8 +93,6 @@ extern Term* TYPE_TYPE;
 extern Term* VOID_TYPE;
 extern Term* OPAQUE_POINTER_TYPE;
 
-} // extern "C"
-
 extern Type ANY_T;
 extern Type BOOL_T;
 extern Type BRANCH_T;
@@ -129,8 +125,6 @@ extern bool FINISHED_BOOTSTRAP;
 extern bool SHUTTING_DOWN;
 
 Branch* kernel();
-
-void empty_evaluate_function(Term* caller);
 
 namespace assign_function {
     void update_assign_contents(Term* term);
@@ -189,3 +183,10 @@ namespace value_function {
 void install_standard_library(Branch* kernel);
 
 } // namespace circa
+
+extern "C" {
+
+export_func void circa_initialize();
+export_func void circa_shutdown();
+
+}

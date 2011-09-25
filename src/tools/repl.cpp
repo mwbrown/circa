@@ -3,9 +3,9 @@
 #include "common_headers.h"
 
 #include "branch.h"
-#include "builtins.h"
 #include "evaluation.h"
 #include "introspection.h"
+#include "kernel.h"
 #include "parser.h"
 #include "static_checking.h"
 #include "term.h"

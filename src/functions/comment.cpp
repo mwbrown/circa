@@ -4,7 +4,7 @@
 
 #include "circa.h"
 
-#include "../builtins.h"
+#include "../kernel.h"
 #include "../importing.h"
 #include "../importing_macros.h"
 

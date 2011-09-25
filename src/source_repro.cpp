@@ -1,9 +1,9 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
 #include "branch.h"
-#include "builtins.h"
 #include "function.h"
 #include "introspection.h"
+#include "kernel.h"
 #include "parser.h"
 #include "source_repro.h"
 #include "stateful_code.h"

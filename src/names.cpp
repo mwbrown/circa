@@ -3,9 +3,9 @@
 #include "common_headers.h"
 
 #include "branch.h"
-#include "builtins.h"
 #include "heap_debugging.h"
 #include "if_block.h"
+#include "kernel.h"
 #include "source_repro.h"
 #include "term.h"
 

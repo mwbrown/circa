@@ -4,7 +4,6 @@
 
 #include "building.h"
 #include "build_options.h"
-#include "builtins.h"
 #include "branch.h"
 #include "bytecode.h"
 #include "code_iterators.h"
@@ -12,6 +11,7 @@
 #include "function.h"
 #include "introspection.h"
 #include "list_shared.h"
+#include "kernel.h"
 #include "locals.h"
 #include "parser.h"
 #include "refactoring.h"

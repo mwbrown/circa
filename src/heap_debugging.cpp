@@ -7,8 +7,8 @@
 #endif
 
 #include "build_options.h"
-#include "builtins.h"
 #include "heap_debugging.h"
+#include "kernel.h"
 #include "term.h"
 
 namespace circa {

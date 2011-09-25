@@ -2,9 +2,9 @@
 
 #include "common_headers.h"
 
-#include "builtins.h"
 #include "debug.h"
 #include "heap_debugging.h"
+#include "kernel.h"
 #include "tagged_value.h"
 #include "type.h"
 

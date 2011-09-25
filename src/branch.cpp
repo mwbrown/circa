@@ -4,7 +4,6 @@
 
 #include "branch.h"
 #include "building.h"
-#include "builtins.h"
 #include "bytecode.h"
 #include "code_iterators.h"
 #include "evaluation.h"
@@ -12,6 +11,7 @@
 #include "function.h"
 #include "heap_debugging.h"
 #include "importing_macros.h"
+#include "kernel.h"
 #include "introspection.h"
 #include "list_shared.h"
 #include "locals.h"

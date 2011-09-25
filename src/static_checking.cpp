@@ -4,9 +4,9 @@
 
 #include "branch.h"
 #include "code_iterators.h"
-#include "builtins.h"
 #include "function.h"
 #include "introspection.h"
+#include "kernel.h"
 #include "static_checking.h"
 #include "term.h"
 #include "type.h"

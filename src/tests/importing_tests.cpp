@@ -2,9 +2,10 @@
 
 #include "common_headers.h"
 
-#include "testing.h"
-#include "builtins.h"
 #include "circa.h"
+
+#include "testing.h"
+#include "kernel.h"
 #include "importing.h"
 #include "importing_macros.h"
 

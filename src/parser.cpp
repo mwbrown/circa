@@ -3,7 +3,6 @@
 #include "common_headers.h"
 
 #include "building.h"
-#include "builtins.h"
 #include "branch.h"
 #include "bytecode.h"
 #include "evaluation.h"
@@ -11,6 +10,7 @@
 #include "function.h"
 #include "if_block.h"
 #include "introspection.h"
+#include "kernel.h"
 #include "list_shared.h"
 #include "locals.h"
 #include "parser.h"

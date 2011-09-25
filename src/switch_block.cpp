@@ -4,10 +4,10 @@
 
 #include "branch.h"
 #include "building.h"
-#include "builtins.h"
 #include "bytecode.h"
 #include "if_block.h"
 #include "importing_macros.h"
+#include "kernel.h"
 #include "list_shared.h"
 #include "term.h"
 #include "type.h"

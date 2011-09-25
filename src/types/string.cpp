@@ -2,9 +2,9 @@
 
 #include "common_headers.h"
 
-#include "builtins.h"
-#include "importing.h"
 #include "evaluation.h"
+#include "importing.h"
+#include "kernel.h"
 #include "source_repro.h"
 #include "string_t.h"
 #include "tagged_value.h"

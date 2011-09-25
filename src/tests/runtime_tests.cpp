@@ -3,9 +3,9 @@
 #include "circa.h"
 
 #include "branch.h"
-#include "builtins.h"
 #include "bytecode.h"
 #include "evaluation.h"
+#include "kernel.h"
 #include "testing.h"
 
 namespace circa {

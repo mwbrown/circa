@@ -5,9 +5,9 @@
 #include "circa.h"
 
 #include "../building.h"
-#include "../builtins.h"
 #include "../importing.h"
 #include "../importing_macros.h"
+#include "../kernel.h"
 
 namespace circa {
 

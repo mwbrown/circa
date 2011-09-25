@@ -2,14 +2,19 @@
 
 #include "common_headers.h"
 
-#include "builtins.h"
 #include "building.h"
 #include "bytecode.h"
-#include "circa.h"
+#include "function.h"
 #include "heap_debugging.h"
+#include "introspection.h"
+#include "kernel.h"
 #include "locals.h"
 #include "names.h"
 #include "parser.h"
+#include "refactoring.h"
+#include "stateful_code.h"
+#include "term.h"
+#include "type.h"
 #include "update_cascades.h"
 
 namespace circa {

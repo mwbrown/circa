@@ -4,10 +4,8 @@
 
 #include "common_headers.h"
 
-#include "bootstrap.h"
 #include "branch.h"
 #include "building.h"
-#include "builtins.h"
 #include "bytecode.h"
 #include "code_iterators.h"
 #include "codegen.h"
@@ -23,6 +21,7 @@
 #include "importing.h"
 #include "importing_macros.h"
 #include "introspection.h"
+#include "kernel.h"
 #include "list_shared.h"
 #include "locals.h"
 #include "names.h"

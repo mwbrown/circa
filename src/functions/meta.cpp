@@ -5,7 +5,7 @@
 #include "circa.h"
 #include "../importing.h"
 #include "../importing_macros.h"
-#include "builtins.h"
+#include "../kernel.h"
 
 namespace circa {
 namespace meta_function {

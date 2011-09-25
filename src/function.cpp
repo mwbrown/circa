@@ -1,12 +1,12 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
 #include "building.h"
-#include "builtins.h"
 #include "bytecode.h"
 #include "evaluation.h"
 #include "function.h"
 #include "heap_debugging.h"
 #include "introspection.h"
+#include "kernel.h"
 #include "source_repro.h"
 #include "subroutine.h"
 #include "term.h"

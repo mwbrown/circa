@@ -95,7 +95,7 @@ namespace cppbuild_function {
 
     void setup(Branch* kernel)
     {
-        // installed in builtins.cpp
+        // installed in kernel.cpp
     }
 }
 } // namespace circa
