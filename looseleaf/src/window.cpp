@@ -26,6 +26,13 @@ Window::Window()
     updateTimer.start(updateInterval);
 
     setWindowTitle("Looseleaf");
+
+    // Place a pointer to this Window in the EvalContext, so that the script can
+    // access us.
+    // TODO: This should use a Window handle, it doesn't b/c this object is owned
+    // elsewhere.
+    set_opaque_pointer(glWidget->scriptEnv.context.inputArguments.append(), this);
+
 }
 void Window::tick()
 {
@@ -59,6 +66,20 @@ CA_FUNCTION(Window__resize)
     float x,y;
     get_point(INPUT(1), &x, &y);
     window_t.get(INPUT(0))->resize(QSize(x,y));
+}
+
+CA_FUNCTION(env__window_size)
+{
+    Window* window = get_opaque_pointer(CONTEXT->inputArguments[0]);
+    QSize size = window->size();
+    set_point(OUTPUT, size.x, size.y);
+}
+
+CA_FUNCTION(env__mouse)
+{
+    Window* window = get_opaque_pointer(CONTEXT->inputArguments[0]);
+    MouseState* mouseState = &window->glWidget->mouseState;
+    set_point(OUTPUT, mouseState->x, mouseState->y);
 }
 
 void window_setup(Branch* branch)

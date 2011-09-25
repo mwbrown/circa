@@ -6,7 +6,8 @@
 #include <QWidget>
 #include <QGLWidget>
 
-#include "scriptenv.h"
+#include "MouseState.h"
+#include "ScriptEnv.h"
 
 class GLWidget;
 
@@ -36,6 +37,7 @@ public:
     ~GLWidget();
 
     ScriptEnv scriptEnv;
+    MouseState mouseState;
 
 protected:
     void initializeGL();

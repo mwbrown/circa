@@ -3,3 +3,8 @@ type Window;
 
 def create_window(string scriptFile) -> Window
 def Window.resize(w, Point size)
+
+-- These calls are available for scripts running inside a Window
+namespace env
+    def window_size() -> Point
+    def mouse() -> Point
