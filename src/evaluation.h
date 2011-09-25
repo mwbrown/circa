@@ -41,8 +41,11 @@ struct EvalContext
     // Intra-program messages
     Dict messages;
 
-    // Stack of input values, used for inputs to functions & blocks.
-    List inputStack;
+    // List of input values, passed in to the script from the caller.
+    List argumentList;
+
+    // Name-value pairs of input values.
+    Dict argumentDict;
 
     struct Frame {
         List locals;

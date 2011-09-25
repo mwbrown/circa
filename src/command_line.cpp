@@ -230,11 +230,9 @@ int run_command_line(std::vector<std::string> args)
 
         EvalContext context;
 
-        // Push any extra command-line arguments to context.inputStack
-        List* inputs = set_list(context.inputStack.append());
-
+        // Copy command-line arguments to argumentList
         for (size_t i=1; i < args.size(); i++)
-            set_string(inputs->append(), args[i]);
+            set_string(context.argumentList.append(), args[i]);
 
         evaluate_save_locals(&context, main_branch);
 

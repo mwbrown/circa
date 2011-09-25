@@ -152,6 +152,18 @@ void evaluate_range_remapped_locals()
     test_equals(b, "14");
 }
 
+void eval_context_inputs()
+{
+    EvalContext context;
+    set_int(context.argumentList.append(), 3);
+
+    Branch branch;
+    branch.compile("test_spy(input(0))");
+    testing_clear_spy();
+    evaluate_branch(&context, &branch);
+    test_equals(testing_get_spy_results(), "[3]");
+}
+
 void register_tests()
 {
     REGISTER_TEST_CASE(evaluation_tests::test_manual_evaluate_branch);
@@ -161,6 +173,7 @@ void register_tests()
     REGISTER_TEST_CASE(evaluation_tests::test_evaluate_minimum_ignores_meta_inputs);
     REGISTER_TEST_CASE(evaluation_tests::test_term_stack);
     REGISTER_TEST_CASE(evaluation_tests::evaluate_range_remapped_locals);
+    REGISTER_TEST_CASE(evaluation_tests::eval_context_inputs);
 }
 
 } // evaluation_tests
