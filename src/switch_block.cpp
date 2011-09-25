@@ -23,13 +23,13 @@ void switch_block_post_compile(Term* term)
 
 void switch_block_write_bytecode(Term* caller, BytecodeWriter* writer)
 {
-    Branch& contents = nested_contents(caller);
+    Branch* contents = nested_contents(caller);
     Branch* parentBranch = caller->owningBranch;
 
     std::vector<int> jumpsToFinish;
 
-    for (int caseIndex=0; caseIndex < contents.length()-1; caseIndex++) {
-        Term* caseTerm = contents[caseIndex];
+    for (int caseIndex=0; caseIndex < contents->length()-1; caseIndex++) {
+        Term* caseTerm = contents->get(caseIndex);
 
         int initial_jump = 0;
         if (caseTerm->function == CASE_FUNC) {
@@ -41,12 +41,12 @@ void switch_block_write_bytecode(Term* caller, BytecodeWriter* writer)
         bc_call_branch(writer, caseTerm);
 
         // Copy joined locals
-        Branch& joining = nested_contents(contents.getFromEnd(0));
+        Branch* joining = nested_contents(contents->getFromEnd(0));
 
-        for (int i=0; i < joining.length(); i++) {
-            Term* joinTerm = joining[i];
+        for (int i=0; i < joining->length(); i++) {
+            Term* joinTerm = joining->get(i);
             bc_copy_value(writer);
-            bc_write_input(writer, &nested_contents(caseTerm), joinTerm->input(caseIndex));
+            bc_write_input(writer, nested_contents(caseTerm), joinTerm->input(caseIndex));
             bc_local_input(writer, 1, caller->index + 1 + i);
         }
 

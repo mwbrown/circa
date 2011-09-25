@@ -1,6 +1,9 @@
-// Copyright (c) 2007-2010 Paul Hodge. All rights reserved
+// Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
-#include <circa.h>
+#include "../common_headers.h"
+
+#include "../importing.h"
+#include "../importing_macros.h"
 
 namespace circa {
 namespace message_passing_function {
@@ -27,7 +30,7 @@ namespace message_passing_function {
         input->resize(0);
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         import_function(kernel, evaluate_send, "def send(string inbox_name, any)");
         import_function(kernel, evaluate_receive, "def receive(string inbox_name) -> List");

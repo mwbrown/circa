@@ -9,7 +9,7 @@ void simple_eval()
 {
     Branch branch;
     branch.compile("a = add(3, 4.5)");
-    evaluate_save_locals(branch);
+    evaluate_save_locals(&branch);
     test_equals(branch["a"], "7.5");
 }
 
@@ -22,7 +22,7 @@ void declared_in_script()
     test_assert(branch);
 
     EvalContext context;
-    evaluate_save_locals(&context, branch);
+    evaluate_save_locals(&context, &branch);
     test_assert(context);
 
     TaggedValue* a = branch.eval("a = f(1)");
@@ -35,7 +35,7 @@ void update_output_type()
 {
     Branch branch;
     Term* f1 = branch.compile("def f1() -> int return 0");
-    Term* f = overloaded_function::create_overloaded_function(branch, "f", TermList(f1));
+    Term* f = overloaded_function::create_overloaded_function(&branch, "f", TermList(f1));
     test_equals(function_get_output_type(f, 0)->name, "int");
     Term* f2 = branch.compile("def f2() -> string return ''");
     overloaded_function::append_overload(f, f2);
@@ -57,7 +57,7 @@ void test_dynamic_overload()
     branch.compile("def f(bool b) -> any { if b { return 1 } else { return 1.0 } }");
     Term* a = branch.compile("a = add(f(true), f(true))");
     Term* b = branch.compile("b = add(f(false), f(false))");
-    evaluate_save_locals(branch);
+    evaluate_save_locals(&branch);
     test_equals(a, "2");
     test_equals(b, "2.0");
 }

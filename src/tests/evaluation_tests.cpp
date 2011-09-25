@@ -138,17 +138,17 @@ void evaluate_range_remapped_locals()
     Term* a = branch.compile("a = add_i(1, 2)");
     int a_pos = branch.length();
 
-    evaluate_range(&context, branch, 0, a_pos);
+    evaluate_range(&context, &branch, 0, a_pos);
     test_equals(a, "3");
 
     Term* b = branch.compile("b = add_i(a, a)");
-    evaluate_range(&context, branch, a_pos, branch.length());
+    evaluate_range(&context, &branch, a_pos, branch.length());
     test_equals(b, "6");
 
     // Do the same test but cheat; insert a fake result for 'a' and make
     // sure that it is used.
     set_int(a, 7);
-    evaluate_range(&context, branch, a_pos, branch.length());
+    evaluate_range(&context, &branch, a_pos, branch.length());
     test_equals(b, "14");
 }
 

@@ -1,5 +1,9 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
+#include "../common_headers.h"
+
+#include "../importing.h"
+#include "../importing_macros.h"
 #include "common_headers.h"
 
 #include "branch.h"
@@ -89,7 +93,7 @@ namespace cppbuild_function {
             return error_occurred(CONTEXT, CALLER, "g++ returned error");
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         // installed in builtins.cpp
     }

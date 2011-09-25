@@ -1,7 +1,10 @@
-// Copyright (c) 2007-2010 Paul Hodge. All rights reserved
+// Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
-#include <circa.h>
-#include <importing_macros.h>
+#include "../common_headers.h"
+
+#include "circa.h"
+#include "../importing.h"
+#include "../importing_macros.h"
 
 namespace circa {
 namespace namespace_function {
@@ -20,11 +23,11 @@ namespace namespace_function {
                 term, token::WHITESPACE);
     }
 
-    void early_setup(Branch& kernel)
+    void early_setup(Branch* kernel)
     {
         NAMESPACE_FUNC = import_function(kernel, evaluate, "namespace()");
         get_function_attrs(NAMESPACE_FUNC)->formatSource = format_source;
     }
-    void setup(Branch& kernel) {}
+    void setup(Branch* kernel) {}
 }
 }

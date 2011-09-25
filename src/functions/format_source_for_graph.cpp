@@ -1,5 +1,11 @@
-// Copyright (c) 2007-2010 Paul Hodge. All rights reserved
+// Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
+#include "../common_headers.h"
+
+#include "circa.h"
+
+#include "../importing.h"
+#include "../importing_macros.h"
 #include "types/ref.h"
 
 namespace circa {
@@ -41,22 +47,22 @@ namespace format_source_for_graph_function {
         }
         */
 
-        Branch& branch = *as_branch(INPUT(0));
+        Branch* branch = as_branch(INPUT(0));
         List& statementList = *List::cast(OUTPUT, 0);
 
-        if (branch.length() < 2)
+        if (branch->length() < 2)
             return;
 
         // this is a hacky way to get the topleft point for the branch:
-        int topleftSourceX = branch[1]->sourceLoc.col;
-        int topleftSourceY = branch[1]->sourceLoc.line;
+        int topleftSourceX = branch->get(1)->sourceLoc.col;
+        int topleftSourceY = branch->get(1)->sourceLoc.line;
 
         std::map<Term*, int> termToStatement;
         std::map<Term*, FragmentLocation> termToFunctionCallLocation;
 
         // Initialize the Statement list
-        for (int i=0; i < branch.length(); i++) {
-            Term* term = branch[i];
+        for (int i=0; i < branch->length(); i++) {
+            Term* term = branch->get(i);
             if (!is_statement(term))
                 continue;
 
@@ -160,7 +166,7 @@ namespace format_source_for_graph_function {
         }
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         CA_SETUP_FUNCTIONS(kernel);
     }

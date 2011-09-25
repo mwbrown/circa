@@ -1,5 +1,7 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
+#include "circa.h"
+
 namespace circa {
 namespace switch_tests {
 
@@ -9,19 +11,19 @@ void test_simple()
     branch.compile("switch 1 { case 1 { test_spy(1) } }");
 
     testing_clear_spy();
-    evaluate_save_locals(branch);
+    evaluate_save_locals(&branch);
     test_equals(testing_get_spy_results(), "[1]");
 
     branch.clear();
     branch.compile("switch 2 { case 1 { test_spy(1) } }");
     testing_clear_spy();
-    evaluate_save_locals(branch);
+    evaluate_save_locals(&branch);
     test_equals(testing_get_spy_results(), "[]");
 
     branch.clear();
     branch.compile("switch 3 { case 2 { test_spy(1) } case 3 { test_spy(3) } }");
     testing_clear_spy();
-    evaluate_save_locals(branch);
+    evaluate_save_locals(&branch);
     test_equals(testing_get_spy_results(), "[3]");
 }
 
@@ -31,19 +33,19 @@ void test_case_expressions_arent_constant()
     branch.compile("switch 2 { case 1+1 { test_spy(1) } }");
 
     testing_clear_spy();
-    evaluate_save_locals(branch);
+    evaluate_save_locals(&branch);
     test_equals(testing_get_spy_results(), "[1]");
 
     branch.clear();
     branch.compile("switch 2 { case 2+3 { test_spy(1) } }");
     testing_clear_spy();
-    evaluate_save_locals(branch);
+    evaluate_save_locals(&branch);
     test_equals(testing_get_spy_results(), "[]");
 
     branch.clear();
     branch.compile("switch 3 { case 5-1 { test_spy(1) } case 5-2 { test_spy(3) } }");
     testing_clear_spy();
-    evaluate_save_locals(branch);
+    evaluate_save_locals(&branch);
     test_equals(testing_get_spy_results(), "[3]");
 }
 
@@ -53,7 +55,7 @@ void joining_terms()
     branch.compile("a = 1");
     branch.compile("switch 2 { case 1 { a = 'wrong' } case 2 { a = 'right' } case 3 { a = 'alsoWrong' }}");
 
-    evaluate_save_locals(branch);
+    evaluate_save_locals(&branch);
     test_equals(branch["a"], "right");
 
     // Test again, but the joined values are locals
@@ -61,7 +63,7 @@ void joining_terms()
     branch.compile("a = 1+1");
     branch.compile("switch 2 { case 1 { a = 'wrong' } case 2 { a = concat('ri', 'ght') } case 3 { a = 'alsoWrong' }}");
 
-    evaluate_save_locals(branch);
+    evaluate_save_locals(&branch);
     test_equals(branch["a"], "right");
 }
 

@@ -12,7 +12,7 @@ void test_return_simple()
     Term* call = branch.compile("f()");
 
     test_assert(branch);
-    evaluate_save_locals(branch);
+    evaluate_save_locals(&branch);
 
     test_equals(call, "4.0");
 }
@@ -32,7 +32,7 @@ void test_return_from_conditional()
     Term* call1 = branch.compile("my_max(3,3)");
     Term* call2 = branch.compile("my_max(11,8)");
 
-    evaluate_save_locals(branch);
+    evaluate_save_locals(&branch);
 
     test_equals(call0, "8.0");
     test_equals(call1, "3.0");
@@ -96,17 +96,17 @@ void subroutine_stateful_term()
     test_assert(get_function_attrs(branch["mysub"])->implicitStateType != VOID_TYPE);
     test_assert(is_function_stateful(branch["mysub"]));
 
-    evaluate_save_locals(&context, branch);
+    evaluate_save_locals(&context, &branch);
 
     test_equals(context.state.toString(), "{call: {a: 1.0}}");
 
-    evaluate_save_locals(&context, branch);
+    evaluate_save_locals(&context, &branch);
 
     test_equals(context.state.toString(), "{call: {a: 2.0}}");
 
     // Make sure that subsequent calls to this subroutine have their own state container.
     branch.compile("another_call = mysub()");
-    evaluate_save_locals(&context, branch);
+    evaluate_save_locals(&context, &branch);
 
     test_equals(context.state.toString(), "{another_call: {a: 1.0}, call: {a: 3.0}}");
 }
@@ -130,7 +130,7 @@ void test_recursion_with_state()
     internal_debug_function::oracle_send(33);
     internal_debug_function::oracle_send(45);
 
-    evaluate_save_locals(&context, branch);
+    evaluate_save_locals(&context, &branch);
 
     test_equals(&context.state,
         "{result: {_recr: {_recr: {_recr: {s: 45}, s: 33}, s: 21}, s: 10}}");
@@ -205,12 +205,12 @@ void bug_with_return()
 
     // there once was a bug where EvalContext.interruptSubroutine was not reset
     EvalContext context;
-    evaluate_save_locals(&context, branch);
+    evaluate_save_locals(&context, &branch);
     test_assert(is_int(f));
     test_assert(f->asInt() == 1);
 
     set_bool(input, false);
-    evaluate_save_locals(&context, branch);
+    evaluate_save_locals(&context, &branch);
     test_assert(is_int(f));
     test_assert(f->asInt() == 2);
 }
@@ -292,7 +292,7 @@ namespace copy_counting_tests
         T.name = "T";
         T.initialize = t_initialize;
         T.copy = t_copy;
-        set_type(create_type(branch, "T"), &T);
+        set_type(create_type(&branch, "T"), &T);
         for (int s = 0; s < num_slots; s++)
             slots[s] = Slot();
         next_available_slot = 0;
@@ -313,7 +313,7 @@ namespace copy_counting_tests
         int slot = next_available_slot - 1;
 
         test_equals(slots[slot].copies, 0);
-        evaluate_save_locals(branch);
+        evaluate_save_locals(&branch);
         // one copy for T(), another to evaluate f(a)
         test_assert(slots[slot].copies <= 2);
     }
@@ -374,7 +374,7 @@ void multiple_outputs()
     branch.compile("def inc(int i :out) { i += 1 }");
     branch.compile("x = 1");
     branch.compile("inc(&x)");
-    evaluate_save_locals(branch);
+    evaluate_save_locals(&branch);
     test_equals(branch["x"], 2);
 
     branch.clear();
@@ -385,7 +385,7 @@ void multiple_outputs()
     branch.compile("y = 1");
     branch.compile("z = 1");
     branch.compile("result = inc3(&x, &y, &z)");
-    evaluate_save_locals(branch);
+    evaluate_save_locals(&branch);
     test_equals(branch["x"], 2);
     test_equals(branch["y"], 3);
     test_equals(branch["z"], 4);

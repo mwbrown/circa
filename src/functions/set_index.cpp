@@ -1,6 +1,10 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
-#include "circa.h"
+#include "../common_headers.h"
+
+#include "../builtins.h"
+#include "../importing.h"
+#include "../importing_macros.h"
 
 namespace circa {
 namespace set_index_function {
@@ -20,7 +24,7 @@ namespace set_index_function {
         //return caller->input(0)->type;
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         SET_INDEX_FUNC = import_function(kernel, evaluate,
                 "set_index(any, int, any) -> List");

@@ -22,10 +22,10 @@
 
 namespace circa {
 
-void evaluate_branch_internal(EvalContext* context, Branch& branch)
+void evaluate_branch_internal(EvalContext* context, Branch* branch)
 {
-    push_stack_frame(context, &branch);
-    evaluate_branch_with_bytecode(context, &branch);
+    push_stack_frame(context, branch);
+    evaluate_branch_with_bytecode(context, branch);
 
     if (context->preserveLocals)
         copy_locals_to_terms(context, branch);
@@ -33,20 +33,20 @@ void evaluate_branch_internal(EvalContext* context, Branch& branch)
     pop_stack_frame(context);
 }
 
-void evaluate_branch_internal(EvalContext* context, Branch& branch, TaggedValue* output)
+void evaluate_branch_internal(EvalContext* context, Branch* branch, TaggedValue* output)
 {
-    push_stack_frame(context, &branch);
+    push_stack_frame(context, branch);
 
-    evaluate_branch_with_bytecode(context, &branch);
+    evaluate_branch_with_bytecode(context, branch);
 
     if (output != NULL)
-        copy(get_local(context, 0, branch[branch.length()-1]), output);
+        copy(get_local(context, 0, branch->get(branch->length()-1)), output);
 
     pop_stack_frame(context);
 }
 
 void evaluate_branch_internal_with_state(EvalContext* context, Term* term,
-        Branch& branch)
+        Branch* branch)
 {
     // Store currentScopeState and fetch the container for this branch
     push_scope_state_for_term(context, term);
@@ -57,14 +57,14 @@ void evaluate_branch_internal_with_state(EvalContext* context, Term* term,
     save_and_pop_scope_state(context, term);
 }
 
-void evaluate_branch(EvalContext* context, Branch& branch)
+void evaluate_branch(EvalContext* context, Branch* branch)
 {
-    push_stack_frame(context, &branch);
+    push_stack_frame(context, branch);
     push_scope_state(context);
     Dict::lazyCast(&context->state);
     copy(&context->state, get_current_scope_state(context));
 
-    evaluate_branch_with_bytecode(context, &branch);
+    evaluate_branch_with_bytecode(context, branch);
 
     if (context->preserveLocals)
         copy_locals_to_terms(context, branch);
@@ -75,25 +75,25 @@ void evaluate_branch(EvalContext* context, Branch& branch)
     pop_scope_state(context);
 }
 
-void evaluate_save_locals(EvalContext* context, Branch& branch)
+void evaluate_save_locals(EvalContext* context, Branch* branch)
 {
     context->preserveLocals = true;
     evaluate_branch(context, branch);
 }
 
-void copy_locals_to_terms(EvalContext* context, Branch& branch)
+void copy_locals_to_terms(EvalContext* context, Branch* branch)
 {
     // Copy locals back to the original terms. Many tests depend on this functionality.
-    for (int i=0; i < branch.length(); i++) {
-        Term* term = branch[i];
+    for (int i=0; i < branch->length(); i++) {
+        Term* term = branch->get(i);
         if (is_value(term)) continue;
         TaggedValue* val = get_local(context, 0, term);
         if (val != NULL)
-            copy(val, branch[i]);
+            copy(val, branch->get(i));
     }
 }
 
-void evaluate_save_locals(Branch& branch)
+void evaluate_save_locals(Branch* branch)
 {
     EvalContext context;
     evaluate_save_locals(&context, branch);
@@ -300,13 +300,13 @@ bool evaluation_interrupted(EvalContext* context)
         || context->forLoopContext.breakCalled || context->forLoopContext.continueCalled;
 }
 
-void evaluate_range(EvalContext* context, Branch& branch, int start, int end)
+void evaluate_range(EvalContext* context, Branch* branch, int start, int end)
 {
     // Genrate bytecode for this range.
     BytecodeWriter bytecode;
 
     for (int i=start; i < end; i++)
-        bc_call(&bytecode, branch[i]);
+        bc_call(&bytecode, branch->get(i));
     bc_finish(&bytecode);
 
     // Now go back and slightly rewrite the bytecode. Any calls that expect a local-value
@@ -344,13 +344,13 @@ void evaluate_range(EvalContext* context, Branch& branch, int start, int end)
     }
 
     // Run bytecode
-    push_stack_frame(context, &branch);
+    push_stack_frame(context, branch);
     push_scope_state(context);
     evaluate_bytecode(context, bytecode.data);
 
     // Copy locals back to terms
     for (int i=start; i < end; i++) {
-        Term* term = branch[i];
+        Term* term = branch->get(i);
         if (is_value(term))
             continue;
         TaggedValue* value = get_local(context, 0, term);
@@ -394,18 +394,18 @@ void evaluate_minimum(EvalContext* context, Term* term, TaggedValue* result)
         return;
     }
 
-    Branch& branch = *term->owningBranch;
+    Branch* branch = term->owningBranch;
 
     // Walk upwards, and "mark" every term that this term depends on. Limit this
     // search to the current branch.
 
-    bool *marked = new bool[branch.length()];
-    memset(marked, false, sizeof(bool)*branch.length());
+    bool *marked = new bool[branch->length()];
+    memset(marked, false, sizeof(bool) * branch->length());
 
     marked[term->index] = true;
 
     for (int i=term->index; i >= 0; i--) {
-        Term* checkTerm = branch[i];
+        Term* checkTerm = branch->get(i);
         if (checkTerm == NULL)
             continue;
 
@@ -414,7 +414,7 @@ void evaluate_minimum(EvalContext* context, Term* term, TaggedValue* result)
                 Term* input = checkTerm->input(inputIndex);
                 if (input == NULL)
                     continue;
-                if (input->owningBranch != &branch)
+                if (input->owningBranch != branch)
                     continue;
                 // don't follow :meta inputs
                 if (function_get_input_meta(get_function_attrs(checkTerm->function),
@@ -430,12 +430,12 @@ void evaluate_minimum(EvalContext* context, Term* term, TaggedValue* result)
 
     for (int i=0; i <= term->index; i++) {
         if (marked[i])
-            bc_call(&bytecode, branch[i]);
+            bc_call(&bytecode, branch->get(i));
     }
     bc_finish(&bytecode);
 
     // Run our bytecode
-    push_stack_frame(context, &branch);
+    push_stack_frame(context, branch);
     evaluate_bytecode(context, bytecode.data);
 
     // Possibly save output
@@ -460,14 +460,14 @@ void evaluate_single_term_with_bytecode(EvalContext* context, Term* term)
     evaluate_bytecode(context, bytecode.data);
 }
 
-void evaluate(EvalContext* context, Branch& branch, std::string const& input)
+void evaluate(EvalContext* context, Branch* branch, std::string const& input)
 {
-    int prevHead = branch.length();
+    int prevHead = branch->length();
     parser::compile(branch, parser::statement_list, input);
-    evaluate_range(context, branch, prevHead, branch.length());
+    evaluate_range(context, branch, prevHead, branch->length());
 }
 
-void evaluate(Branch& branch, Term* function, List* inputs)
+void evaluate(Branch* branch, Term* function, List* inputs)
 {
     EvalContext context;
 
@@ -477,15 +477,15 @@ void evaluate(Branch& branch, Term* function, List* inputs)
     for (int i=0; i < inputs->length(); i++)
         inputTerms.setAt(i, create_value(branch, inputs->get(i)));
 
-    int prevHead = branch.length();
+    int prevHead = branch->length();
     apply(branch, function, inputTerms);
-    evaluate_range(&context, branch, prevHead, branch.length());
+    evaluate_range(&context, branch, prevHead, branch->length());
 }
 
 void evaluate(Term* function, List* inputs)
 {
     Branch scratch;
-    return evaluate(scratch, function, inputs);
+    return evaluate(&scratch, function, inputs);
 }
 
 void clear_error(EvalContext* cxt)

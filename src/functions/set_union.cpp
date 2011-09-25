@@ -1,6 +1,9 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
-#include "circa.h"
+#include "../common_headers.h"
+
+#include "../importing.h"
+#include "../importing_macros.h"
 #include "types/set.h"
 
 namespace circa {
@@ -19,7 +22,7 @@ namespace set_union_function {
         }
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         import_function(kernel, evaluate, "set_union(Set...) -> Set");
     }

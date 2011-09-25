@@ -1,5 +1,7 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
+#include "circa.h"
+
 #include "bytecode.h"
 #include "testing.h"
 

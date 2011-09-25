@@ -1,5 +1,10 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
+#include "../common_headers.h"
+
+#include "../importing.h"
+#include "../importing_macros.h"
+
 namespace circa {
 namespace string_methods_function {
 
@@ -56,7 +61,7 @@ namespace string_methods_function {
         set_string(OUTPUT, s.substr(start, end - start));
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         import_function(kernel, length, "string.length(_) -> int");
         import_function(kernel, substr, "string.substr(_,int,int) -> string");

@@ -1,6 +1,9 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
-#include "circa.h"
+#include "../common_headers.h"
+
+#include "../importing.h"
+#include "../importing_macros.h"
 
 namespace circa {
 namespace trig_function {
@@ -74,7 +77,7 @@ namespace trig_function {
         set_float(OUTPUT, radians_to_degrees(result));
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         Term* sin_func = import_function(kernel, evaluate_sin, "sin(number degrees) -> number;"
             "'Trigonometric sin() function");

@@ -1,5 +1,10 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
+#include "../common_headers.h"
+
+#include "../list_shared.h"
+#include "../importing.h"
+#include "../importing_macros.h"
 #include "types/set.h"
 
 namespace circa {
@@ -36,7 +41,7 @@ namespace set_methods_function {
         }
     }
     
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         import_function(kernel, hosted_add, "Set.add(self :implied_rebind, any) -> Set");
         import_function(kernel, remove, "Set.remove(self :implied_rebind, any) -> Set");

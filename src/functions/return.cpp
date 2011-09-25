@@ -1,8 +1,11 @@
-// Copyright (c) 2007-2010 Paul Hodge. All rights reserved
+// Copyright (c) Paul Hodge. See LICENSE file for license terms.
+
+#include "../common_headers.h"
 
 #include "circa.h"
-#include "bytecode.h"
-#include "importing_macros.h"
+#include "../bytecode.h"
+#include "../importing.h"
+#include "../importing_macros.h"
 
 namespace circa {
 namespace return_function {
@@ -13,16 +16,16 @@ namespace return_function {
     {
         CONTEXT->interruptSubroutine = true;
 
-        Branch& contents = nested_contents(CALLER);
-        push_stack_frame(CONTEXT, &contents);
-        evaluate_branch_with_bytecode(CONTEXT, &contents);
+        Branch* contents = nested_contents(CALLER);
+        push_stack_frame(CONTEXT, contents);
+        evaluate_branch_with_bytecode(CONTEXT, contents);
         pop_stack_frame(CONTEXT);
     }
 
     void returnPostCompile(Term* returnCall)
     {
-        Branch& contents = nested_contents(returnCall);
-        contents.clear();
+        Branch* contents = nested_contents(returnCall);
+        clear_branch(contents);
 
         // Iterate through every open state var in the subroutine that occurs before
         // the return(). If any were found, append a call to preserve_state_result().
@@ -90,14 +93,14 @@ namespace return_function {
         }
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         // this function can be initialized early
-        if (kernel["return"] != NULL)
+        if (kernel->get("return") != NULL)
             return;
 
         CA_SETUP_FUNCTIONS(kernel);
-        RETURN_FUNC = kernel["return"];
+        RETURN_FUNC = kernel->get("return");
         get_function_attrs(RETURN_FUNC)->postCompile = returnPostCompile;
         get_function_attrs(RETURN_FUNC)->formatSource = formatSource;
     }

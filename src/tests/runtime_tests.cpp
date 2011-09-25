@@ -1,6 +1,9 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
+#include "circa.h"
+
 #include "branch.h"
+#include "builtins.h"
 #include "bytecode.h"
 #include "evaluation.h"
 #include "testing.h"
@@ -19,7 +22,7 @@ void blocked_by_error()
     branch.compile("test_spy(2)");
 
     EvalContext context;
-    evaluate_save_locals(&context, branch);
+    evaluate_save_locals(&context, &branch);
     test_assert(context.errorOccurred);
     test_assert(context.errorTerm == error);
     test_equals(internal_debug_function::spy_results(), "[1]");
@@ -32,7 +35,7 @@ void test_errored_function()
     Term* t = branch.compile("t = errored(e)");
 
     EvalContext context;
-    evaluate_save_locals(&context, branch);
+    evaluate_save_locals(&context, &branch);
 
     test_assert(!context.errorOccurred);
     test_assert(as_bool(t));
@@ -53,7 +56,7 @@ void test_dont_crash_on_static_error()
     EvalContext context;
     branch.compile("nonexistant()");
     evaluate_branch_with_bytecode(&context, &branch);
-    test_assert(has_static_errors(branch));
+    test_assert(has_static_errors(&branch));
 }
 
 void register_tests()

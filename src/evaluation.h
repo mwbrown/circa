@@ -63,25 +63,25 @@ struct EvalContext
         errorOccurred(false) {}
 };
 
-void evaluate_branch_internal(EvalContext* context, Branch& branch);
-void evaluate_branch_internal(EvalContext* context, Branch& branch, TaggedValue* output);
+void evaluate_branch_internal(EvalContext* context, Branch* branch);
+void evaluate_branch_internal(EvalContext* context, Branch* branch, TaggedValue* output);
 
 void evaluate_branch_internal_with_state(EvalContext* context, Term* term,
-        Branch& branch);
+        Branch* branch);
 
-void evaluate_branch(EvalContext* context, Branch& branch);
+void evaluate_branch(EvalContext* context, Branch* branch);
 
 // Top-level call. Evalaute the branch and then preserve stack outputs back to terms.
-void evaluate_save_locals(EvalContext* context, Branch& branch);
+void evaluate_save_locals(EvalContext* context, Branch* branch);
 
-void copy_locals_to_terms(EvalContext* context, Branch& branch);
+void copy_locals_to_terms(EvalContext* context, Branch* branch);
 
 // Shorthand to call evaluate_save_locals with a new EvalContext:
-void evaluate_save_locals(Branch& branch);
+void evaluate_save_locals(Branch* branch);
 
 // Evaluate only a range of terms, beginning at the term at index 'start', and ending at
 // (but not including) the term at index 'end'.
-void evaluate_range(EvalContext* context, Branch& branch, int start, int end);
+void evaluate_range(EvalContext* context, Branch* branch, int start, int end);
 
 // Evaluate 'term' and every term that it depends on. Will only reevaluate terms
 // in the current branch.
@@ -90,8 +90,8 @@ void evaluate_minimum(EvalContext* context, Term* term, TaggedValue* result);
 void evaluate_single_term_with_bytecode(EvalContext* context, Term* term);
 
 // Parse input and immediately evaluate it
-void evaluate(EvalContext* context, Branch& branch, std::string const& input);
-void evaluate(Branch& branch, Term* function, List* inputs);
+void evaluate(EvalContext* context, Branch* branch, std::string const& input);
+void evaluate(Branch* branch, Term* function, List* inputs);
 void evaluate(Term* function, List* inputs);
 
 // Get the input value (which might be a local or global) for the given term and index.

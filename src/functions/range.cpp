@@ -1,6 +1,10 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
+#include "../common_headers.h"
+
 #include "circa.h"
+#include "../importing.h"
+#include "../importing_macros.h"
 
 namespace circa {
 namespace range_function {
@@ -29,7 +33,7 @@ namespace range_function {
         return create_typed_unsized_list_type(&INT_T);
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         RANGE_FUNC = import_function(kernel, evaluate,
                 "range(int start, int max) -> List;"

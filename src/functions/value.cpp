@@ -1,4 +1,9 @@
-// Copyright (c) 2007-2010 Paul Hodge. All rights reserved
+// Copyright (c) Paul Hodge. See LICENSE file for license terms.
+
+#include "../common_headers.h"
+
+#include "../importing.h"
+#include "../importing_macros.h"
 
 namespace circa {
 namespace value_function {
@@ -9,7 +14,7 @@ namespace value_function {
             copy(CALLER, OUTPUT);
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
     }
 }

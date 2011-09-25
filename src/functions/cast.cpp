@@ -1,6 +1,11 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
+#include "../common_headers.h"
+
 #include "circa.h"
+
+#include "../importing.h"
+#include "../importing_macros.h"
 
 namespace circa {
 namespace cast_function {
@@ -27,7 +32,7 @@ namespace cast_function {
             return error_occurred(CONTEXT, CALLER, "cast failed");
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         CAST_FUNC = import_function(kernel, cast_evaluate, "cast :throws (any) -> any");
     }

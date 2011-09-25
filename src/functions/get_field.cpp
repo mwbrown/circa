@@ -1,6 +1,11 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
+#include "../common_headers.h"
+
 #include "circa.h"
+
+#include "../importing.h"
+#include "../importing_macros.h"
 
 namespace circa {
 namespace get_field_function {
@@ -62,7 +67,7 @@ namespace get_field_function {
         }
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         GET_FIELD_FUNC = import_function(kernel, evaluate,
                 "get_field(any, string...) -> any");

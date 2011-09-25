@@ -1,9 +1,14 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
-#include "circa.h"
-#include "static_checking.h"
+#include "../common_headers.h"
 
-#include "types/ref.h"
+#include "circa.h"
+
+#include "../importing.h"
+#include "../importing_macros.h"
+#include "static_checking.h"
+#include "../types/ref.h"
+
 
 namespace circa {
 namespace branch_methods_function {
@@ -22,13 +27,13 @@ namespace branch_methods_function {
             return error_occurred(CONTEXT, CALLER, "NULL branch");
 
         List* output = List::cast(OUTPUT, 0);
-        format_branch_source((StyledSource*) output, *branch);
+        format_branch_source((StyledSource*) output, branch);
     }
 
     CA_DEFINE_FUNCTION(has_static_error, "Branch.has_static_error(self) -> bool")
     {
         Branch* branch = as_branch(INPUT(0));
-        set_bool(OUTPUT, has_static_errors_cached(*branch));
+        set_bool(OUTPUT, has_static_errors_cached(branch));
     }
 
     CA_DEFINE_FUNCTION(get_static_errors, "Branch.get_static_errors(self) -> List")
@@ -57,7 +62,7 @@ namespace branch_methods_function {
     CA_DEFINE_FUNCTION(evaluate, "Branch.evaluate()")
     {
         Branch* branch = as_branch(INPUT(0));
-        evaluate_branch_internal_with_state(CONTEXT, CALLER, *branch);
+        evaluate_branch_internal_with_state(CONTEXT, CALLER, branch);
     }
 
     // Reflection
@@ -131,7 +136,7 @@ namespace branch_methods_function {
         }
     }
     
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         CA_SETUP_FUNCTIONS(kernel);
     }

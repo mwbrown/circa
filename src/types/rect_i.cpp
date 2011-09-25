@@ -1,5 +1,6 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
+#include "common_headers.h"
 #include "rect_i.h"
 
 namespace circa {

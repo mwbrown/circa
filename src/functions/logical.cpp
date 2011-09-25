@@ -1,6 +1,9 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
-#include <circa.h>
+#include "../common_headers.h"
+
+#include "../importing.h"
+#include "../importing_macros.h"
 
 namespace circa {
 namespace logical_function {
@@ -24,7 +27,7 @@ namespace logical_function {
         set_bool(OUTPUT, !BOOL_INPUT(0));
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         CA_SETUP_FUNCTIONS(kernel);
     }

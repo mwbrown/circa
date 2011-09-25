@@ -128,7 +128,7 @@ extern bool STATIC_INITIALIZATION_FINISHED;
 extern bool FINISHED_BOOTSTRAP;
 extern bool SHUTTING_DOWN;
 
-Branch& kernel();
+Branch* kernel();
 
 void empty_evaluate_function(Term* caller);
 
@@ -162,7 +162,7 @@ namespace for_function {
 }
 
 namespace namespace_function {
-    void early_setup(Branch& kernel);
+    void early_setup(Branch* kernel);
 }
 
 namespace overloaded_function {
@@ -171,7 +171,7 @@ namespace overloaded_function {
     int num_overloads(Term* func);
     Term* get_overload(Term* func, int index);
     Term* find_overload(Term* func, const char* name);
-    Term* create_overloaded_function(Branch& branch, std::string const& name,
+    Term* create_overloaded_function(Branch* branch, std::string const& name,
         TermList const& overloads);
     void append_overload(Term* overloadedFunction, Term* overload);
     Term* statically_specialize_function(Term* func, TermList const& inputs);
@@ -179,13 +179,13 @@ namespace overloaded_function {
 }
 
 namespace return_function {
-    void setup(Branch& kernel);
+    void setup(Branch* kernel);
 }
 
 namespace value_function {
     CA_FUNCTION(evaluate);
 }
 
-void install_standard_library(Branch& kernel);
+void install_standard_library(Branch* kernel);
 
 } // namespace circa

@@ -1,6 +1,11 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
+#include "../common_headers.h"
+
 #include "circa.h"
+
+#include "../importing.h"
+#include "../importing_macros.h"
 
 namespace circa {
 namespace do_once_function {
@@ -13,7 +18,7 @@ namespace do_once_function {
                 term, token::WHITESPACE);
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         DO_ONCE_FUNC = import_function(kernel, NULL, "do_once(state bool)");
         get_function_attrs(DO_ONCE_FUNC)->formatSource = formatSource;

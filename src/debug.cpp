@@ -18,12 +18,12 @@ bool DEBUG_TRAP_ERROR_OCCURRED = false;
 bool DEBUG_TRACE_ALL_REF_WRITES = false;
 bool DEBUG_TRACE_ALL_TERM_DESTRUCTORS = false;
 
-void dump(Branch& branch)
+void dump(Branch* branch)
 {
     print_branch(std::cout, branch);
 }
 
-void dump_with_props(Branch& branch)
+void dump_with_props(Branch* branch)
 {
     print_branch_with_properties(std::cout, branch);
 }

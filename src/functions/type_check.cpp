@@ -1,7 +1,9 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
-#include "circa.h"
-#include "importing_macros.h"
+#include "../common_headers.h"
+
+#include "../importing.h"
+#include "../importing_macros.h"
 
 namespace circa {
 namespace type_check_function {
@@ -32,7 +34,7 @@ namespace type_check_function {
     {
         set_bool(OUTPUT, is_null(INPUT(0)));
     }
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         CA_SETUP_FUNCTIONS(kernel);
     }

@@ -52,7 +52,7 @@ int main(int argc, char *argv[])
     Branch* filesBranch = create_branch_unevaluated(&kernel, "files");
     set_files_branch_global(filesBranch);
 
-    if (has_static_errors(kernel))
+    if (has_static_errors(&kernel))
         return -1;
 
     kernelRunner.start();

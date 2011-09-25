@@ -1,6 +1,9 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
-#include "circa.h"
+#include "../common_headers.h"
+
+#include "../importing.h"
+#include "../importing_macros.h"
 
 #include "types/hashtable.h"
 
@@ -38,7 +41,7 @@ namespace hashtable_methods_function {
         copy(value, OUTPUT);
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         import_function(kernel, insert,
                 "Map.add(self :implied_rebind, any, any) -> Map");

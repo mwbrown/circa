@@ -1,7 +1,9 @@
-// Copyright (c) 2007-2010 Paul Hodge. All rights reserved
+// Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
-#include <circa.h>
-#include <importing_macros.h>
+#include "../common_headers.h"
+
+#include "../importing.h"
+#include "../importing_macros.h"
 
 namespace circa {
 namespace preserve_state_result_function {
@@ -20,10 +22,10 @@ namespace preserve_state_result_function {
         set_null(OUTPUT);
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         import_function(kernel, preserve_state_result, "preserve_state_result(any)");
-        PRESERVE_STATE_RESULT_FUNC = kernel["preserve_state_result"];
+        PRESERVE_STATE_RESULT_FUNC = kernel->get("preserve_state_result");
     }
 }
 }

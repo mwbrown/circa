@@ -45,16 +45,16 @@ Term* get_for_loop_modify_list(Term* forTerm)
     return term;
 }
 
-Branch& get_for_loop_outer_rebinds(Term* forTerm)
+Branch* get_for_loop_outer_rebinds(Term* forTerm)
 {
-    Branch& contents = nested_contents(forTerm);
-    return contents.getFromEnd(0)->contents();
+    Branch* contents = nested_contents(forTerm);
+    return contents->getFromEnd(0)->contents();
 }
 
 void setup_for_loop_pre_code(Term* forTerm)
 {
-    Branch& forContents = nested_contents(forTerm);
-    Branch& attributes = create_branch(forContents, "#attributes");
+    Branch* forContents = nested_contents(forTerm);
+    Branch* attributes = create_branch(forContents, "#attributes");
     create_bool(attributes, false, "#modify_list");
 }
 
@@ -70,14 +70,14 @@ Term* setup_for_loop_iterator(Term* forTerm, const char* name)
 
 void setup_for_loop_post_code(Term* forTerm)
 {
-    Branch& forContents = nested_contents(forTerm);
+    Branch* forContents = nested_contents(forTerm);
     std::string listName = forTerm->input(0)->name;
     std::string iteratorName = get_for_loop_iterator(forTerm)->name;
 
     finish_minor_branch(forContents);
 
     // Create a branch that has all the names which are rebound in this loop
-    Branch& outerRebinds = create_branch(forContents, "#outer_rebinds");
+    Branch* outerRebinds = create_branch(forContents, "#outer_rebinds");
 
     std::vector<std::string> reboundNames;
     list_names_that_this_branch_rebinds(forContents, reboundNames);
@@ -95,14 +95,14 @@ void setup_for_loop_post_code(Term* forTerm)
         if (original == NULL)
             continue;
 
-        Term* loopResult = forContents[name];
+        Term* loopResult = forContents->get(name);
 
         // First input to both of these should be 'original', but we need to wait until
         // after remap_pointers before setting this.
         Term* innerRebind = apply(forContents, JOIN_FUNC, TermList(NULL, loopResult), name);
 
         change_declared_type(innerRebind, original->type);
-        forContents.move(innerRebind, inner_rebinds_location + i);
+        forContents->move(innerRebind, inner_rebinds_location + i);
 
         Term* outerRebind = apply(outerRebinds, JOIN_FUNC, TermList(NULL, loopResult), name);
 
@@ -137,18 +137,18 @@ Term* find_enclosing_for_loop(Term* term)
 
 void for_loop_update_output_index(Term* forTerm)
 {
-    Branch& contents = nested_contents(forTerm);
+    Branch* contents = nested_contents(forTerm);
 
     // If this is a list-rewrite, then the output is the last term that has the iterator's
     // name binding. Otherwise the output is the last expression.
     if (as_bool(get_for_loop_modify_list(forTerm))) {
-        Term* output = contents[get_for_loop_iterator(forTerm)->name];
+        Term* output = contents->get(get_for_loop_iterator(forTerm)->name);
         ca_assert(output != NULL);
-        contents.outputIndex = output->index;
+        contents->outputIndex = output->index;
     } else {
         // Find the first non-comment expression before #outer_rebinds
         Term* output = find_last_non_comment_expression(contents);
-        contents.outputIndex = output == NULL ? -1 : output->index;
+        contents->outputIndex = output == NULL ? -1 : output->index;
     }
 }
 
@@ -156,19 +156,19 @@ CA_FUNCTION(evaluate_for_loop)
 {
     Term* caller = CALLER;
     EvalContext* context = CONTEXT;
-    Branch& forContents = nested_contents(caller);
-    Branch& outerRebinds = get_for_loop_outer_rebinds(caller);
+    Branch* forContents = nested_contents(caller);
+    Branch* outerRebinds = get_for_loop_outer_rebinds(caller);
     Term* iterator = get_for_loop_iterator(caller);
 
     TaggedValue* inputList = INPUT(0);
     int inputListLength = inputList->numElements();
 
     TaggedValue outputTv;
-    bool saveOutput = forContents.outputIndex != -1;
+    bool saveOutput = forContents->outputIndex != -1;
     List* output = set_list(&outputTv, inputListLength);
     int nextOutputIndex = 0;
 
-    push_stack_frame(context, &forContents);
+    push_stack_frame(context, forContents);
     context->callStack.append(CALLER);
 
     // Prepare state container
@@ -203,8 +203,8 @@ CA_FUNCTION(evaluate_for_loop)
         // copy inner rebinds
         {
             int index = inner_rebinds_location;
-            while (forContents[index]->function == JOIN_FUNC) {
-                Term* rebindTerm = forContents[index];
+            while (forContents->get(index)->function == JOIN_FUNC) {
+                Term* rebindTerm = forContents->get(index);
                 TaggedValue* dest = get_local(context, 0, index);
 
                 if (firstIter)
@@ -222,11 +222,11 @@ CA_FUNCTION(evaluate_for_loop)
 
         ca_assert(!evaluation_interrupted(context));
 
-        evaluate_branch_with_bytecode(context, &forContents);
+        evaluate_branch_with_bytecode(context, forContents);
 
         // Save output
         if (saveOutput && !context->forLoopContext.discard) {
-            TaggedValue* localResult = get_local(context, 0, forContents[forContents.outputIndex]);
+            TaggedValue* localResult = get_local(context, 0, forContents->get(forContents->outputIndex));
             copy(localResult, output->get(nextOutputIndex++));
         }
 
@@ -245,9 +245,9 @@ CA_FUNCTION(evaluate_for_loop)
     // Copy outer rebinds
     //ca_assert(caller->numOutputs() == outerRebinds.length() + 1);
     
-    for (int i=0; i < outerRebinds.length(); i++) {
+    for (int i=0; i < outerRebinds->length(); i++) {
 
-        Term* rebindTerm = outerRebinds[i];
+        Term* rebindTerm = outerRebinds->get(i);
 
         TaggedValue* result = NULL;
 

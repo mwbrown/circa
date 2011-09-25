@@ -31,9 +31,9 @@ namespace parser {
 
 using namespace circa::token;
 
-TermPtr compile(Branch& branch, ParsingStep step, std::string const& input)
+TermPtr compile(Branch* branch, ParsingStep step, std::string const& input)
 {
-    int prevLastIndex = branch.length() - 1;
+    int prevLastIndex = branch->length() - 1;
 
     TokenStream tokens(input);
     ParserCxt context;
@@ -42,10 +42,10 @@ TermPtr compile(Branch& branch, ParsingStep step, std::string const& input)
     // Update the finish_minor_branch() func at the end
     Term* prevLast = NULL;
     if (prevLastIndex >= 0)
-        prevLast = branch[prevLastIndex];
+        prevLast = branch->get(prevLastIndex);
     if (prevLast && prevLast->function == FINISH_MINOR_BRANCH_FUNC) {
-        branch.moveToEnd(branch[prevLastIndex]);
-        update_branch_finish_term(branch[branch.length()-1]);
+        branch->moveToEnd(branch->get(prevLastIndex));
+        update_branch_finish_term(branch->get(branch->length()-1));
         update_input_instructions(nested_contents(prevLast));
     } else {
         check_to_add_branch_finish_term(branch, prevLastIndex+1);
@@ -59,15 +59,15 @@ TermPtr compile(Branch& branch, ParsingStep step, std::string const& input)
     return result;
 }
 
-TermPtr evaluate(Branch& branch, ParsingStep step, std::string const& input)
+TermPtr evaluate(Branch* branch, ParsingStep step, std::string const& input)
 {
-    int prevHead = branch.length();
+    int prevHead = branch->length();
 
     Term* result = compile(branch, step, input);
 
     EvalContext context;
 
-    evaluate_range(&context, branch, prevHead, branch.length());
+    evaluate_range(&context, branch, prevHead, branch->length());
 
     return result;
 }
@@ -117,9 +117,9 @@ struct ListSyntaxHints {
     std::vector<Input> mPending;
 };
 
-void consume_branch(Branch& branch, TokenStream& tokens, ParserCxt* context)
+void consume_branch(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
-    Term* parentTerm = branch.owningTerm;
+    Term* parentTerm = branch->owningTerm;
 
     if (tokens.nextNonWhitespaceIs(LBRACE)) {
         consume_branch_with_braces(branch, tokens, context, parentTerm);
@@ -150,7 +150,7 @@ int find_indentation_of_next_statement(TokenStream& tokens)
     return tokens.next(lookahead).colStart;
 }
 
-void consume_branch_with_significant_indentation(Branch& branch, TokenStream& tokens,
+void consume_branch_with_significant_indentation(Branch* branch, TokenStream& tokens,
         ParserCxt* context, Term* parentTerm)
 {
     ca_assert(parentTerm != NULL);
@@ -271,7 +271,7 @@ void consume_branch_with_significant_indentation(Branch& branch, TokenStream& to
     parentTerm->setBoolProp("syntax:multiline", true);
 }
 
-void consume_branch_with_braces(Branch& branch, TokenStream& tokens, ParserCxt* context,
+void consume_branch_with_braces(Branch* branch, TokenStream& tokens, ParserCxt* context,
         Term* parentTerm)
 {
     parentTerm->setStringProp("syntax:branchStyle", "braces");
@@ -293,7 +293,7 @@ void consume_branch_with_braces(Branch& branch, TokenStream& tokens, ParserCxt* 
 
 // ---------------------------- Parsing steps ---------------------------------
 
-ParseResult statement_list(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult statement_list(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     ParseResult result;
 
@@ -303,7 +303,7 @@ ParseResult statement_list(Branch& branch, TokenStream& tokens, ParserCxt* conte
     return result;
 }
 
-ParseResult statement(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult statement(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int initialPosition = tokens.getPosition();
     std::string preWhitespace = possible_whitespace(tokens);
@@ -399,7 +399,7 @@ ParseResult statement(Branch& branch, TokenStream& tokens, ParserCxt* context)
     return result;
 }
 
-bool matches_comment_statement(Branch& branch, TokenStream& tokens)
+bool matches_comment_statement(Branch* branch, TokenStream& tokens)
 {
     int lookahead = 0;
     bool foundWhitespace = false;
@@ -414,7 +414,7 @@ bool matches_comment_statement(Branch& branch, TokenStream& tokens)
              (tokens.nextIs(RBRACE) || tokens.nextIs(END) || tokens.finished())));
 }
 
-ParseResult comment(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult comment(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     std::string commentText;
 
@@ -427,7 +427,7 @@ ParseResult comment(Branch& branch, TokenStream& tokens, ParserCxt* context)
     return ParseResult(result);
 }
 
-ParseResult type_expr(Branch& branch, TokenStream& tokens,
+ParseResult type_expr(Branch* branch, TokenStream& tokens,
         ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
@@ -461,7 +461,7 @@ bool token_is_allowed_as_function_name(int token)
     }
 }
 
-ParseResult function_decl(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult function_decl(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
 
@@ -491,7 +491,7 @@ ParseResult function_decl(Branch& branch, TokenStream& tokens, ParserCxt* contex
             return compile_error_for_line(branch, tokens, startPosition, "Expected identifier after .");
 
         std::string typeName = functionName;
-        methodType = find_name(&branch, typeName.c_str());
+        methodType = find_name(branch, typeName.c_str());
         functionName += "." + tokens.consume(IDENTIFIER);
 
         if (methodType == NULL || !is_type(methodType))
@@ -529,7 +529,7 @@ ParseResult function_decl(Branch& branch, TokenStream& tokens, ParserCxt* contex
 
     tokens.consume(LPAREN);
 
-    Branch& contents = nested_contents(result);
+    Branch* contents = nested_contents(result);
 
     int qualifierLoc = find_qualified_name_separator(functionName.c_str());
     if (qualifierLoc != -1)
@@ -621,8 +621,8 @@ ParseResult function_decl(Branch& branch, TokenStream& tokens, ParserCxt* contex
 
     } // Done consuming input arguments
 
-    for (int i=0; i < contents.length(); i++)
-        hide_from_source(contents[i]);
+    for (int i=0; i < contents->length(); i++)
+        hide_from_source(contents->get(i));
 
     if (!tokens.nextIs(RPAREN))
         return compile_error_for_line(result, tokens, startPosition);
@@ -665,7 +665,7 @@ ParseResult function_decl(Branch& branch, TokenStream& tokens, ParserCxt* contex
     return ParseResult(result);
 }
 
-ParseResult type_decl(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult type_decl(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
 
@@ -684,13 +684,13 @@ ParseResult type_decl(Branch& branch, TokenStream& tokens, ParserCxt* context)
     if (has_static_error(result))
         return ParseResult(result);
 
-    branch.bindName(result, name);
+    branch->bindName(result, name);
     as_type(result)->name = name;
 
     return ParseResult(result);
 }
 
-ParseResult anonymous_type_decl(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult anonymous_type_decl(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
 
@@ -716,7 +716,7 @@ ParseResult anonymous_type_decl(Branch& branch, TokenStream& tokens, ParserCxt* 
     result->setStringProp("syntax:postLBracketWhitespace",
             possible_whitespace_or_newline(tokens));
 
-    Branch& contents = nested_contents(result);
+    Branch* contents = nested_contents(result);
 
     while (!tokens.nextIs(closingToken)) {
         std::string preWs = possible_whitespace_or_newline(tokens);
@@ -749,17 +749,17 @@ ParseResult anonymous_type_decl(Branch& branch, TokenStream& tokens, ParserCxt* 
 
     list_initialize_parameter_from_type_decl(contents, &as_type(result)->parameter);
 
-    branch.moveToEnd(result);
+    branch->moveToEnd(result);
 
     return ParseResult(result);
 }
 
-ParseResult if_block(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult if_block(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
 
     Term* result = apply(branch, IF_BLOCK_FUNC, TermList());
-    Branch& contents = nested_contents(result);
+    Branch* contents = nested_contents(result);
 
     Term* currentBlock = NULL;
     bool firstIteration = true;
@@ -831,12 +831,12 @@ ParseResult if_block(Branch& branch, TokenStream& tokens, ParserCxt* context)
 
     // If we didn't encounter an 'else' block, then create an empty one.
     if (!encounteredElse) {
-        Branch& branch = create_branch(contents, "else");
-        hide_from_source(branch.owningTerm);
+        Branch* branch = create_branch(contents, "else");
+        hide_from_source(branch->owningTerm);
     }
 
     // Move the if_block term to be after the condition terms.
-    branch.moveToEnd(result);
+    branch->moveToEnd(result);
 
     update_if_block_joining_branch(result);
     update_input_instructions(nested_contents(result));
@@ -845,7 +845,7 @@ ParseResult if_block(Branch& branch, TokenStream& tokens, ParserCxt* context)
     return ParseResult(result);
 }
 
-ParseResult switch_block(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult switch_block(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
 
@@ -861,7 +861,7 @@ ParseResult switch_block(Branch& branch, TokenStream& tokens, ParserCxt* context
 
     // case_statement may have appended some terms to our branch, so move this
     // term to compensate.
-    branch.moveToEnd(result);
+    branch->moveToEnd(result);
 
     switch_block_post_compile(result);
     set_source_location(result, startPosition, tokens);
@@ -869,7 +869,7 @@ ParseResult switch_block(Branch& branch, TokenStream& tokens, ParserCxt* context
     return ParseResult(result);
 }
 
-ParseResult case_statement(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult case_statement(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
 
@@ -877,13 +877,13 @@ ParseResult case_statement(Branch& branch, TokenStream& tokens, ParserCxt* conte
     possible_whitespace(tokens);
 
     // Find the parent 'switch' block.
-    Term* parent = branch.owningTerm;
+    Term* parent = branch->owningTerm;
     if (parent == NULL || parent->function != SWITCH_FUNC) {
         return compile_error_for_line(branch, tokens, startPosition,
             "'case' keyword must occur inside 'switch' block");
     }
 
-    Branch& parentBranch = *parent->owningBranch;
+    Branch* parentBranch = parent->owningBranch;
 
     // Parse the 'case' input, using the branch that the 'switch' is in.
     Term* input = infix_expression(parentBranch, tokens, context).term;
@@ -898,7 +898,7 @@ ParseResult case_statement(Branch& branch, TokenStream& tokens, ParserCxt* conte
     return ParseResult(result);
 }
 
-ParseResult for_block(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult for_block(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
 
@@ -932,7 +932,7 @@ ParseResult for_block(Branch& branch, TokenStream& tokens, ParserCxt* context)
         name = listExpr->name;
 
     Term* forTerm = apply(branch, FOR_FUNC, TermList(listExpr), name);
-    Branch& contents = nested_contents(forTerm);
+    Branch* contents = nested_contents(forTerm);
     setup_for_loop_pre_code(forTerm);
     set_starting_source_location(forTerm, startPosition, tokens);
 
@@ -951,7 +951,7 @@ ParseResult for_block(Branch& branch, TokenStream& tokens, ParserCxt* context)
     return ParseResult(forTerm);
 }
 
-ParseResult do_once_block(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult do_once_block(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
 
@@ -964,7 +964,7 @@ ParseResult do_once_block(Branch& branch, TokenStream& tokens, ParserCxt* contex
     return ParseResult(result);
 }
 
-ParseResult stateful_value_decl(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult stateful_value_decl(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
 
@@ -1023,7 +1023,7 @@ ParseResult stateful_value_decl(Branch& branch, TokenStream& tokens, ParserCxt* 
     return ParseResult(result);
 }
 
-ParseResult expression_statement(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult expression_statement(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
 
@@ -1034,7 +1034,7 @@ ParseResult expression_statement(Branch& branch, TokenStream& tokens, ParserCxt*
     if (context->pendingRebind != "") {
         std::string name = context->pendingRebind;
         context->pendingRebind = "";
-        branch.bindName(result.term, name);
+        branch->bindName(result.term, name);
         result.term->setStringProp("syntax:rebindOperator", name);
     }
 
@@ -1042,7 +1042,7 @@ ParseResult expression_statement(Branch& branch, TokenStream& tokens, ParserCxt*
     if (result.term->function == ASSIGN_FUNC) {
         Term* lexprRoot = find_lexpr_root(result.term->input(0));
         if (lexprRoot != NULL && lexprRoot->name != "") {
-            branch.bindName(result.term, lexprRoot->name);
+            branch->bindName(result.term, lexprRoot->name);
         }
         assign_function::update_assign_contents(result.term);
     }
@@ -1053,7 +1053,7 @@ ParseResult expression_statement(Branch& branch, TokenStream& tokens, ParserCxt*
     return result;
 }
 
-ParseResult include_statement(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult include_statement(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
 
@@ -1078,7 +1078,7 @@ ParseResult include_statement(Branch& branch, TokenStream& tokens, ParserCxt* co
     return ParseResult(result);
 }
 
-ParseResult return_statement(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult return_statement(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     tokens.consume(RETURN);
     std::string postKeywordWs = possible_whitespace(tokens);
@@ -1100,13 +1100,13 @@ ParseResult return_statement(Branch& branch, TokenStream& tokens, ParserCxt* con
     return ParseResult(result);
 }
 
-ParseResult discard_statement(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult discard_statement(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
 
     tokens.consume(DISCARD);
     
-    Term* enclosingForLoop = find_enclosing_for_loop(branch.owningTerm);
+    Term* enclosingForLoop = find_enclosing_for_loop(branch->owningTerm);
 
     if (enclosingForLoop == NULL)
         return compile_error_for_line(branch, tokens, startPosition,
@@ -1117,13 +1117,13 @@ ParseResult discard_statement(Branch& branch, TokenStream& tokens, ParserCxt* co
     set_source_location(result, startPosition, tokens);
     return ParseResult(result);
 }
-ParseResult break_statement(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult break_statement(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
 
     tokens.consume(BREAK);
     
-    Term* enclosingForLoop = find_enclosing_for_loop(branch.owningTerm);
+    Term* enclosingForLoop = find_enclosing_for_loop(branch->owningTerm);
 
     if (enclosingForLoop == NULL)
         return compile_error_for_line(branch, tokens, startPosition,
@@ -1134,13 +1134,13 @@ ParseResult break_statement(Branch& branch, TokenStream& tokens, ParserCxt* cont
     set_source_location(result, startPosition, tokens);
     return ParseResult(result);
 }
-ParseResult continue_statement(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult continue_statement(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
 
     tokens.consume(CONTINUE);
     
-    Term* enclosingForLoop = find_enclosing_for_loop(branch.owningTerm);
+    Term* enclosingForLoop = find_enclosing_for_loop(branch->owningTerm);
 
     if (enclosingForLoop == NULL)
         return compile_error_for_line(branch, tokens, startPosition,
@@ -1152,7 +1152,7 @@ ParseResult continue_statement(Branch& branch, TokenStream& tokens, ParserCxt* c
     return ParseResult(result);
 }
 
-ParseResult name_binding_expression(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult name_binding_expression(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     // Lookahead for a name binding.
     if (lookahead_match_leading_name_binding(tokens)) {
@@ -1173,7 +1173,7 @@ ParseResult name_binding_expression(Branch& branch, TokenStream& tokens, ParserC
         result.term->setStringProp("syntax:preEqualsSpace", preEqualsSpace);
         result.term->setStringProp("syntax:postEqualsSpace", postEqualsSpace);
 
-        branch.bindName(result.term, nameBinding);
+        branch->bindName(result.term, nameBinding);
         set_source_location(result.term, startPosition, tokens);
         return result;
     }
@@ -1182,7 +1182,7 @@ ParseResult name_binding_expression(Branch& branch, TokenStream& tokens, ParserC
     return expression(branch, tokens, context);
 }
 
-ParseResult expression(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult expression(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     ParseResult result;
 
@@ -1265,12 +1265,12 @@ std::string get_function_for_infix(std::string const& infix)
     else return "#unrecognized";
 }
 
-ParseResult infix_expression(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult infix_expression(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     return infix_expression_nested(branch, tokens, context, 0);
 }
 
-ParseResult infix_expression_nested(Branch& branch, TokenStream& tokens, ParserCxt* context, int precedence)
+ParseResult infix_expression_nested(Branch* branch, TokenStream& tokens, ParserCxt* context, int precedence)
 {
     int startPosition = tokens.getPosition();
 
@@ -1360,7 +1360,7 @@ ParseResult infix_expression_nested(Branch& branch, TokenStream& tokens, ParserC
                 // Just bind the name if left side is an identifier.
                 // Example: a += 1
                 if (leftExpr.isIdentifier())
-                    branch.bindName(term, leftExpr.term->name);
+                    branch->bindName(term, leftExpr.term->name);
 
                 // Set up an assign() term if left side is complex
                 // Example: a[0] += 1
@@ -1370,7 +1370,7 @@ ParseResult infix_expression_nested(Branch& branch, TokenStream& tokens, ParserC
                     term_move_property(assignTerm->input(1), assignTerm, "syntax:input-0:postWhitespace");
                     Term* lexprRoot = find_lexpr_root(leftExpr.term);
                     if (lexprRoot != NULL && lexprRoot->name != "")
-                        branch.bindName(assignTerm, lexprRoot->name);
+                        branch->bindName(assignTerm, lexprRoot->name);
                     
                     assign_function::update_assign_contents(assignTerm);
                     term = assignTerm;
@@ -1389,7 +1389,7 @@ ParseResult infix_expression_nested(Branch& branch, TokenStream& tokens, ParserC
     return leftExpr;
 }
 
-ParseResult unary_expression(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult unary_expression(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     // Unary minus
     if (tokens.nextIs(MINUS)) {
@@ -1417,7 +1417,7 @@ ParseResult unary_expression(Branch& branch, TokenStream& tokens, ParserCxt* con
     return atom_with_subscripts(branch, tokens, context);
 }
 
-void function_call_inputs(Branch& branch, TokenStream& tokens, ParserCxt* context,
+void function_call_inputs(Branch* branch, TokenStream& tokens, ParserCxt* context,
         TermList& arguments, ListSyntaxHints& inputHints)
 {
     // Parse function arguments
@@ -1443,7 +1443,7 @@ void function_call_inputs(Branch& branch, TokenStream& tokens, ParserCxt* contex
     }
 }
 
-ParseResult method_call(Branch& branch, TokenStream& tokens, ParserCxt* context, ParseResult root)
+ParseResult method_call(Branch* branch, TokenStream& tokens, ParserCxt* context, ParseResult root)
 {
     int startPosition = tokens.getPosition();
 
@@ -1477,7 +1477,7 @@ ParseResult method_call(Branch& branch, TokenStream& tokens, ParserCxt* context,
     Term* term = apply(branch, function, inputs);
 
     if (root.term->name != "" && function_implicitly_rebinds_input(function, 0))
-        branch.bindName(term, root.term->name);
+        branch->bindName(term, root.term->name);
 
     inputHints.apply(term);
     //set_input_syntax_hint(term, 0, "postWhitespace", "");
@@ -1487,7 +1487,7 @@ ParseResult method_call(Branch& branch, TokenStream& tokens, ParserCxt* context,
     return ParseResult(term);
 }
 
-ParseResult function_call(Branch& branch, ParseResult head, TokenStream& tokens, ParserCxt* context)
+ParseResult function_call(Branch* branch, ParseResult head, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
 
@@ -1517,7 +1517,7 @@ ParseResult function_call(Branch& branch, ParseResult head, TokenStream& tokens,
     return ParseResult(result);
 }
 
-ParseResult function_call2(Branch& branch, Term* function, TokenStream& tokens, ParserCxt* context)
+ParseResult function_call2(Branch* branch, Term* function, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
     
@@ -1565,7 +1565,7 @@ ParseResult function_call2(Branch& branch, Term* function, TokenStream& tokens, 
     return ParseResult(result);
 }
 
-ParseResult atom_with_subscripts(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult atom_with_subscripts(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     ParseResult result = atom(branch, tokens, context);
 
@@ -1688,7 +1688,7 @@ Term* find_lexpr_root(Term* term)
         return term;
 }
 
-ParseResult atom(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult atom(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
     ParseResult result;
@@ -1765,7 +1765,7 @@ ParseResult atom(Branch& branch, TokenStream& tokens, ParserCxt* context)
     return result;
 }
 
-ParseResult literal_integer(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult literal_integer(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
     std::string text = tokens.consume(INTEGER);
@@ -1775,7 +1775,7 @@ ParseResult literal_integer(Branch& branch, TokenStream& tokens, ParserCxt* cont
     return ParseResult(term);
 }
 
-ParseResult literal_hex(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult literal_hex(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
     std::string text = tokens.consume(HEX_INTEGER);
@@ -1786,7 +1786,7 @@ ParseResult literal_hex(Branch& branch, TokenStream& tokens, ParserCxt* context)
     return ParseResult(term);
 }
 
-ParseResult literal_float(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult literal_float(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
     std::string text = tokens.consume(FLOAT_TOKEN);
@@ -1817,7 +1817,7 @@ ParseResult literal_float(Branch& branch, TokenStream& tokens, ParserCxt* contex
     return ParseResult(term);
 }
 
-ParseResult literal_string(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult literal_string(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
 
@@ -1878,7 +1878,7 @@ ParseResult literal_string(Branch& branch, TokenStream& tokens, ParserCxt* conte
     return ParseResult(term);
 }
 
-ParseResult literal_bool(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult literal_bool(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
     bool value = tokens.nextIs(TRUE_TOKEN);
@@ -1890,7 +1890,7 @@ ParseResult literal_bool(Branch& branch, TokenStream& tokens, ParserCxt* context
     return ParseResult(term);
 }
 
-ParseResult literal_null(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult literal_null(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
 
@@ -1919,7 +1919,7 @@ int two_hex_digits_to_number(char digit1, char digit2)
     return hex_digit_to_number(digit1) * 16 + hex_digit_to_number(digit2);
 }
 
-ParseResult literal_color(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult literal_color(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
 
@@ -1969,7 +1969,7 @@ ParseResult literal_color(Branch& branch, TokenStream& tokens, ParserCxt* contex
     return ParseResult(resultTerm);
 }
 
-ParseResult literal_list(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult literal_list(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
 
@@ -1993,7 +1993,7 @@ ParseResult literal_list(Branch& branch, TokenStream& tokens, ParserCxt* context
     return ParseResult(term);
 }
 
-ParseResult literal_symbol(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult literal_symbol(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
 
@@ -2006,7 +2006,7 @@ ParseResult literal_symbol(Branch& branch, TokenStream& tokens, ParserCxt* conte
     return ParseResult(term);
 }
 
-ParseResult plain_branch(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult plain_branch(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
     Term* term = apply(branch, LAMBDA_FUNC, TermList());
@@ -2016,7 +2016,7 @@ ParseResult plain_branch(Branch& branch, TokenStream& tokens, ParserCxt* context
     return ParseResult(term);
 }
 
-ParseResult namespace_block(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult namespace_block(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
     tokens.consume(NAMESPACE);
@@ -2039,7 +2039,7 @@ ParseResult namespace_block(Branch& branch, TokenStream& tokens, ParserCxt* cont
     return ParseResult(term);
 }
 
-ParseResult unknown_identifier(Branch& branch, std::string const& name)
+ParseResult unknown_identifier(Branch* branch, std::string const& name)
 {
     Term* term = apply(branch, UNKNOWN_IDENTIFIER_FUNC, TermList(), name);
     set_is_statement(term, false);
@@ -2047,13 +2047,13 @@ ParseResult unknown_identifier(Branch& branch, std::string const& name)
     return ParseResult(term, name);
 }
 
-ParseResult identifier(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult identifier(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     int startPosition = tokens.getPosition();
     
     std::string id = tokens.consume(IDENTIFIER);
 
-    Term* term = find_name(&branch, id.c_str());
+    Term* term = find_name(branch, id.c_str());
     if (term == NULL) {
         ParseResult result = unknown_identifier(branch, id);
         set_source_location(result.term, startPosition, tokens);
@@ -2063,7 +2063,7 @@ ParseResult identifier(Branch& branch, TokenStream& tokens, ParserCxt* context)
     return ParseResult(term, id);
 }
 
-ParseResult identifier_with_rebind(Branch& branch, TokenStream& tokens, ParserCxt* context)
+ParseResult identifier_with_rebind(Branch* branch, TokenStream& tokens, ParserCxt* context)
 {
     //int startPosition = tokens.getPosition();
 
@@ -2076,7 +2076,7 @@ ParseResult identifier_with_rebind(Branch& branch, TokenStream& tokens, ParserCx
 
     std::string id = tokens.consume(IDENTIFIER);
 
-    Term* head = find_name(&branch, id.c_str());
+    Term* head = find_name(branch, id.c_str());
     ParseResult result;
 
     if (head == NULL)
@@ -2139,11 +2139,11 @@ void set_source_location(Term* term, int start, TokenStream& tokens)
     term->sourceLoc.grow(loc);
 }
 
-Term* find_and_apply(Branch& branch,
+Term* find_and_apply(Branch* branch,
         std::string const& functionName,
         TermList const& inputs)
 {
-    Term* function = find_name(&branch, functionName.c_str());
+    Term* function = find_name(branch, functionName.c_str());
 
     if (function == NULL)
         return unknown_identifier(branch, functionName).term;
@@ -2151,9 +2151,9 @@ Term* find_and_apply(Branch& branch,
     return apply(branch, function, inputs);
 }
 
-Term* find_type(Branch& branch, std::string const& name)
+Term* find_type(Branch* branch, std::string const& name)
 {
-    Term* result = find_name(&branch, name.c_str());
+    Term* result = find_name(branch, name.c_str());
 
     if (result == NULL) {
         result = apply(branch, UNKNOWN_TYPE_FUNC, TermList(), name);
@@ -2164,10 +2164,10 @@ Term* find_type(Branch& branch, std::string const& name)
     return result;
 }
 
-void post_parse_branch(Branch& branch)
+void post_parse_branch(Branch* branch)
 {
     // Remove NULLs
-    branch.removeNulls();
+    branch->removeNulls();
 
     finish_update_cascade(branch);
 }
@@ -2204,7 +2204,7 @@ std::string consume_line(TokenStream &tokens, int start, Term* positionRecepient
     return line.str();
 }
 
-Term* insert_compile_error(Branch& branch, TokenStream& tokens,
+Term* insert_compile_error(Branch* branch, TokenStream& tokens,
         std::string const& message)
 {
     Term* result = apply(branch, UNRECOGNIZED_EXPRESSION_FUNC, TermList());
@@ -2213,7 +2213,7 @@ Term* insert_compile_error(Branch& branch, TokenStream& tokens,
     return result;
 }
 
-ParseResult compile_error_for_line(Branch& branch, TokenStream& tokens, int start,
+ParseResult compile_error_for_line(Branch* branch, TokenStream& tokens, int start,
         std::string const& message)
 {
     Term* result = apply(branch, UNRECOGNIZED_EXPRESSION_FUNC, TermList());

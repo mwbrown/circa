@@ -1,7 +1,10 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
-#include "circa.h"
-#include "importing_macros.h"
+#include "../common_headers.h"
+
+#include "../builtins.h"
+#include "../importing.h"
+#include "../importing_macros.h"
 
 namespace circa {
 namespace sub_function {
@@ -16,7 +19,7 @@ namespace sub_function {
         set_float(OUTPUT, FLOAT_INPUT(0) - FLOAT_INPUT(1));
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         Term* sub_i = import_function(kernel, evaluate_i, "sub_i(int,int) -> int");
         Term* sub_f = import_function(kernel, evaluate_f, "sub_f(number,number) -> number");

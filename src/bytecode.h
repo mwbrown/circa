@@ -145,7 +145,7 @@ void bc_pop_stack(BytecodeWriter* writer);
 
 // Mark the term's owning branch as needing to recompute bytecode.
 void dirty_bytecode(Term* term);
-void dirty_bytecode(Branch& branch);
+void dirty_bytecode(Branch* branch);
 
 // Write bytecode to call the given term. This will use any custom behavior,
 // like the function's custom writeBytecode handler.

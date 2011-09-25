@@ -1,7 +1,10 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
-#include "circa.h"
-#include "importing_macros.h"
+#include "../common_headers.h"
+
+#include "../builtins.h"
+#include "../importing.h"
+#include "../importing_macros.h"
 
 namespace circa {
 namespace errored_function {
@@ -12,10 +15,10 @@ namespace errored_function {
     {
         set_bool(OUTPUT, is_error(INPUT(0)));
     }
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         CA_SETUP_FUNCTIONS(kernel);
-        ERRORED_FUNC = kernel["errored"];
+        ERRORED_FUNC = kernel->get("errored");
     }
 }
 }

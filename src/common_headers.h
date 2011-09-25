@@ -106,8 +106,8 @@ struct OpCall {
 #else
 
 // Release build
-#define ca_assert(x) ;
-#define ca_test_assert(x) ;
+#define ca_assert(x)
+#define ca_test_assert(x)
 
 #endif
 

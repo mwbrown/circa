@@ -12,9 +12,9 @@ void test_reference()
 {
     Branch branch;
 
-    Term* r1 = create_value(branch, &REF_T);
-    Term* a = create_value(branch, &INT_T);
-    Term* r2 = create_value(branch, &REF_T);
+    Term* r1 = create_value(&branch, &REF_T);
+    Term* a = create_value(&branch, &INT_T);
+    Term* r2 = create_value(&branch, &REF_T);
 
     set_ref(r1, a);
 
@@ -31,7 +31,7 @@ void reference_type_deletion_bug()
     // the thing it was pointed to.
     Branch *branch = new Branch();
 
-    Term* myref = create_value(*branch, &REF_T);
+    Term* myref = create_value(branch, &REF_T);
 
     set_ref(myref, INT_TYPE);
 
@@ -80,12 +80,12 @@ void test_list()
 
     Term* l = branch.compile("l = List()");
 
-    evaluate_save_locals(branch);
+    evaluate_save_locals(&branch);
     test_assert(is_list(l));
     test_assert(l->numElements() == 0);
 
     l = branch.compile("l.append(2)");
-    evaluate_save_locals(branch);
+    evaluate_save_locals(&branch);
     test_assert(l->numElements() == 1);
     test_assert(l->getIndex(0)->asInt() == 2);
 }

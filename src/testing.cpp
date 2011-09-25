@@ -53,13 +53,13 @@ void test_assert_function(Term* term, int line, const char* file)
 
 void test_assert_function(Branch& branch, int line, const char* file)
 {
-    if (!branch_check_invariants_print_result(branch, std::cout)) {
+    if (!branch_check_invariants_print_result(&branch, std::cout)) {
         declare_current_test_failed();
         throw std::runtime_error("");
     }
 
     List errors;
-    check_for_static_errors(&errors, branch);
+    check_for_static_errors(&errors, &branch);
     if (!errors.empty()) {
         std::stringstream msg;
         msg << "Branch has static errors at " << file << ", line " << line << std::endl;
@@ -149,9 +149,9 @@ void test_equals_function(TaggedValue* a, float b,
 
 bool test_fail_on_static_error(Branch& branch)
 {
-    if (has_static_errors(branch)) {
+    if (has_static_errors(&branch)) {
         std::cout << "Static error in " << get_current_test_name() << std::endl;
-        print_static_errors_formatted(branch, std::cout);
+        print_static_errors_formatted(&branch, std::cout);
         std::cout << std::endl;
         declare_current_test_failed();
         return true;
@@ -296,7 +296,7 @@ bool current_test_has_failed()
     return gCurrentTestCase.failed;
 }
 
-void test_branch_as_assertions_list(Branch& branch, std::string const& contextStr)
+void test_branch_as_assertions_list(Branch* branch, std::string const& contextStr)
 {
     if (has_static_errors(branch)) {
         std::cout << "Static error " << contextStr << ":" << std::endl;
@@ -324,8 +324,8 @@ void test_branch_as_assertions_list(Branch& branch, std::string const& contextSt
     }
 
     int boolean_statements_found = 0;
-    for (int i=0; i < branch.length(); i++) {
-        Term* term = branch[i];
+    for (int i=0; i < branch->length(); i++) {
+        Term* term = branch->get(i);
         if (!is_statement(term))
             continue;
 

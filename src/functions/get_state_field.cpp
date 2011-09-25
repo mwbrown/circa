@@ -1,5 +1,9 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
+#include "../common_headers.h"
+
+#include "../importing.h"
+#include "../importing_macros.h"
 #include "common_headers.h"
 
 #include "circa.h"
@@ -42,10 +46,10 @@ namespace get_state_field_function {
             // nested contents.
             
             TaggedValue input;
-            if (CALLER->nestedContents && nested_contents(CALLER).length() > 0) {
-                Branch& contents = nested_contents(CALLER);
-                push_stack_frame(CONTEXT, &contents);
-                evaluate_branch_with_bytecode(CONTEXT, &contents);
+            if (CALLER->nestedContents && nested_contents(CALLER)->length() > 0) {
+                Branch* contents = nested_contents(CALLER);
+                push_stack_frame(CONTEXT, contents);
+                evaluate_branch_with_bytecode(CONTEXT, contents);
                 List* frame = get_stack_frame(CONTEXT, 0);
 
                 // INPUT_INSTRUCTION_HACK
@@ -92,8 +96,8 @@ namespace get_state_field_function {
 
         Term* defaultValue = term->input(1);
 
-        if (defaultValue == NULL && nested_contents(term).length() > 0)
-            defaultValue = nested_contents(term).getFromEnd(0);
+        if (defaultValue == NULL && nested_contents(term)->length() > 0)
+            defaultValue = nested_contents(term)->getFromEnd(0);
 
         if (defaultValue != NULL) {
             append_phrase(source, " = ", term, phrase_type::UNDEFINED);
@@ -105,10 +109,10 @@ namespace get_state_field_function {
         }
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         CA_SETUP_FUNCTIONS(kernel);
-        GET_STATE_FIELD_FUNC = kernel["get_state_field"];
+        GET_STATE_FIELD_FUNC = kernel->get("get_state_field");
         get_function_attrs(GET_STATE_FIELD_FUNC)->formatSource = formatSource;
     }
 }

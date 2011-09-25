@@ -16,14 +16,14 @@ void test_snippet(std::string const& source)
         return;
 
     EvalContext context;
-    evaluate_save_locals(&context, branch);
+    evaluate_save_locals(&context, &branch);
 
     if (test_fail_on_runtime_error(context))
         return;
 
     // Try stripping orphaned state, this should not have an effect.
     TaggedValue trash;
-    strip_orphaned_state(branch, &context.state, &trash);
+    strip_orphaned_state(&branch, &context.state, &trash);
 
     if (!is_null(&trash) && !is_empty_dict(&trash)) {
         std::cout << "Falsely orphaned state in " << get_current_test_name() << std::endl;
@@ -44,7 +44,7 @@ void test_trimmed_state(std::string const& source, std::string const& dest,
         return;
 
     EvalContext context;
-    evaluate_save_locals(&context, sourceBranch);
+    evaluate_save_locals(&context, &sourceBranch);
 
     if (test_fail_on_runtime_error(context))
         return;
@@ -56,7 +56,7 @@ void test_trimmed_state(std::string const& source, std::string const& dest,
         return;
 
     TaggedValue trash;
-    strip_orphaned_state(destBranch, &context.state, &trash);
+    strip_orphaned_state(&destBranch, &context.state, &trash);
 
     if (expectedTrash != trash.toString()) {
         declare_current_test_failed();

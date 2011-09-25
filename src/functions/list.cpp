@@ -1,6 +1,10 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
+#include "../common_headers.h"
+
 #include "circa.h"
+#include "../importing.h"
+#include "../importing_macros.h"
 
 namespace circa {
 namespace list_function {
@@ -64,11 +68,11 @@ namespace list_function {
         result->resize(INT_INPUT(1));
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         CA_SETUP_FUNCTIONS(kernel);
 
-        LIST_FUNC = kernel["list"];
+        LIST_FUNC = kernel->get("list");
 
         get_function_attrs(LIST_FUNC)->specializeType = specializeType;
         get_function_attrs(LIST_FUNC)->formatSource = list_formatSource;

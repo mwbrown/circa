@@ -1,6 +1,9 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
-#include "circa.h"
+#include "../common_headers.h"
+
+#include "../importing.h"
+#include "../importing_macros.h"
 
 #include "time.h"
 
@@ -53,7 +56,7 @@ namespace rand_function {
         set_int(OUTPUT, rand() % period);
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         Term* rand_f = import_function(kernel, evaluate_f, "rand_f() -> number");
         Term* rand_range = import_function(kernel, evaluate_f_range,

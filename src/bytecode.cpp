@@ -296,13 +296,13 @@ void bc_pop_stack(BytecodeWriter* writer)
 void dirty_bytecode(Term* term)
 {
     if (term->owningBranch != NULL)
-        dirty_bytecode(*term->owningBranch);
+        dirty_bytecode(term->owningBranch);
 }
 
-void dirty_bytecode(Branch& branch)
+void dirty_bytecode(Branch* branch)
 {
-    if (branch.bytecode != NULL)
-        branch.bytecode->dirty = true;
+    if (branch->bytecode != NULL)
+        branch->bytecode->dirty = true;
 }
 
 void bc_call(BytecodeWriter* writer, Term* term)
@@ -360,7 +360,7 @@ void update_bytecode_for_branch(Branch* branch)
         return;
 
     // Deprecated steps:
-    update_input_instructions(*branch);
+    update_input_instructions(branch);
 
     BytecodeWriter writer;
     start_bytecode_update(branch, &writer);
@@ -546,7 +546,7 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
 
             context->callStack.append(termForCallStack);
 
-            Branch* branch = &nested_contents(cop->term);
+            Branch* branch = nested_contents(cop->term);
             push_stack_frame(context, branch);
             evaluate_branch_with_bytecode(context, branch);
             pc += 1;

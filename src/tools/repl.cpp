@@ -12,17 +12,17 @@
 
 namespace circa {
 
-void repl_evaluate_line(Branch& branch, std::string const& input, std::ostream& output)
+void repl_evaluate_line(Branch* branch, std::string const& input, std::ostream& output)
 {
-    int previousHead = branch.length();
+    int previousHead = branch->length();
     Term* resultTerm = parser::compile(branch, parser::statement_list, input);
-    int newHead = branch.length();
+    int newHead = branch->length();
 
 
     // Look for static errors
     bool anyErrors = false;
     for (int i=previousHead; i < newHead; i++) {
-        Term* result = branch[i];
+        Term* result = branch->get(i);
 
         if (has_static_error(result)) {
             output << "static error: ";
@@ -90,12 +90,12 @@ int run_repl()
         }
 
         int previousHead = replState.length();
-        repl_evaluate_line(replState, input, std::cout);
+        repl_evaluate_line(&replState, input, std::cout);
 
         if (displayRaw) {
             for (int i=previousHead; i < replState.length(); i++) {
                 std::cout << get_term_to_string_extended(replState[i]) << std::endl;
-                if (nested_contents(replState[i]).length() > 0)
+                if (nested_contents(replState[i])->length() > 0)
                     print_branch(std::cout, nested_contents(replState[i]));
             }
         }

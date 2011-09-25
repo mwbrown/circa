@@ -12,13 +12,13 @@ namespace parser_tests {
 void test_comment()
 {
     Branch branch;
-    parser::compile(branch, parser::statement, "-- this is a comment");
+    parser::compile(&branch, parser::statement, "-- this is a comment");
 
     test_assert(branch[0]->function == COMMENT_FUNC);
     test_equals(branch[0]->stringProp("comment"), "-- this is a comment");
     test_assert(branch.length() == 1);
 
-    parser::compile(branch, parser::statement, "--");
+    parser::compile(&branch, parser::statement, "--");
     test_assert(branch.length() == 2);
     test_assert(branch[1]->function == COMMENT_FUNC);
     test_equals(branch[1]->stringProp("comment"), "--");
@@ -27,7 +27,7 @@ void test_comment()
 void test_blank_line()
 {
     Branch branch;
-    parser::compile(branch, parser::statement, "\n");
+    parser::compile(&branch, parser::statement, "\n");
     test_assert(branch.length() == 1);
     test_assert(branch[0]->function == COMMENT_FUNC);
     test_equals(branch[0]->stringProp("comment"), "");
@@ -36,7 +36,7 @@ void test_blank_line()
 void test_literal_integer()
 {
     Branch branch;
-    parser::compile(branch, parser::statement, "1");
+    parser::compile(&branch, parser::statement, "1");
     test_assert(branch.length() == 1);
     test_assert(is_value(branch[0]));
     test_assert(branch[0]->asInt() == 1);
@@ -45,14 +45,14 @@ void test_literal_integer()
 void test_literal_float()
 {
     Branch branch;
-    Term* a = parser::compile(branch, parser::statement, "1.0");
+    Term* a = parser::compile(&branch, parser::statement, "1.0");
     test_assert(branch.length() == 1);
     test_assert(branch[0] == a);
     test_assert(is_value(a));
     test_assert(a->asFloat() == 1.0);
     test_equals(get_step(a), .1f);
 
-    Term* b = parser::compile(branch, parser::statement_list, "5.200");
+    Term* b = parser::compile(&branch, parser::statement_list, "5.200");
     test_equals(b->type->name, "number");
     test_equals(get_term_source_text(b), "5.200");
     test_equals(get_step(b), .001f);
@@ -61,7 +61,7 @@ void test_literal_float()
 void test_literal_string()
 {
     Branch branch;
-    parser::compile(branch, parser::statement, "\"hello\"");
+    parser::compile(&branch, parser::statement, "\"hello\"");
     test_assert(branch.length() == 1);
     test_assert(is_value(branch[0]));
     test_assert(branch[0]->asString() == "hello");
@@ -70,7 +70,7 @@ void test_literal_string()
 void test_name_binding()
 {
     Branch branch;
-    parser::compile(branch, parser::statement, "a = 1");
+    parser::compile(&branch, parser::statement, "a = 1");
     test_assert(branch.length() == 1);
     test_assert(is_value(branch[0]));
     test_assert(branch[0]->asInt() == 1);
@@ -81,7 +81,7 @@ void test_name_binding()
 void test_function_call()
 {
     Branch branch;
-    parser::compile(branch, parser::statement, "add_f(1.0,2.0)");
+    parser::compile(&branch, parser::statement, "add_f(1.0,2.0)");
     test_assert(branch.length() == 3);
     test_assert(is_value(branch[0]));
     test_assert(branch[0]->asFloat() == 1.0);
@@ -96,13 +96,13 @@ void test_function_call()
 void test_identifier()
 {
     Branch branch;
-    Term* a = parser::compile(branch, parser::statement, "a = 1.0");
+    Term* a = parser::compile(&branch, parser::statement, "a = 1.0");
     test_assert(branch.length() == 1);
 
     test_assert(branch.length() == 1);
     test_assert(a == branch[0]);
 
-    parser::compile(branch, parser::statement, "add(a,a)");
+    parser::compile(&branch, parser::statement, "add(a,a)");
     test_assert(branch.length() == 2);
     test_assert(branch[1]->input(0) == a);
     test_assert(branch[1]->input(1) == a);
@@ -111,8 +111,8 @@ void test_identifier()
 void test_rebind()
 {
     Branch branch;
-    parser::compile(branch, parser::statement, "a = 1.0");
-    parser::compile(branch, parser::statement, "add(@a,a)");
+    parser::compile(&branch, parser::statement, "a = 1.0");
+    parser::compile(&branch, parser::statement, "add(@a,a)");
 
     test_assert(branch.length() == 2);
     test_assert(branch["a"] == branch[1]);
@@ -121,7 +121,7 @@ void test_rebind()
 void test_infix()
 {
     Branch branch;
-    parser::compile(branch, parser::statement, "1.0 + 2.0");
+    parser::compile(&branch, parser::statement, "1.0 + 2.0");
 
     test_assert(branch.length() == 3);
     test_assert(branch[0]->asFloat() == 1.0);
@@ -136,24 +136,24 @@ void test_infix()
 void test_type_decl()
 {
     Branch branch;
-    Term* typeTerm = parser::compile(branch, parser::statement,
+    Term* typeTerm = parser::compile(&branch, parser::statement,
             "type Mytype {\nint a\nnumber b\n}");
 
     test_equals(as_type(typeTerm)->name, "Mytype");
     test_equals(typeTerm->name, "Mytype");
 
-    Branch& contents = nested_contents(typeTerm);
+    Branch* contents = nested_contents(typeTerm);
 
-    test_equals(contents[0]->type->name, "int");
-    test_equals(contents[0]->name, "a");
-    test_equals(contents[1]->type->name, "number");
-    test_equals(contents[1]->name, "b");
+    test_equals(contents->get(0)->type->name, "int");
+    test_equals(contents->get(0)->name, "a");
+    test_equals(contents->get(1)->type->name, "number");
+    test_equals(contents->get(1)->name, "b");
 }
 
 void test_function_decl()
 {
     Branch branch;
-    Term* func = parser::compile(branch, parser::statement,
+    Term* func = parser::compile(&branch, parser::statement,
             "def Myfunc(string what, string hey, int yo) -> bool\n"
             "  whathey = concat(what,hey)\n"
             "  return(yo > 3)\n");
@@ -171,7 +171,7 @@ void test_function_decl()
     test_assert(function_get_input_name(funcAttrs, 2) == "yo");
     test_equals(function_get_output_type(func, 0)->name, "bool");
 
-    Branch& funcbranch = function_contents(func);
+    Branch& funcbranch = *function_contents(func);
 
     // index 0 has the function definition
     int i = 1;
@@ -196,14 +196,14 @@ void test_function_decl()
 void test_stateful_value_decl()
 {
     Branch branch;
-    Term* a = parser::compile(branch, parser::statement, "state int a");
+    Term* a = parser::compile(&branch, parser::statement, "state int a");
 
     test_assert(is_get_state(a));
     test_assert(a->name == "a");
     test_equals(a->type->name, "int");
     test_assert(branch["a"] == a);
 
-    Term* b = parser::compile(branch, parser::statement, "state b = 5.0");
+    Term* b = parser::compile(&branch, parser::statement, "state b = 5.0");
     test_assert(b->name == "b");
     test_assert(is_get_state(b));
 
@@ -211,7 +211,7 @@ void test_stateful_value_decl()
     test_assert(branch["b"] == b);
     test_assert(!is_float(b) || as_float(b) == 0); // shouldn't have this value yet
 
-    Term* c = parser::compile(branch, parser::statement, "state number c = 7.5");
+    Term* c = parser::compile(&branch, parser::statement, "state number c = 7.5");
     test_assert(c->name == "c");
     test_assert(is_get_state(c));
     test_equals(c->type->name, "number");
@@ -222,7 +222,7 @@ void test_stateful_value_decl()
 void test_arrow_concatenation()
 {
     Branch branch;
-    Term* a = parser::compile(branch, parser::statement, "1 -> to_string");
+    Term* a = parser::compile(&branch, parser::statement, "1 -> to_string");
 
     test_assert(branch[0]->asInt() == 1);
     test_assert(branch[1] == a);
@@ -235,7 +235,7 @@ void test_arrow_concatenation()
 void test_arrow_concatenation2()
 {
     Branch branch;
-    Term* a = parser::compile(branch, parser::statement,
+    Term* a = parser::compile(&branch, parser::statement,
         "0.0 -> cos -> to_string");
 
     test_assert(branch[0]->asFloat() == 0.0);
@@ -268,7 +268,7 @@ void test_syntax_hints()
 {
     Branch branch;
 
-    Term* t = parser::compile(branch, parser::statement, "concat('a', 'b')");
+    Term* t = parser::compile(&branch, parser::statement, "concat('a', 'b')");
     test_equals(get_input_syntax_hint(t, 0, "preWhitespace"), "");
     test_equals(get_input_syntax_hint(t, 0, "postWhitespace"), ",");
     test_equals(get_input_syntax_hint(t, 1, "preWhitespace"), " ");
@@ -303,12 +303,12 @@ void test_infix_whitespace()
     branch.compile("a = 1");
     branch.compile("b = 1");
 
-    Term* term = parser::compile(branch, parser::infix_expression, "  a + b");
+    Term* term = parser::compile(&branch, parser::infix_expression, "  a + b");
     test_equals(term->stringProp("syntax:preWhitespace"), "  ");
     test_equals(get_input_syntax_hint(term, 0, "postWhitespace"), " ");
     test_equals(get_input_syntax_hint(term, 1, "preWhitespace"), " ");
 
-    term = parser::compile(branch, parser::infix_expression, "5+3");
+    term = parser::compile(&branch, parser::infix_expression, "5+3");
     test_assert(term->stringProp("syntax:preWhitespace") == "");
     test_equals(get_input_syntax_hint(term, 0, "postWhitespace"), "");
     test_equals(get_input_syntax_hint(term, 1, "preWhitespace"), "");
@@ -343,7 +343,7 @@ void test_semicolon_as_line_ending()
 {
     Branch branch;
     branch.compile("1;2;3");
-    test_assert(!has_static_errors(branch));
+    test_assert(!has_static_errors(&branch));
     test_assert(branch.length() == 3);
     test_assert(is_value(branch[0]));
     test_assert(is_value(branch[1]));
@@ -354,7 +354,7 @@ void test_semicolon_as_line_ending()
 
     branch.clear();
     branch.compile("a = 1+2 ; b = mult(3,4) ; b -> print");
-    test_assert(!has_static_errors(branch));
+    test_assert(!has_static_errors(&branch));
     test_assert(branch.length() == 7);
     test_assert(branch["a"]->function->name == "add");
     test_assert(branch["b"]->function->name == "mult");
@@ -363,13 +363,13 @@ void test_semicolon_as_line_ending()
     branch.compile("cond = true; if cond { a = 1 } else { a = 2 }");
     branch.compile("a=a");
 
-    test_assert(!has_static_errors(branch));
-    evaluate_save_locals(branch);
+    test_assert(!has_static_errors(&branch));
+    evaluate_save_locals(&branch);
     test_assert(branch.contains("a"));
     test_assert(branch["a"]->asInt() == 1);
     test_assert(branch.contains("cond"));
     set_bool(branch["cond"], false);
-    evaluate_save_locals(branch);
+    evaluate_save_locals(&branch);
     test_assert(branch["a"]->asInt() == 2);
 }
 
@@ -403,7 +403,7 @@ void test_unary_minus()
     // But if there's a space before the - and not after it, that should be parsed as
     // two separate expressions.
     branch.clear();
-    parser::compile(branch, parser::statement_list, "2 -1");
+    parser::compile(&branch, parser::statement_list, "2 -1");
     test_assert(branch.length() == 2);
     test_assert(is_int(branch[0]));
     test_assert(as_int(branch[0]) == 2);
@@ -416,7 +416,7 @@ void test_array_index_access()
     Branch branch;
     branch.compile("a = [1 2 3]");
     Term* b = branch.compile("a[0]");
-    evaluate_save_locals(branch);
+    evaluate_save_locals(&branch);
 
     test_assert(b);
     test_assert(b->function == GET_INDEX_FUNC);
@@ -427,11 +427,11 @@ void test_float_division()
 {
     Branch branch;
     Term* a = branch.compile("5 / 3");
-    evaluate_save_locals(branch);
+    evaluate_save_locals(&branch);
 
     test_equals(a->type->name, "number");
     test_equals(a->function->name, "div");
-    test_equals(nested_contents(a)[0]->function->name, "div_f");
+    test_equals(nested_contents(a)->get(0)->function->name, "div_f");
     test_equals(a->toFloat(), 5.0f/3.0f);
 }
 
@@ -439,7 +439,7 @@ void test_integer_division()
 {
     Branch branch;
     Term* a = branch.compile("5 // 3");
-    evaluate_save_locals(branch);
+    evaluate_save_locals(&branch);
 
     test_equals(a->type->name, "int");
     test_equals(a->function->name, "div_i");
@@ -450,12 +450,12 @@ void test_namespace()
 {
     Branch branch;
     Term* ns = branch.compile("namespace ns { a = 1; b = 2 }");
-    evaluate_save_locals(branch);
+    evaluate_save_locals(&branch);
 
     test_assert(branch);
     test_assert(ns->function == NAMESPACE_FUNC);
-    test_assert(nested_contents(ns).contains("a"));
-    test_assert(nested_contents(ns).contains("b"));
+    test_assert(nested_contents(ns)->contains("a"));
+    test_assert(nested_contents(ns)->contains("b"));
 
     Term* a = branch.eval("ns:a");
     test_assert(a->asInt() == 1);
@@ -463,7 +463,7 @@ void test_namespace()
     branch.clear();
     ns = branch.compile("namespace ns { def myfunc(int a) -> int { return(a+1) } }");
     Term* c = branch.compile("c = ns:myfunc(4)");
-    evaluate_save_locals(branch);
+    evaluate_save_locals(&branch);
     test_assert(branch);
     test_assert(c->asInt() == 5);
 }
@@ -473,7 +473,7 @@ void test_method_calls()
     Branch branch;
     branch.compile("x = [1 2 3]");
     Term* count = branch.compile("x.count()");
-    evaluate_save_locals(branch);
+    evaluate_save_locals(&branch);
     test_equals(count, "3");
 
     // call a method inside a namespace
@@ -482,8 +482,8 @@ void test_method_calls()
     branch.compile("v = ns:T()");
     Term* v = branch.compile("v.method()");
 
-    test_assert(!has_static_errors(branch));
-    evaluate_save_locals(branch);
+    test_assert(!has_static_errors(&branch));
+    evaluate_save_locals(&branch);
     test_equals(v, "hello");
 }
 
@@ -492,7 +492,7 @@ void test_subscripted_atom()
     Branch branch;
 
     branch.eval("a = 1");
-    parser::compile(branch, parser::atom_with_subscripts, "a.b.c");
+    parser::compile(&branch, parser::atom_with_subscripts, "a.b.c");
 }
 
 void test_whitespace_after_statement()
@@ -514,7 +514,7 @@ void test_whitespace_after_statement()
     branch.clear();
     TokenStream tokens("a = 1\n\n");
     parser::ParserCxt context;
-    Term* term = parser::statement(branch, tokens, &context).term;
+    Term* term = parser::statement(&branch, tokens, &context).term;
     test_assert(term->function == VALUE_FUNC);
     test_assert(term->name == "a");
     test_assert(tokens.nextIs(token::NEWLINE));
@@ -530,7 +530,7 @@ void test_significant_indentation()
                 "  b = a + 1\n"
                 "c = 3 + 4");
 
-    Branch& funcBranch = function_contents(branch["func"]);
+    Branch& funcBranch = *function_contents(branch["func"]);
 
     test_assert(funcBranch[1]->asInt() == 1);
     test_assert(funcBranch[2]->asInt() == 2);
@@ -569,7 +569,7 @@ void test_significant_indentation()
     branch.compile("def func()\na = 5");
     test_assert(branch);
     test_assert(branch["a"] != NULL);
-    test_assert(branch["func"]->contents()["a"] == NULL);
+    test_assert(branch["func"]->contents()->get("a") == NULL);
 }
 
 void test_significant_indentation2()
@@ -583,7 +583,7 @@ void test_significant_indentation2()
                 "  b = 2\n");
     test_assert(branch);
 
-    Branch& func = function_contents(branch["func"]);
+    Branch& func = *function_contents(branch["func"]);
     test_equals(func[1]->name, "a");
     test_assert(func[2]->function == COMMENT_FUNC);
     test_equals(func[3]->name, "b");
@@ -598,8 +598,8 @@ void test_significant_indentation_bug_with_empty_functions()
 
     // This once caused a bug where function b() was outside the namespace.
     test_assert(branch["ns"] != NULL);
-    test_assert(branch["ns"]->contents()["a"] != NULL);
-    test_assert(branch["ns"]->contents()["b"] != NULL);
+    test_assert(branch["ns"]->contents()->get("a") != NULL);
+    test_assert(branch["ns"]->contents()->get("b") != NULL);
     test_assert(branch["a"] == NULL);
     test_assert(branch["b"] == NULL);
 
@@ -610,8 +610,8 @@ void test_significant_indentation_bug_with_empty_functions()
 
     // This once caused a bug where function b() was outside the namespace.
     test_assert(branch["ns"] != NULL);
-    test_assert(branch["ns"]->contents()["a"] != NULL);
-    test_assert(branch["ns"]->contents()["b"] != NULL);
+    test_assert(branch["ns"]->contents()->get("a") != NULL);
+    test_assert(branch["ns"]->contents()->get("b") != NULL);
     test_assert(branch["a"] == NULL);
     test_assert(branch["b"] == NULL);
 }
@@ -620,17 +620,17 @@ void test_sig_indent_one_liner()
 {
     Branch branch;
     branch.eval("def f() 'avacado'\n  'burrito'\n'cheese'");
-    Branch& f_contents = function_contents(branch["f"]);
-    test_equals(f_contents[1]->asString(), "avacado");
+    Branch* f_contents = function_contents(branch["f"]);
+    test_equals(f_contents->get(1)->asString(), "avacado");
     test_assert(branch[1]->asString() == "burrito");
     test_assert(branch[2]->asString() == "cheese");
 
     branch.clear();
     branch.eval("def g() 1 2 3\n  4");
-    Branch& g_contents = function_contents(branch["g"]);
-    test_equals(g_contents[1]->asInt(), 1);
-    test_equals(g_contents[2]->asInt(), 2);
-    test_equals(g_contents[3]->asInt(), 3);
+    Branch* g_contents = function_contents(branch["g"]);
+    test_equals(g_contents->get(1)->asInt(), 1);
+    test_equals(g_contents->get(2)->asInt(), 2);
+    test_equals(g_contents->get(3)->asInt(), 3);
     test_equals(branch[1]->asInt(), 4);
 }
 
@@ -645,8 +645,8 @@ void test_sig_indent_bug_with_bad_func_header()
         "\n");
 
     test_assert(branch["ns"] != NULL);
-    test_assert(branch["ns"]->contents()["func1"] != NULL);
-    Term* func1 = branch["ns"]->contents()["func1"];
+    test_assert(branch["ns"]->contents()->get("func1") != NULL);
+    Term* func1 = branch["ns"]->contents()->get("func1");
     test_assert(is_function(func1));
 }
 
@@ -673,7 +673,7 @@ void test_sig_indent_multiline_function()
             "\n result = val - prev\n prev = val\n return result");
 
     test_assert(branch.length() == 1);
-    test_assert(branch["delta"]->contents().length() > 5);
+    test_assert(branch["delta"]->contents()->length() > 5);
 }
 
 void test_sig_indent_nested_blocks()
@@ -690,7 +690,7 @@ void test_sig_indent_nested_blocks()
         "  def func3()\n");
 
     test_assert(branch);
-    test_assert(branch["ns"]->contents()["func3"] != NULL);
+    test_assert(branch["ns"]->contents()->get("func3") != NULL);
 }
 
 void test_sig_indent_bug_with_nested_one_liner()
@@ -703,7 +703,7 @@ void test_sig_indent_bug_with_nested_one_liner()
 
     test_assert(branch);
     test_assert(branch["b"] == NULL);
-    test_assert(branch["func"]->contents()["b"] != NULL);
+    test_assert(branch["func"]->contents()->get("b") != NULL);
 }
 
 void test_sig_indent_bug_with_for_loop_expression()
@@ -713,7 +713,7 @@ void test_sig_indent_bug_with_for_loop_expression()
             "x = for i in 0..1\n"
             "  i + 5\n");
 
-    evaluate_save_locals(branch);
+    evaluate_save_locals(&branch);
     test_equals(branch["x"], "[5]");
 }
 
@@ -725,7 +725,7 @@ void test_namespace_with_curly_braces()
                    "}");
     test_assert(branch);
     test_assert(branch["ns"] != NULL);
-    test_assert(branch["ns"]->contents()["a"] != NULL);
+    test_assert(branch["ns"]->contents()->get("a") != NULL);
 }
 
 void test_statically_resolve_namespace_access()
@@ -776,7 +776,7 @@ void test_bug_with_nested_ifs()
                    "a = a");
 
     test_assert(branch);
-    evaluate_save_locals(branch);
+    evaluate_save_locals(&branch);
     test_equals(branch["a"], "correct");
 }
 
@@ -792,7 +792,7 @@ void test_source_location()
     test_equals(a->sourceLoc.lineEnd, 1);
 
     branch.compile("def f()\n  b = add(1 2 3 4 5 6 7)\n  mult(3 4)\n");
-    Term* b = branch["f"]->contents()["b"];
+    Term* b = branch["f"]->contents()->get("b");
     test_equals(b->sourceLoc.col, 2);
     test_equals(b->sourceLoc.line, 2);
     test_equals(b->sourceLoc.colEnd, 25);

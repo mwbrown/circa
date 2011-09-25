@@ -1,7 +1,10 @@
-// Copyright (c) 2007-2010 Paul Hodge. All rights reserved
+// Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
-#include <circa.h>
-#include <importing_macros.h>
+#include "../common_headers.h"
+
+#include "circa.h"
+#include "../importing.h"
+#include "../importing_macros.h"
 
 namespace circa {
 namespace instance_function {
@@ -18,10 +21,10 @@ namespace instance_function {
         return as_type(caller->input(0));
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         CA_SETUP_FUNCTIONS(kernel);
-        INSTANCE_FUNC = kernel["instance"];
+        INSTANCE_FUNC = kernel->get("instance");
         get_function_attrs(INSTANCE_FUNC)->specializeType = specializeType;
     }
 }

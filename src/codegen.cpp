@@ -48,14 +48,14 @@ std::string cpp_accessor_for_type(Type* type)
     return "";
 }
 
-std::string generate_cpp_headers(Branch& branch)
+std::string generate_cpp_headers(Branch* branch)
 {
     std::stringstream out;
 
-    for (int i=0; i < branch.length(); i++) {
-        if (branch[i] == NULL) continue;
+    for (int i=0; i < branch->length(); i++) {
+        if (branch->get(i) == NULL) continue;
 
-        Term* term = branch[i];
+        Term* term = branch->get(i);
 
         if (is_type(term))
             out << cpp_accessor_for_type(as_type(term));

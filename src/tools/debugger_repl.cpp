@@ -17,8 +17,8 @@ static void load(Branch& branch, std::string const& filename)
     }
 
     load_script(&branch, filename.c_str());
-    if (has_static_errors(branch))
-        print_static_errors_formatted(branch, std::cout);
+    if (has_static_errors(&branch))
+        print_static_errors_formatted(&branch, std::cout);
 }
 
 int run_debugger_repl(std::string const& filename)
@@ -40,17 +40,17 @@ int run_debugger_repl(std::string const& filename)
             continue;
 
         if (input == "p") {
-            print_branch(std::cout, branch);
+            print_branch(std::cout, &branch);
             continue;
         }
 
         if (input == "e") {
-            evaluate_save_locals(branch);
+            evaluate_save_locals(&branch);
             continue;
         }
 
         if (input == "c") {
-            print_static_errors_formatted(branch, std::cout);
+            print_static_errors_formatted(&branch, std::cout);
             continue;
         }
 

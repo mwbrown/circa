@@ -1,6 +1,10 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
+#include "../common_headers.h"
+
 #include "circa.h"
+#include "../importing.h"
+#include "../importing_macros.h"
 
 #include "types/ref.h"
 
@@ -20,17 +24,17 @@ namespace vectorize_vs_function {
     CA_FUNCTION(evaluate)
     {
         EvalContext* context = CONTEXT;
-        Branch& contents = nested_contents(CALLER);
+        Branch* contents = nested_contents(CALLER);
         TaggedValue input0, input1;
         copy(INPUT(0), &input0);
         copy(INPUT(1), &input1);
         int listLength = input0.numElements();
 
-        Term* input0_placeholder = contents[0];
-        Term* input1_placeholder = contents[1]; 
-        Term* content_output = contents[2]; 
+        Term* input0_placeholder = contents->get(0);
+        Term* input1_placeholder = contents->get(1); 
+        Term* content_output = contents->get(2); 
 
-        push_stack_frame(CONTEXT, &contents);
+        push_stack_frame(CONTEXT, contents);
 
         // Prepare output
         List output;
@@ -58,8 +62,8 @@ namespace vectorize_vs_function {
     void post_input_change(Term* term)
     {
         // Update generated code
-        Branch& contents = nested_contents(term);
-        contents.clear();
+        Branch* contents = nested_contents(term);
+        clear_branch(contents);
 
         TaggedValue* funcParam = &get_function_attrs(term->function)->parameter;
         if (funcParam == NULL || !is_ref(funcParam))
@@ -81,7 +85,7 @@ namespace vectorize_vs_function {
         apply(contents, func, TermList(leftPlaceholder, rightPlaceholder));
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         Term* func = import_function(kernel, evaluate,
                 "vectorize_vs(List,any) -> List");

@@ -1,5 +1,10 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
+#include "../common_headers.h"
+
+#include "circa.h"
+#include "../importing.h"
+#include "../importing_macros.h"
 #include "list_shared.h"
 
 namespace circa {
@@ -100,11 +105,11 @@ namespace list_methods_function {
             copy(input->get(start + i), result->get(i));
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         CA_SETUP_FUNCTIONS(kernel);
 
-        LIST_APPEND_FUNC = kernel["List.append"];
+        LIST_APPEND_FUNC = kernel->get("List.append");
         get_function_attrs(LIST_APPEND_FUNC)->specializeType = append_specializeType;
     }
 

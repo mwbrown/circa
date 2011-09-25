@@ -10,8 +10,8 @@ void test_that_f_returns_1(std::string testName, std::string input)
     Branch branch;
     branch.compile(input);
 
-    if (print_static_errors_formatted(branch, std::cout)) {
-        dump(branch);
+    if (print_static_errors_formatted(&branch, std::cout)) {
+        dump(&branch);
         declare_current_test_failed();
         return;
     }
@@ -21,7 +21,7 @@ void test_that_f_returns_1(std::string testName, std::string input)
     if (result->toString() != "1") {
         std::cout << "recursion_tests::" << testName << " failed on input: "
             << input << std::endl;
-        dump(branch);
+        dump(&branch);
         std::cout << "output of f(0) = " << result->toString() << std::endl;
         declare_current_test_failed();
     }
@@ -99,7 +99,7 @@ void recursion_and_multiple_outputs()
                    "l = [] "
                    "f(0, &l)");
 
-    evaluate_save_locals(branch);
+    evaluate_save_locals(&branch);
 }
 
 void register_tests()

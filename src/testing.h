@@ -69,7 +69,7 @@ std::string get_current_test_name();
 void declare_current_test_failed();
 bool current_test_has_failed();
 
-void test_branch_as_assertions_list(Branch& branch, std::string const& contextStr);
+void test_branch_as_assertions_list(Branch* branch, std::string const& contextStr);
 
 // test_spy() is a special function that writes all incoming arguments to a global
 // list. It's an easy way for tests to trace execution.

@@ -1,6 +1,10 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
+#include "../common_headers.h"
+
 #include "circa.h"
+#include "../importing.h"
+#include "../importing_macros.h"
 
 namespace circa {
 namespace set_field_function {
@@ -33,7 +37,7 @@ namespace set_field_function {
         format_source_for_input(source, term, 1);
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         SET_FIELD_FUNC = import_function(kernel, evaluate,
                 "set_field(any, string, any) -> any");

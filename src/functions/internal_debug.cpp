@@ -1,7 +1,9 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
-#include "circa.h"
-#include "importing_macros.h"
+#include "../common_headers.h"
+
+#include "../importing.h"
+#include "../importing_macros.h"
 
 #include "types/ref.h"
 
@@ -111,13 +113,13 @@ namespace internal_debug_function {
 
     CA_DEFINE_FUNCTION(dump_current_branch, "dump_current_branch()")
     {
-        dump(*CALLER->owningBranch);
+        dump(CALLER->owningBranch);
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         CA_SETUP_FUNCTIONS(kernel);
-        get_function_attrs(kernel["dump_parse"])->postCompile = dump_parse_post_compile;
+        get_function_attrs(kernel->get("dump_parse"))->postCompile = dump_parse_post_compile;
     }
 }
 }

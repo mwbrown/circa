@@ -1,7 +1,9 @@
-// Copyright (c) 2007-2010 Paul Hodge. All rights reserved
+// Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
-#include <circa.h>
-#include <importing_macros.h>
+#include "../common_headers.h"
+
+#include "../importing.h"
+#include "../importing_macros.h"
 
 namespace circa {
 namespace increment_function {
@@ -18,7 +20,7 @@ namespace increment_function {
         set_int(OUTPUT, INT_INPUT(0) - 1);
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         CA_SETUP_FUNCTIONS(kernel);
     }

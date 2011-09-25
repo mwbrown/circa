@@ -65,7 +65,7 @@ int get_frame_distance(Branch* frame, Term* input)
     // If the input's branch doesn't create a separate stack frame, then look
     // at the parent branch.
     if (!branch_creates_separate_stack_frame(inputFrame))
-        inputFrame = get_parent_branch(*inputFrame);
+        inputFrame = get_parent_branch(inputFrame);
 
     // Walk upward from 'term' until we find the common branch.
     int distance = 0;
@@ -74,7 +74,7 @@ int get_frame_distance(Branch* frame, Term* input)
         if (branch_creates_separate_stack_frame(frame))
             distance++;
 
-        frame = get_parent_branch(*frame);
+        frame = get_parent_branch(frame);
 
         if (frame == NULL)
             return -1;
@@ -114,10 +114,10 @@ void update_input_instructions(Term* term)
     }
 }
 
-void update_input_instructions(Branch& branch)
+void update_input_instructions(Branch* branch)
 {
-    for (int i=0; i < branch.length(); i++)
-        update_input_instructions(branch[i]);
+    for (int i=0; i < branch->length(); i++)
+        update_input_instructions(branch->get(i));
 }
 
 } // namespace circa

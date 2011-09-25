@@ -10,7 +10,7 @@ void test_type_inference()
     Branch branch;
     Term* t = branch.compile("[1 1]*[1 1]");
 
-    test_assert(nested_contents(t).length() > 0);
+    test_assert(nested_contents(t)->length() > 0);
 
     // make sure there is a mult_i in there somewhere
     bool found_mult_i = false;
@@ -21,7 +21,7 @@ void test_type_inference()
         test_assert(it->function->name != "mult_f");
     }
 
-    evaluate_save_locals(branch);
+    evaluate_save_locals(&branch);
     test_equals(t, "[1, 1]");
 }
 

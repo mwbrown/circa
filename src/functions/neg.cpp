@@ -1,6 +1,10 @@
-// Copyright (c) 2007-2010 Paul Hodge. All rights reserved
+// Copyright (c) Paul Hodge. See LICENSE file for license terms.
+
+#include "../common_headers.h"
 
 #include "circa.h"
+#include "../importing.h"
+#include "../importing_macros.h"
 
 namespace circa {
 namespace neg_function  {
@@ -21,7 +25,7 @@ namespace neg_function  {
         format_source_for_input(source, term, 0);
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         Term* neg_i = import_function(kernel, evaluate_i, "neg_i(int) -> int");
         Term* neg_f = import_function(kernel, evaluate_f, "neg_f(number) -> number");

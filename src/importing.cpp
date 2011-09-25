@@ -15,7 +15,7 @@
 
 namespace circa {
 
-Term* import_function(Branch& branch, EvaluateFunc evaluate, std::string const& header)
+Term* import_function(Branch* branch, EvaluateFunc evaluate, std::string const& header)
 {
     Term* result = parser::compile(branch, parser::function_decl, header);
     get_function_attrs(result)->evaluate = evaluate;
@@ -28,7 +28,7 @@ void install_function(Term* function, EvaluateFunc evaluate)
     function_set_evaluate_func(function, evaluate);
 }
 
-Term* import_type(Branch& branch, Type* type)
+Term* import_type(Branch* branch, Type* type)
 {
     if (type->name == "")
         throw std::runtime_error("In import_type, type must have a name");

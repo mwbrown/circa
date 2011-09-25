@@ -1,5 +1,10 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
+#include "../common_headers.h"
+
+#include "circa.h"
+#include "../importing.h"
+#include "../importing_macros.h"
 #include "types/rect_i.h"
 #include "types/ref.h"
 
@@ -163,7 +168,7 @@ namespace ref_methods_function {
         circa::copy(&t->properties, OUTPUT);
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         import_function(kernel, get_name, "Ref.name(self) -> string");
         import_function(kernel, hosted_to_string, "Ref.to_string(_) -> string");

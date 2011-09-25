@@ -121,7 +121,7 @@ Term::nameCount() const
     return 1 + additionalOutputNames.count();
 }
 
-Branch&
+Branch*
 Term::contents()
 {
     return nested_contents(this);
@@ -129,12 +129,12 @@ Term::contents()
 Term*
 Term::contents(int index)
 {
-    return nested_contents(this)[index];
+    return nested_contents(this)->get(index);
 }
 Term*
 Term::contents(const char* name)
 {
-    return nested_contents(this)[name];
+    return nested_contents(this)->get(name);
 }
 
 std::string

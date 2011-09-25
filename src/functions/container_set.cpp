@@ -1,7 +1,10 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
-#include "circa.h"
-#include "types/set.h"
+#include "../common_headers.h"
+
+#include "../importing.h"
+#include "../importing_macros.h"
+#include "../types/set.h"
 
 namespace circa {
 namespace container_set_function {
@@ -15,7 +18,7 @@ namespace container_set_function {
             set_t::add(result, INPUT(index));
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         import_function(kernel, evaluate, "set(any...) -> Set");
     }

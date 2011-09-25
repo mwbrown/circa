@@ -1,5 +1,7 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
+#include "circa.h"
+
 namespace circa {
 namespace get_state_field_tests {
 
@@ -10,7 +12,7 @@ void initial_value_expr_1()
     update_bytecode_for_branch(&branch);
 
     EvalContext context;
-    evaluate_save_locals(&context, branch);
+    evaluate_save_locals(&context, &branch);
     test_equals(&context.state, "{s: 1}");
 }
 
@@ -22,7 +24,7 @@ void initial_value_expr_2()
     update_bytecode_for_branch(&branch);
     
     EvalContext context;
-    evaluate_save_locals(&context, branch);
+    evaluate_save_locals(&context, &branch);
     test_equals(&context.state, "{s: 2}");
 }
 
@@ -33,7 +35,7 @@ void initial_value_expr_3()
     update_bytecode_for_branch(&branch);
 
     EvalContext context;
-    evaluate_save_locals(&context, branch);
+    evaluate_save_locals(&context, &branch);
     test_equals(&context.state, "{s: 2}");
 }
 

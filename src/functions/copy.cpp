@@ -1,6 +1,11 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
+#include "../common_headers.h"
+
 #include "circa.h"
+
+#include "../importing.h"
+#include "../importing_macros.h"
 
 namespace circa {
 namespace copy_function {
@@ -22,7 +27,7 @@ namespace copy_function {
                 term, token::IDENTIFIER);
     }
 
-    void setup(Branch& kernel)
+    void setup(Branch* kernel)
     {
         COPY_FUNC = import_function(kernel, evaluate, "copy(any) -> any");
         get_function_attrs(COPY_FUNC)->specializeType = specializeType;

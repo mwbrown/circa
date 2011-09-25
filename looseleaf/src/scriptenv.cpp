@@ -26,12 +26,12 @@ ScriptEnv::ScriptEnv(Branch* b)
 Branch* ScriptEnv::loadScript(const char* filename)
 {
     branch = load_script_term(g_filesBranch, filename);
-    print_static_errors_formatted(*branch, std::cout);
+    print_static_errors_formatted(branch, std::cout);
     return branch;
 }
 
 void ScriptEnv::tick()
 {
     refresh_script(branch);
-    evaluate_branch(&context, *branch);
+    evaluate_branch(&context, branch);
 }
