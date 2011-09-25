@@ -1,15 +1,16 @@
 
 INCLUDEPATH += ../src
 
-HEADERS = src/scriptenv.h \
-          src/window.h \
-          src/backgroundscript.h
+HEADERS = src/ScriptEnv.h \
+          src/Window.h \
+          src/BackgroundScript.h \
+          src/MouseState.h
 
 SOURCES = src/main.cpp \
-          src/scriptenv.cpp \
-          src/window.cpp
+          src/ScriptEnv.cpp \
+          src/Window.cpp
 
-LIBS += -L../build -lcirca_t
+LIBS += -L../build -lcirca_d
 CONFIG += debug
 
 QT += opengl
