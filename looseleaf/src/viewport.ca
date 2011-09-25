@@ -1,8 +1,8 @@
 
-type Window;
+type Viewport;
 
-def create_window(string scriptFile) -> Window
-def Window.resize(w, Point size)
+def create_window(string scriptFile) -> Viewport
+def Viewport.resize(w, Point size)
 
 -- These calls are available for scripts running inside a Window
 namespace env

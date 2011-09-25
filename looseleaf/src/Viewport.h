@@ -11,12 +11,14 @@
 
 class GLWidget;
 
-class Window : public QWidget
+class Viewport : public QGLWidget
 {
     Q_OBJECT
 
 public:
-    Window();
+    Viewport(QWidget* parent = 0);
+    ~Viewport();
+
     circa::Branch* loadScript(const char* filename);
     void keyPressEvent(QKeyEvent *e);
 
@@ -24,26 +26,15 @@ public slots:
     void tick();
 
 protected:
-    GLWidget *glWidget;
-    QTimer updateTimer;
-};
-
-class GLWidget : public QGLWidget
-{
-    Q_OBJECT
-
-public:
-    GLWidget(QWidget* parent = 0);
-    ~GLWidget();
-
-    ScriptEnv scriptEnv;
-    MouseState mouseState;
-
-protected:
     void initializeGL();
     void paintGL();
     void resizeGL(int,int);
-    void mousePressEvent(QMouseEvent *event);
+    //void mousePressEvent(QMouseEvent *event);
     void mouseMoveEvent(QMouseEvent *event);
 
+    ScriptEnv scriptEnv;
+    QTimer updateTimer;
+
+public:
+    MouseState mouseState;
 };

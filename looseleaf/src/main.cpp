@@ -7,14 +7,14 @@
 
 #include "circa.h"
 
-#include "backgroundscript.h"
-#include "window.h"
-#include "scriptenv.h"
+#include "BackgroundScript.h"
+#include "Viewport.h"
+#include "ScriptEnv.h"
 
 using namespace circa;
 
 // Setup functions that are implemented elsewhere:
-void window_setup(Branch* branch);
+void viewport_static_setup(Branch* branch);
 
 int main(int argc, char *argv[])
 {
@@ -43,8 +43,8 @@ int main(int argc, char *argv[])
     BackgroundScript kernelRunner(&kernel);
 
     // Install Looseleaf bindings
-    load_script_term(&kernel, "src/window.ca");
-    window_setup(&kernel);
+    load_script_term(&kernel, "src/viewport.ca");
+    viewport_static_setup(&kernel);
 
     include_script(&kernel, "../libs/opengl/opengl.ca");
     include_script(&kernel, "runtime/main.ca");

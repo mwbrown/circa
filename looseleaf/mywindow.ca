@@ -1,2 +1,2 @@
 
-gl:circle([30 30] 40.0 #fff)
+gl:circle(env:mouse() 40.0 #fff)
