@@ -11,6 +11,7 @@ namespace circa {
 
 const OpType OP_CALL = 1;
 const OpType OP_CALL_BRANCH = 2;
+const OpType OP_CHECK_OUTPUT = 3;
 
 const OpType OP_JUMP = 10;
 const OpType OP_JUMP_IF = 11;
@@ -40,6 +41,11 @@ struct Operation {
 };
 
 // OpCall is defined in common_headers.h
+
+struct OpCheckOutput {
+    OpType type;
+    Term* term;
+};
 
 struct OpCallBranch {
     OpType type;

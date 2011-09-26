@@ -2,9 +2,11 @@
 mouse = viewport:mouse()
 
 def draw_turtle(Point loc, number facing)
+    trace('loc = ' loc)
     points = [loc + polar(facing) * 10.0,
       loc + polar(facing+140) * 10.0,
       loc + polar(facing-140) * 10.0]
+    trace('points = ' loc)
     gl:triangles(points #fff)
 
 state Point turtle_loc = [200 200]

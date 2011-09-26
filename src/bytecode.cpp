@@ -36,6 +36,9 @@ void print_bytecode_op(Operation* op, int loc, std::ostream& out)
             out << "call " << get_unique_name(((OpCall*) op)->term)
                 << " out:" << ((OpCall*) op)->outputIndex;
             break;
+        case OP_CHECK_OUTPUT:
+            out << "check_output " << get_unique_name(((OpCheckOutput*) op)->term);
+            break;
         case OP_INPUT_NULL:
             out << "input_null";
             break;
@@ -341,6 +344,13 @@ void bc_call(BytecodeWriter* writer, Term* term)
     bc_write_call_op(writer, term, evaluateFunc);
 }
 
+void bc_check_output(BytecodeWriter* writer, Term* term)
+{
+    OpCheckOutput* op = (OpCheckOutput*) bc_append_op(writer);
+    op->type = OP_CHECK_OUTPUT;
+    op->term = term;
+}
+
 void bc_finish(BytecodeWriter* writer)
 {
     bc_return(writer);
@@ -390,6 +400,30 @@ void update_bytecode_for_branch(Branch* branch)
     finish_bytecode_update(branch, &writer);
 }
 
+void check_output_type(EvalContext* context, Term* term)
+{
+    if (!context->errorOccurred) {
+
+        Type* outputType = declared_type(term);
+        TaggedValue* output = get_output(context, term);
+
+        // Special case, if the function's output type is void then we don't care
+        // if the output value is null or not.
+        if (outputType == &VOID_T)
+            ;
+
+        else if (!cast_possible(output, outputType)) {
+            std::stringstream msg;
+            msg << "term " << global_id(term) << ", function " << term->function->name
+                << " produced output "
+                << output->toString()
+                << " which doesn't fit output type "
+                << outputType->name;
+            internal_error(msg.str());
+        }
+    }
+}
+
 void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
 {
     int pc = 0;
@@ -426,27 +460,8 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
             // slow, and it should be unnecessary if the function is written correctly. But it's
             // a good test.
             #ifdef CIRCA_TEST_BUILD
-            if (!context->errorOccurred && cop->term != NULL && !is_value(cop->term)) {
-                Term* term = cop->term;
-
-                Type* outputType = declared_type(term);
-                TaggedValue* output = get_output(context, term);
-
-                // Special case, if the function's output type is void then we don't care
-                // if the output value is null or not.
-                if (outputType == &VOID_T)
-                    ;
-
-                else if (!cast_possible(output, outputType)) {
-                    std::stringstream msg;
-                    msg << "term " << global_id(term) << ", function " << term->function->name
-                        << " produced output "
-                        << output->toString()
-                        << " which doesn't fit output type "
-                        << outputType->name;
-                    internal_error(msg.str());
-                }
-            }
+            if (cop->term != NULL)
+                check_output_type(context, cop->term);
             #endif
             
             pc += 1;
@@ -458,6 +473,12 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
                 return;
 
             continue;
+        }
+
+        case OP_CHECK_OUTPUT: {
+            Term* term = ((OpCheckOutput*) op)->term;
+            check_output_type(context, term);
+            break;
         }
 
         case OP_INPUT_LOCAL:
