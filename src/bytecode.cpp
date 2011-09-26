@@ -470,18 +470,6 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
             } catch (std::exception const& e) { error_occurred(context, cop->term, e.what()); }
             #endif
 
-            // For a test build, we check the type of the output of every single call. This is
-            // slow, and it should be unnecessary if the function is written correctly. But it's
-            // a good test.
-            #ifdef CIRCA_TEST_BUILD
-            if (cop->term != NULL) {
-                if (!check_output_type(context, cop->term)) {
-
-                    // Die here
-                }
-            }
-            #endif
-            
             pc += 1;
 
             // TODO: Should skip over input instructions when possible
