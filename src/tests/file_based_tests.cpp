@@ -257,6 +257,19 @@ void test_refresh_script()
     test_equals(branch["x"], "2");
 }
 
+void test_save_script()
+{
+    Branch branch;
+    FakeFileSystem files;
+    files.set("a", "x = 1");
+    load_script(&branch, "a");
+
+    test_equals(branch["x"], 1);
+    set_int(branch["x"], 2);
+    save_script(&branch);
+    test_equals(files["a"], "x = 2");
+}
+
 void register_tests()
 {
     REGISTER_TEST_CASE(file_based_tests::test_the_test);
@@ -272,6 +285,7 @@ void register_tests()
     REGISTER_TEST_CASE(file_based_tests::test_include_script);
     REGISTER_TEST_CASE(file_based_tests::test_load_script_call);
     REGISTER_TEST_CASE(file_based_tests::test_refresh_script);
+    REGISTER_TEST_CASE(file_based_tests::test_save_script);
 }
 
 } // namespace file_based_tests

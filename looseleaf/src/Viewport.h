@@ -24,6 +24,7 @@ public:
 
 public slots:
     void tick();
+    void saveScript();
 
 protected:
     void initializeGL();

@@ -64,10 +64,14 @@ void Viewport::tick()
 {
     updateGL();
 }
+void Viewport::saveScript()
+{
+    printf("saving\n");
+    save_script(scriptEnv.branch);
+}
 void Viewport::paintGL()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
     scriptEnv.tick();
 }
 circa::Branch* Viewport::loadScript(const char* filename)
@@ -79,6 +83,8 @@ void Viewport::keyPressEvent(QKeyEvent *e)
 {
     if (e->key() == Qt::Key_Escape)
         close();
+    else if (e->key() == Qt::Key_S && (e->modifiers() & Qt::ControlModifier))
+        saveScript();
     else
         QWidget::keyPressEvent(e);
 }
@@ -87,12 +93,15 @@ CA_FUNCTION(create_window)
 {
     std::cout << "create_window: " << STRING_INPUT(0) << std::endl;
 
-    Viewport* window = new Viewport();
-    window->setWindowTitle("Looseleaf");
-    window->setMouseTracking(true);
-    window->loadScript(STRING_INPUT(0));
-    viewport_t.set(OUTPUT, window);
-    window->show();
+    Viewport* viewport = new Viewport();
+    std::string title;
+    title += "looseleaf : ";
+    title += STRING_INPUT(0);
+    viewport->setWindowTitle(title.c_str());
+    viewport->setMouseTracking(true);
+    viewport->loadScript(STRING_INPUT(0));
+    viewport_t.set(OUTPUT, viewport);
+    viewport->show();
 }
 
 CA_FUNCTION(Viewport__resize)
