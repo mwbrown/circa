@@ -500,6 +500,7 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
             if (!check_output_type(context, term))
                 return;
 
+            pc += 1;
             break;
         }
 

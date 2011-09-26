@@ -34,4 +34,7 @@ void ScriptEnv::tick()
 {
     refresh_script(branch);
     evaluate_branch(&context, branch);
+
+    if (context.errorOccurred)
+        std::cout << context_get_error_message(&context) << std::endl;
 }

@@ -1,0 +1,6 @@
+
+If an error interrupts execution - don't save 'null' value to state
+
+For a function like "def f() -> Point"
+ if the evaluate func writes a List instead of Point, then it causes failure with "list.x"
+ Should cast all subroutine outputs?
