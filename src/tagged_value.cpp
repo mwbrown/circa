@@ -628,7 +628,10 @@ float to_float(TaggedValue* value)
     else if (is_float(value))
         return as_float(value);
     else
-        throw std::runtime_error("In to_float, type is not an int or float");
+        internal_error("In to_float, type is not an int or float");
+
+    // unreachable:
+    return 0.0;
 }
 
 int to_int(TaggedValue* value)

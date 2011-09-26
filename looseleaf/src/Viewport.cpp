@@ -71,8 +71,12 @@ void Viewport::saveScript()
 }
 void Viewport::paintGL()
 {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    scriptEnv.tick();
+    try {
+        glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+        scriptEnv.tick();
+    } catch (std::exception& e) {
+        std::cout << "Caught exception in Viewport::paintGL: " << e.what() << std::endl;
+    }
 }
 circa::Branch* Viewport::loadScript(const char* filename)
 {
@@ -111,16 +115,14 @@ CA_FUNCTION(Viewport__resize)
     viewport_t.get(INPUT(0))->resize(QSize(x,y));
 }
 
-#if 0
-CA_FUNCTION(env__window_size)
+CA_FUNCTION(viewport__size)
 {
-    Viewport* window = get_opaque_pointer(CONTEXT->argumentList[0]);
+    Viewport* window = (Viewport*) as_opaque_pointer(CONTEXT->argumentList[0]);
     QSize size = window->size();
-    set_point(OUTPUT, size.width, size.height);
+    set_point(OUTPUT, size.width(), size.height());
 }
-#endif
 
-CA_FUNCTION(env__mouse)
+CA_FUNCTION(viewport__mouse)
 {
     Viewport* window = (Viewport*) as_opaque_pointer(CONTEXT->argumentList[0]);
     MouseState* mouseState = &window->mouseState;
@@ -132,5 +134,6 @@ void viewport_static_setup(Branch* branch)
     viewport_t.initialize(branch, "Viewport");
     install_function(branch, create_window, "create_window");
     install_function(branch, Viewport__resize, "Viewport.resize");
-    install_function(branch, env__mouse, "env:mouse");
+    install_function(branch, viewport__mouse, "viewport:mouse");
+    install_function(branch, viewport__size, "viewport:size");
 }

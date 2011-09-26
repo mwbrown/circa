@@ -63,7 +63,7 @@ Term* Branch::get(int index)
 {
     assert_valid_branch(this);
     if (index >= length())
-        throw std::runtime_error("index out of range");
+        internal_error("index out of range");
     return _terms[index];
 }
 
@@ -320,7 +320,7 @@ void Branch::bindName(Term* term, std::string name)
 {
     assert_valid_term(term);
     if (term->name != "" && term->name != name)
-        throw std::runtime_error("term already has name: "+term->name);
+        internal_error("term already has name: "+term->name);
 
     names.bind(term, name);
     term->name = name;

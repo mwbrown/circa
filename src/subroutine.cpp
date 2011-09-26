@@ -96,6 +96,7 @@ void evaluate_subroutine_internal(EvalContext* context, Term* caller,
             std::stringstream msg;
             msg << "Couldn't cast output " << output0->toString()
                 << " to type " << outputType->name;
+            // TODO: this causes a crash:
             error_occurred(context, caller, msg.str());
         }
     }

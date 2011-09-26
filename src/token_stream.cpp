@@ -2,6 +2,7 @@
 
 #include "common_headers.h"
 
+#include "debug.h"
 #include "token_stream.h"
 
 namespace circa {
@@ -12,10 +13,10 @@ TokenStream::next(int lookahead) const
     int i = this->_position + lookahead;
 
     if (i >= (int) tokens.size())
-        throw std::runtime_error("index out of bounds");
+        internal_error("index out of bounds");
 
     if (i < 0)
-        throw std::runtime_error("index < 0");
+        internal_error("index < 0");
 
     return tokens[i];
 }
@@ -66,7 +67,7 @@ std::string
 TokenStream::consume(int match)
 {
     if (finished())
-        throw std::runtime_error(std::string("Unexpected EOF while looking for ")
+        internal_error(std::string("Unexpected EOF while looking for ")
                 + token::get_token_text(match));
 
     if ((match != -1) && next().match != match) {
@@ -74,7 +75,7 @@ TokenStream::consume(int match)
         msg << "Unexpected token (expected " << token::get_token_text(match)
             << ", found " << token::get_token_text(next().match)
             << " '" << next().text << "')";
-        throw std::runtime_error(msg.str());
+        internal_error(msg.str());
     }
 
     return tokens[_position++].text;

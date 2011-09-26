@@ -1,2 +1,0 @@
-
-gl:circle(env:mouse() 40.0 #fff)

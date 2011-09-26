@@ -4,7 +4,9 @@ type Viewport;
 def create_window(string scriptFile) -> Viewport
 def Viewport.resize(w, Point size)
 
--- These calls are available for scripts running inside a Window
-namespace env
-    def window_size() -> Point
+-- These calls are available for scripts running inside a Viewport
+namespace viewport
+    def size() -> Point
     def mouse() -> Point
+
+
