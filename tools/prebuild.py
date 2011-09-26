@@ -38,7 +38,12 @@ def get_cpp_file_names(dir):
 def setup_builtin_functions():
     dir = 'src/functions'
 
-    namespaces = map(lambda s: s+'_function', get_cpp_file_names(dir))
+    def filenameToNamespace(filename):
+        if filename.endswith("_functions"):
+            return filename
+        return filename + "_function"
+
+    namespaces = map(filenameToNamespace, get_cpp_file_names(dir))
     function_decls = '\n'.join(
             sorted(map(lambda n: 'namespace '+n+' { void setup(Branch* kernel); }', namespaces)))
     function_calls = '\n    '.join(
