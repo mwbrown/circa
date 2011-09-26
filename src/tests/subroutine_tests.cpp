@@ -224,28 +224,6 @@ void bug_where_interrupt_subroutine_wasnt_being_cleared()
     test_equals(x, 2);
 }
 
-void test_call_subroutine()
-{
-    Branch branch;
-    Term* f = branch.compile("def f(int a, int b)->int return a*2+b");
-
-    List inputs;
-    set_int(inputs.append(), 5);
-    set_int(inputs.append(), 3);
-    test_equals(&inputs, "[5, 3]");
-    TaggedValue output;
-
-    call_subroutine(f, &inputs, &output, NULL);
-    test_equals(&output, "13");
-    test_equals(&inputs, "[5, 3]");
-
-    set_int(inputs.get(1), 12);
-    test_equals(&inputs, "[5, 12]");
-    call_subroutine(f, &inputs, &output, NULL);
-    test_equals(&output, "22");
-    test_equals(&inputs, "[5, 12]");
-}
-
 namespace copy_counting_tests
 {
     Type T;
@@ -406,7 +384,6 @@ void register_tests()
     REGISTER_TEST_CASE(subroutine_tests::to_source_string);
     REGISTER_TEST_CASE(subroutine_tests::bug_with_return);
     REGISTER_TEST_CASE(subroutine_tests::bug_where_interrupt_subroutine_wasnt_being_cleared);
-    REGISTER_TEST_CASE(subroutine_tests::test_call_subroutine);
     REGISTER_TEST_CASE(subroutine_tests::copy_counting_tests::test_single_call);
     REGISTER_TEST_CASE(subroutine_tests::return_from_if_block);
     REGISTER_TEST_CASE(subroutine_tests::return_from_for_loop);

@@ -137,6 +137,7 @@ bool evaluation_interrupted(EvalContext* context);
 
 void push_stack_frame(EvalContext* context, int size);
 void push_stack_frame(EvalContext* context, Branch* branch);
+void push_stack_frame(EvalContext* context, List* frame);
 void pop_stack_frame(EvalContext* context);
 List* get_stack_frame(EvalContext* context, int relativeFrame);
 

@@ -390,6 +390,11 @@ void push_stack_frame(EvalContext* context, Branch* branch)
     push_stack_frame(context, branch->length());
 }
 
+void push_stack_frame(EvalContext* context, List* frame)
+{
+    swap(context->stack.append(), frame);
+}
+
 void pop_stack_frame(EvalContext* context)
 {
     context->stack.pop();

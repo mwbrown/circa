@@ -25,8 +25,4 @@ void subroutine_check_to_append_implicit_return(Term* sub);
 void store_locals(Branch& branch, TaggedValue* storage);
 void restore_locals(TaggedValue* storageTv, Branch& branch);
 
-void call_subroutine(Branch& sub, TaggedValue* inputs, TaggedValue* output, TaggedValue* error);
-void call_subroutine(Term* sub, TaggedValue* inputs, TaggedValue* output, TaggedValue* error);
-
-
 } // namespace circa
