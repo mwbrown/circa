@@ -206,13 +206,28 @@ TaggedValue* get_local(EvalContext* cxt, int relativeFrame, Term* term)
     return list_get_index(cxt->stack.getFromEnd(relativeFrame), term->index);
 }
 
+TaggedValue* get_local_safe(EvalContext* cxt, Term* term)
+{
+    List* frame = get_stack_frame(cxt, 0);
+    if (frame == NULL)
+        return NULL;
+    return frame->get(term->index);
+}
+
 void error_occurred(EvalContext* context, Term* errorTerm, std::string const& message)
 {
-    // Save the error on the context
-    TaggedValue* errorValue = get_local(context, 0, errorTerm);
-    set_string(errorValue, message);
-    errorValue->value_type = &ERROR_T;
-    copy(errorValue, &context->errorValue);
+    TaggedValue errorValue;
+
+    set_string(&errorValue, message);
+    errorValue.value_type = &ERROR_T;
+
+    // Save error on context
+    copy(&errorValue, &context->errorValue);
+
+    // If possible, save error as the term's output.
+    TaggedValue* local = get_local_safe(context, errorTerm);
+    if (local != NULL)
+        copy(&errorValue, local);
 
     // Check if there is an errored() call listening to this term. If so, then
     // continue execution.

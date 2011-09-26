@@ -91,10 +91,14 @@ struct BytecodeWriter
     int listLength;
     BytecodeData* data;
 
+    // Configuration options
+    bool alwaysCheckOutputs;
+
     BytecodeWriter()
       : writePosition(0),
         listLength(0),
-        data(NULL)
+        data(NULL),
+        alwaysCheckOutputs(false)
     {}
     ~BytecodeWriter() { free(data); }
 };
@@ -105,6 +109,7 @@ std::string get_bytecode_as_string(BytecodeData* bytecode);
 // Building functions
 void bc_write_call_op(BytecodeWriter* writer, Term* term, EvaluateFunc func);
 void bc_write_call_op_with_func(BytecodeWriter* writer, Term* term, Term* func);
+void bc_check_output(BytecodeWriter* writer, Term* term);
 void bc_return(BytecodeWriter* writer);
 void bc_return_on_evaluation_interrupted(BytecodeWriter* writer);
 
@@ -163,6 +168,7 @@ void bc_reset_writer(BytecodeWriter* writer);
 
 // Refresh the branch's bytecode, if it's dirty.
 void update_bytecode_for_branch(Branch* branch);
+void write_bytecode_for_branch(Branch* branch, BytecodeWriter* writer);
 
 void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode);
 void evaluate_branch_with_bytecode(EvalContext* context, Branch* branch);

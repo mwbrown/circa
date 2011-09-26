@@ -267,13 +267,12 @@ TaggedValue* list_get_index_from_end(TaggedValue* value, int reverseIndex)
 
     ListData* data = (ListData*) value->value_data.ptr;
 
-    ca_assert(data != NULL);
+    if (data == NULL)
+        return NULL;
 
     int index = data->count - reverseIndex - 1;
-    ca_assert(index >= 0);
-    ca_assert(index < data->count);
 
-    return &data->items[index];
+    return list_get_index(data, index);
 }
 
 ListData* list_remove_index(ListData* original, int index)

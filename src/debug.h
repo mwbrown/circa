@@ -18,6 +18,10 @@ extern bool DEBUG_TRAP_ERROR_OCCURRED;
 // Setting this to true will write to stdout for every write to a Ref value.
 extern bool DEBUG_TRACE_ALL_REF_WRITES;
 
+// Setting this to true will cause us to use CHECK_OUTPUT instructions when generating
+// bytecode, so that all output types are checked.
+extern bool DEBUG_ALWAYS_CHECK_OUTPUT_TYPE;
+
 extern bool DEBUG_TRACE_ALL_TERM_DESTRUCTORS;
 
 // Spit out this branch's raw contents to std::cout

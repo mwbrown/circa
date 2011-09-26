@@ -181,6 +181,10 @@ void bc_write_call_op(BytecodeWriter* writer, Term* term, EvaluateFunc func)
     // Write information for each input
     for (int i=0; i < term->numInputs(); i++)
         bc_write_input(writer, term->owningBranch, term->input(i));
+
+    // Possibly write a CHECK_OUTPUT op.
+    if (writer->alwaysCheckOutputs || DEBUG_ALWAYS_CHECK_OUTPUT_TYPE)
+        bc_check_output(writer, term);
 }
 
 void bc_write_call_op_with_func(BytecodeWriter* writer, Term* term, Term* func)
@@ -375,15 +379,22 @@ void update_bytecode_for_branch(Branch* branch)
     BytecodeWriter writer;
     start_bytecode_update(branch, &writer);
 
+    write_bytecode_for_branch(branch, &writer);
+
+    finish_bytecode_update(branch, &writer);
+}
+
+void write_bytecode_for_branch(Branch* branch, BytecodeWriter* writer)
+{
     Term* parent = branch->owningTerm;
 
-    // TODO: Add a stack_size operation.
+    // TODO: Add a stack_size operation maybe?
 
     for (int i=0; i < branch->length(); i++) {
         Term* term = branch->get(i);
         if (term == NULL)
             continue;
-        bc_call(&writer, term);
+        bc_call(writer, term);
     }
 
     // Check if the parent function has a bytecodeFinish call
@@ -391,16 +402,15 @@ void update_bytecode_for_branch(Branch* branch)
         FunctionAttrs::WriteNestedBytecodeFinish func =
             get_function_attrs(parent->function)->writeNestedBytecodeFinish;
         if (func != NULL)
-            func(parent, &writer);
+            func(parent, writer);
     }
 
     // Finish up with a final return call.
-    bc_finish(&writer);
-
-    finish_bytecode_update(branch, &writer);
+    bc_finish(writer);
+    
 }
 
-void check_output_type(EvalContext* context, Term* term)
+bool check_output_type(EvalContext* context, Term* term)
 {
     if (!context->errorOccurred) {
 
@@ -419,9 +429,13 @@ void check_output_type(EvalContext* context, Term* term)
                 << output->toString()
                 << " which doesn't fit output type "
                 << outputType->name;
-            internal_error(msg.str());
+
+            error_occurred(context, term, msg.str());
+
+            return false;
         }
     }
+    return true;
 }
 
 void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
@@ -460,8 +474,12 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
             // slow, and it should be unnecessary if the function is written correctly. But it's
             // a good test.
             #ifdef CIRCA_TEST_BUILD
-            if (cop->term != NULL)
-                check_output_type(context, cop->term);
+            if (cop->term != NULL) {
+                if (!check_output_type(context, cop->term)) {
+
+                    // Die here
+                }
+            }
             #endif
             
             pc += 1;
@@ -477,7 +495,11 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
 
         case OP_CHECK_OUTPUT: {
             Term* term = ((OpCheckOutput*) op)->term;
-            check_output_type(context, term);
+
+            // Call check_output_type, and halt interpreter if it fails.
+            if (!check_output_type(context, term))
+                return;
+
             break;
         }
 
