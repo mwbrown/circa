@@ -285,6 +285,8 @@ CA_FUNCTION(evaluate_for_loop)
 void for_block_write_bytecode(Term* caller, BytecodeWriter* writer)
 {
     bc_call_branch(writer, caller);
+    bc_pop_stack(writer);
+    bc_return_on_evaluation_interrupted(writer);
 }
 
 void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)
@@ -298,7 +300,12 @@ void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)
     Term* indexTerm = contents->get(index_location);
     ca_assert(indexTerm->function == LOOP_INDEX_FUNC);
 
-    // Loop setup. Write 0 to the index
+    // Prepare output value.
+    // FIXME
+    //bc_write_call_op(writer, caller, get_global("loop_prepare_output"));
+    //bc_write_input(writer, contents, inputList);
+
+    // Loop setup. Write 0 to the index.
     bc_call(writer, indexTerm);
     
     // Check if we are already finished (ie, iterating over an empty list)
@@ -350,6 +357,18 @@ void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)
     for (int i = inner_rebinds_location; i < contents->length() - 1; i++)
         bc_call(writer, contents->get(i));
 
+    // Save the list result
+    Term* listResult = NULL;
+    if (as_bool(get_for_loop_modify_list(caller)))
+        listResult = contents->get(get_for_loop_iterator(caller)->name);
+    else
+        listResult = find_last_non_comment_expression(contents);
+        
+    bc_write_call_op_with_func(writer, caller, SET_INDEX_FUNC);
+    bc_write_input(writer, contents, caller);
+    bc_write_input(writer, contents, indexTerm);
+    bc_write_input(writer, contents, listResult);
+
     // Finish iteration, increment index.
     bc_increment(writer);
     bc_local_input(writer, 0, indexTerm->index);
@@ -360,7 +379,7 @@ void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)
     bc_write_input(writer, contents, indexTerm);
     bc_jump_to_pos(writer, jumpToStart, secondIterationStart);
 
-    // Finished looping, join locals.
+    // Finished looping, copy outer rebinds
     for (int i=0; i < outerRebinds->length(); i++) {
         bc_copy_value(writer);
         bc_write_input(writer, contents, outerRebinds->get(i)->input(1));

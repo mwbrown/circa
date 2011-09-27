@@ -70,6 +70,12 @@ namespace for_function {
         set_int(OUTPUT, 0);
     }
 
+    CA_FUNCTION(loop_prepare_output)
+    {
+        List* inputList = as_list(INPUT(0));
+        List* output = set_list(OUTPUT, inputList->length());
+    }
+
     CA_FUNCTION(evaluate_break)
     {
         CONTEXT->forLoopContext.breakCalled = true;
@@ -102,10 +108,12 @@ namespace for_function {
         get_function_attrs(FOR_FUNC)->getOutputCount = getOutputCount;
         get_function_attrs(FOR_FUNC)->getOutputName = getOutputName;
         get_function_attrs(FOR_FUNC)->getOutputType = getOutputType;
-        get_function_attrs(FOR_FUNC)->writeBytecode = for_block_write_bytecode;
-        get_function_attrs(FOR_FUNC)->writeNestedBytecode = for_block_write_bytecode_contents;
+        //get_function_attrs(FOR_FUNC)->writeBytecode = for_block_write_bytecode;
+        //get_function_attrs(FOR_FUNC)->writeNestedBytecode = for_block_write_bytecode_contents;
 
         LOOP_INDEX_FUNC = import_function(kernel, evaluate_loop_index, "loop_index() -> int");
+
+        import_function(kernel, loop_prepare_output, "loop_prepare_output(Indexable)->List");
 
         DISCARD_FUNC = import_function(kernel, evaluate_discard, "discard(any)");
         get_function_attrs(DISCARD_FUNC)->formatSource = discard_formatSource;

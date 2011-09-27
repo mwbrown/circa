@@ -22,10 +22,7 @@ void test_simple()
     import_function(&branch, spy_function, "spy(int)");
     gSpyResults.clear();
 
-    Term* forLoop = branch.compile("for i in 0..5 { spy(i) }");
-
-    update_bytecode_for_branch(nested_contents(forLoop));
-    dump(nested_contents(forLoop)->bytecode);
+    branch.compile("for i in 0..5 { spy(i) }");
 
     evaluate_save_locals(&branch);
 

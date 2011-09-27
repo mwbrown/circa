@@ -55,10 +55,11 @@ namespace list_function {
 
     CA_DEFINE_FUNCTION(blank_list, "blank_list(int) -> List")
     {
+        int size = INT_INPUT(0);
         set_list(OUTPUT);
         List* result = List::checkCast(OUTPUT);
         result->resize(0);
-        result->resize(INT_INPUT(0));
+        result->resize(size);
     }
 
     CA_DEFINE_FUNCTION(resize, "resize(List, int) -> List")

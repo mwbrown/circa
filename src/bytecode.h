@@ -42,7 +42,12 @@ struct Operation {
     int padding3;
 };
 
-// OpCall is defined in common_headers.h
+struct OpCall {
+    OpType type;
+    Term* term;
+    EvaluateFunc func;
+    int outputIndex;
+};
 
 struct OpCheckOutput {
     OpType type;
@@ -60,8 +65,8 @@ struct OpStackSize {
 
 struct OpInputLocal {
     OpType type;
-    int relativeFrame;
-    int index;
+    short relativeFrame;
+    short index;
 };
 
 struct OpInputGlobal {
