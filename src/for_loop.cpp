@@ -293,6 +293,7 @@ void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)
     Branch* parentBranch = caller->owningBranch;
     bool useState = has_any_inlined_state(contents);
     Branch* outerRebinds = get_for_loop_outer_rebinds(caller);
+    Term* inputList = caller->input(0);
 
     Term* indexTerm = contents->get(index_location);
     ca_assert(indexTerm->function == LOOP_INDEX_FUNC);
@@ -302,7 +303,7 @@ void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)
     
     // Check if we are already finished (ie, iterating over an empty list)
     int jumpPastEmptyList = bc_jump_if_within_range(writer);
-    bc_write_input(writer, contents, caller->input(0));
+    bc_write_input(writer, contents, inputList);
     bc_write_input(writer, contents, indexTerm);
 
     // These instructions are evaluated when iterating over an empty list. Copy
@@ -315,10 +316,37 @@ void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)
 
     int jumpToEnd = bc_jump(writer);
 
-    // Loop contents
-    int loopStart = writer->writePosition;
+    // Setup for first iteration. Copy inner rebinds from their outside sources.
     bc_jump_to_here(writer, jumpPastEmptyList);
 
+    for (int i=inner_rebinds_location; contents->get(i)->function == JOIN_FUNC; i++) {
+        Term* term = contents->get(i);
+        bc_copy_value(writer);
+        bc_write_input(writer, contents, term->input(0));
+        bc_write_input(writer, contents, term);
+    }
+
+    int jumpPast2ndIterationSetup = bc_jump(writer);
+
+    // For 2nd and later iterations, copy inner rebinds from the bottom of the loop.
+    int secondIterationStart = writer->writePosition;
+
+    for (int i=inner_rebinds_location; contents->get(i)->function == JOIN_FUNC; i++) {
+        Term* term = contents->get(i);
+        bc_copy_value(writer);
+        bc_write_input(writer, contents, term->input(1));
+        bc_write_input(writer, contents, term);
+    }
+
+    bc_jump_to_here(writer, jumpPast2ndIterationSetup);
+
+    // Fetch iterator value.
+    Term* iterator = contents->get(iterator_location);
+    bc_write_call_op_with_func(writer, iterator, GET_INDEX_FUNC);
+    bc_write_input(writer, contents, inputList);
+    bc_write_input(writer, contents, indexTerm);
+
+    // Loop contents
     for (int i = inner_rebinds_location; i < contents->length() - 1; i++)
         bc_call(writer, contents->get(i));
 
@@ -328,12 +356,16 @@ void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)
 
     // Jump back to the start of the loop (if we haven't reached the end).
     int jumpToStart = bc_jump_if_within_range(writer);
-    bc_write_input(writer, contents, caller->input(0));
+    bc_write_input(writer, contents, inputList);
     bc_write_input(writer, contents, indexTerm);
-    bc_jump_to_pos(writer, jumpToStart, loopStart);
+    bc_jump_to_pos(writer, jumpToStart, secondIterationStart);
 
     // Finished looping, join locals.
-    // TODO
+    for (int i=0; i < outerRebinds->length(); i++) {
+        bc_copy_value(writer);
+        bc_write_input(writer, contents, outerRebinds->get(i)->input(1));
+        bc_local_input(writer, 1, caller->index + 1 + i);
+    }
 
     // End
     bc_jump_to_here(writer, jumpToEnd);

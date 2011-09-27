@@ -102,8 +102,8 @@ namespace for_function {
         get_function_attrs(FOR_FUNC)->getOutputCount = getOutputCount;
         get_function_attrs(FOR_FUNC)->getOutputName = getOutputName;
         get_function_attrs(FOR_FUNC)->getOutputType = getOutputType;
-        //get_function_attrs(FOR_FUNC)->writeBytecode = for_block_write_bytecode;
-        //get_function_attrs(FOR_FUNC)->writeNestedBytecode = for_block_write_bytecode_contents;
+        get_function_attrs(FOR_FUNC)->writeBytecode = for_block_write_bytecode;
+        get_function_attrs(FOR_FUNC)->writeNestedBytecode = for_block_write_bytecode_contents;
 
         LOOP_INDEX_FUNC = import_function(kernel, evaluate_loop_index, "loop_index() -> int");
 
