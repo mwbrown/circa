@@ -24,14 +24,16 @@ namespace circa {
 /* Organization of for loop contents:
    [0] #attributes
      [0] #modify_list
-   [i] iterator
-   [1..i] join() terms for inner rebinds
+   [1] index
+   [2] iterator
+   [3..i] join() terms for inner rebinds
    [...] contents
    [n-1] #outer_rebinds
 */
 
-static const int iterator_location = 1;
-static const int inner_rebinds_location = 2;
+static const int index_location = 1;
+static const int iterator_location = 2;
+static const int inner_rebinds_location = 3;
 
 Term* get_for_loop_iterator(Term* forTerm)
 {
@@ -60,6 +62,7 @@ void setup_for_loop_pre_code(Term* forTerm)
 
 Term* setup_for_loop_iterator(Term* forTerm, const char* name)
 {
+    /*Term* indexTerm =*/ apply(nested_contents(forTerm), LOOP_INDEX_FUNC, TermList());
     Type* iteratorType = infer_type_of_get_index(forTerm->input(0));
     Term* result = apply(nested_contents(forTerm), INPUT_PLACEHOLDER_FUNC, TermList(), name);
     change_declared_type(result, iteratorType);
@@ -277,6 +280,18 @@ CA_FUNCTION(evaluate_for_loop)
     
     // Copy output (need to do this after restoring stack)
     swap(output, OUTPUT);
+}
+
+void for_block_write_bytecode(Term* caller, BytecodeWriter* writer)
+{
+    bc_call_branch(writer, caller);
+}
+
+void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)
+{
+    Branch* contents = nested_contents(caller);
+    Branch* parentBranch = caller->owningBranch;
+    bool useState = has_any_inlined_state(contents);
 }
 
 } // namespace circa

@@ -20,7 +20,7 @@ struct FunctionAttrs
     typedef void (*AssignRegisters)(Term*);
     typedef void (*PostCompile)(Term*);
     typedef void (*WriteBytecode)(Term*, BytecodeWriter* writer);
-    typedef void (*WriteNestedBytecodeFinish)(Term*, BytecodeWriter* writer);
+    typedef void (*WriteNestedBytecode)(Term*, BytecodeWriter* writer);
 
     Term* declaringTerm;
 
@@ -46,7 +46,7 @@ struct FunctionAttrs
     AssignRegisters assignRegisters;
     PostCompile postCompile;
     WriteBytecode writeBytecode;
-    WriteNestedBytecodeFinish writeNestedBytecodeFinish;
+    WriteNestedBytecode writeNestedBytecode;
 
     List parameters;
 

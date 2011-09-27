@@ -388,7 +388,18 @@ void write_bytecode_for_branch(Branch* branch, BytecodeWriter* writer)
 {
     Term* parent = branch->owningTerm;
 
-    // TODO: Add a stack_size operation maybe?
+    // Check if parent function has a writeNestedBytecode
+    if (parent != NULL) {
+        FunctionAttrs::WriteNestedBytecode func =
+            get_function_attrs(parent->function)->writeNestedBytecode;
+        if (func != NULL) {
+            func(parent, writer);
+            bc_finish(writer);
+            return;
+        }
+    }
+
+    // Default behavior
 
     for (int i=0; i < branch->length(); i++) {
         Term* term = branch->get(i);
@@ -397,17 +408,8 @@ void write_bytecode_for_branch(Branch* branch, BytecodeWriter* writer)
         bc_call(writer, term);
     }
 
-    // Check if the parent function has a bytecodeFinish call
-    if (parent != NULL) {
-        FunctionAttrs::WriteNestedBytecodeFinish func =
-            get_function_attrs(parent->function)->writeNestedBytecodeFinish;
-        if (func != NULL)
-            func(parent, writer);
-    }
-
     // Finish up with a final return call.
     bc_finish(writer);
-    
 }
 
 bool check_output_type(EvalContext* context, Term* term)
