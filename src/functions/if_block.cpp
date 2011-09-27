@@ -137,7 +137,7 @@ namespace if_block_function {
 
     void setup(Branch* kernel)
     {
-        IF_BLOCK_FUNC = import_function(kernel, evaluate_if_block, "if_block() -> any");
+        IF_BLOCK_FUNC = import_function(kernel, NULL, "if_block() -> any");
         get_function_attrs(IF_BLOCK_FUNC)->formatSource = formatSource;
         get_function_attrs(IF_BLOCK_FUNC)->getOutputCount = getOutputCount;
         get_function_attrs(IF_BLOCK_FUNC)->getOutputName = getOutputName;
