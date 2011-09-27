@@ -17,6 +17,7 @@ const OpType OP_JUMP = 10;
 const OpType OP_JUMP_IF = 11;
 const OpType OP_JUMP_IF_NOT = 12;
 const OpType OP_JUMP_IF_NOT_EQUAL = 13;
+const OpType OP_JUMP_IF_WITHIN_RANGE = 14;
 
 const OpType OP_RETURN = 20;
 const OpType OP_RETURN_ON_ERROR = 21;
@@ -30,6 +31,7 @@ const OpType OP_INPUT_NULL = 33;
 const OpType OP_INPUT_INT = 34;
 
 const OpType OP_COPY = 40;
+const OpType OP_INCREMENT = 41;
 
 struct Operation {
     OpType type;
@@ -119,11 +121,11 @@ void bc_return_on_evaluation_interrupted(BytecodeWriter* writer);
 void bc_imaginary_call(BytecodeWriter* writer, EvaluateFunc func, int output);
 void bc_imaginary_call(BytecodeWriter* writer, Term* func, int output);
 
-// Write a JUMP instruction. The jump is initialized with a zero offset;
+// Write a JUMP instruction. The jump is initialized without an offset,
 // caller should use bc_jump_to_here() to set one.
 int bc_jump(BytecodeWriter* writer);
 
-// Write a JUMP_IF instruction. The jump is initialized with a zero offset;
+// Write a JUMP_IF instruction. The jump is initialized without an offset,
 // caller should use bc_jump_to_here() to set one. One input instruction must
 // follow.
 int bc_jump_if(BytecodeWriter* writer);
@@ -131,13 +133,22 @@ int bc_jump_if(BytecodeWriter* writer);
 // Write a JUMP_IF_NOT operation. See notes for bc_jump_if().
 int bc_jump_if_not(BytecodeWriter* writer);
 
-// Write a JUMP_IF_NOT_EQUAL operation. The jump is initialized with a zero offset;
+// Write a JUMP_IF_NOT_EQUAL operation. The jump is initialized without an offset,
 // caller should use bc_jump_to_here() to set one. One input instruction must
 // follow.
 int bc_jump_if_not_equal(BytecodeWriter* writer);
 
+// Write a JUMP_IF_WITHIN_RANGE operation. The jump is initialized without an offset,
+// caller should use bc_jump_to_here() to set one. Two input instructions must
+// follow, input 0 is a list and input 1 is an index. The jump will be performed if
+// the index is less than the length of the list.
+int bc_jump_if_within_range(BytecodeWriter* writer);
+
 // Modify the jump operation to jump to the current write position.
-void bc_jump_to_here(BytecodeWriter* writer, int jumpPos);
+void bc_jump_to_here(BytecodeWriter* writer, int jumpLoc);
+
+// Modify the jump operation to jump to the given position.
+void bc_jump_to_pos(BytecodeWriter* writer, int jumpLoc, int pos);
 
 void bc_global_input(BytecodeWriter* writer, TaggedValue* value);
 void bc_local_input(BytecodeWriter* writer, int frame, int index);
@@ -147,6 +158,9 @@ void bc_write_int_input(BytecodeWriter* writer, int value);
 
 // Write a COPY operation. Two input instructions must follow.
 void bc_copy_value(BytecodeWriter* writer);
+
+// Write an INCREMENT operation. One input instruction must follow.
+void bc_increment(BytecodeWriter* writer);
 
 // Write a CALL_BRANCH operation.
 void bc_call_branch(BytecodeWriter* writer, Term* term);

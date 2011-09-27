@@ -6,6 +6,7 @@
 #include "evaluation.h"
 #include "function.h"
 #include "introspection.h"
+#include "list_shared.h"
 #include "kernel.h"
 #include "locals.h"
 #include "refactoring.h"
@@ -23,6 +24,20 @@ static bool is_input_op_type(OpType type)
         case OP_INPUT_GLOBAL:
         case OP_INPUT_NULL:
         case OP_INPUT_INT:
+            return true;
+        default:
+            return false;
+    }
+}
+
+static bool is_jump_op_type(OpType type)
+{
+    switch (type) {
+        case OP_JUMP:
+        case OP_JUMP_IF:
+        case OP_JUMP_IF_NOT:
+        case OP_JUMP_IF_NOT_EQUAL:
+        case OP_JUMP_IF_WITHIN_RANGE:
             return true;
         default:
             return false;
@@ -85,6 +100,9 @@ void print_bytecode_op(Operation* op, int loc, std::ostream& out)
         case OP_JUMP_IF_NOT_EQUAL:
             out << "jump_if_not_eq " << loc + ((OpJump*) op)->offset;
             break;
+        case OP_JUMP_IF_WITHIN_RANGE:
+            out << "jump_if_within_range " << loc + ((OpJump*) op)->offset;
+            break;
         case OP_CALL_BRANCH:
             out << "call_branch " << global_id(((OpCallBranch*) op)->term);
             break;
@@ -93,6 +111,9 @@ void print_bytecode_op(Operation* op, int loc, std::ostream& out)
             break;
         case OP_COPY:
             out << "copy";
+            break;
+        case OP_INCREMENT:
+            out << "increment";
             break;
         default:
             out << "<unknown opcode " << int(op->type) << ">";
@@ -214,43 +235,56 @@ void bc_imaginary_call(BytecodeWriter* writer, Term* func, int output)
 }
 int bc_jump(BytecodeWriter* writer)
 {
-    int result = writer->writePosition;
+    int pos = writer->writePosition;
     OpJump* op = (OpJump*) bc_append_op(writer);
     op->type = OP_JUMP;
     op->offset = 0;
-    return result;
+    return pos;
 }
 int bc_jump_if(BytecodeWriter* writer)
 {
-    int result = writer->writePosition;
+    int pos = writer->writePosition;
     OpJump* op = (OpJump*) bc_append_op(writer);
     op->type = OP_JUMP_IF;
     op->offset = 0;
-    return result;
+    return pos;
 }
 int bc_jump_if_not(BytecodeWriter* writer)
 {
-    int result = writer->writePosition;
+    int pos = writer->writePosition;
     OpJump* op = (OpJump*) bc_append_op(writer);
     op->type = OP_JUMP_IF_NOT;
     op->offset = 0;
-    return result;
+    return pos;
 }
 int bc_jump_if_not_equal(BytecodeWriter* writer)
 {
-    int result = writer->writePosition;
+    int pos = writer->writePosition;
     OpJump* op = (OpJump*) bc_append_op(writer);
     op->type = OP_JUMP_IF_NOT_EQUAL;
     op->offset = 0;
-    return result;
+    return pos;
+}
+int bc_jump_if_within_range(BytecodeWriter* writer)
+{
+    int pos = writer->writePosition;
+    OpJump* op = (OpJump*) bc_append_op(writer);
+    op->type = OP_JUMP_IF_WITHIN_RANGE;
+    op->offset = 0;
+    return pos;
 }
 
-void bc_jump_to_here(BytecodeWriter* writer, int jumpPos)
+void bc_jump_to_here(BytecodeWriter* writer, int jumpLoc)
 {
-    OpJump* op = (OpJump*) &writer->data->operations[jumpPos];
-    ca_assert(op->type == OP_JUMP_IF || op->type == OP_JUMP_IF_NOT
-            || op->type == OP_JUMP || op->type == OP_JUMP_IF_NOT_EQUAL);
-    op->offset = writer->writePosition - jumpPos;
+    OpJump* op = (OpJump*) &writer->data->operations[jumpLoc];
+    ca_assert(is_jump_op_type(op->type));
+    op->offset = writer->writePosition - jumpLoc;
+}
+void bc_jump_to_pos(BytecodeWriter* writer, int jumpLoc, int pos)
+{
+    OpJump* op = (OpJump*) &writer->data->operations[jumpLoc];
+    ca_assert(is_jump_op_type(op->type));
+    op->offset = pos - jumpLoc;
 }
 void bc_global_input(BytecodeWriter* writer, TaggedValue* value)
 {
@@ -288,6 +322,10 @@ void bc_write_int_input(BytecodeWriter* writer, int value)
 void bc_copy_value(BytecodeWriter* writer)
 {
     bc_append_op(writer)->type = OP_COPY;
+}
+void bc_increment(BytecodeWriter* writer)
+{
+    bc_append_op(writer)->type = OP_INCREMENT;
 }
 void bc_call_branch(BytecodeWriter* writer, Term* term)
 {
@@ -567,6 +605,21 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
             }
             continue;
         }
+        case OP_JUMP_IF_WITHIN_RANGE: {
+            OpJump* jop = (OpJump*) op;
+            TaggedValue* list = get_input(context, op, 0);
+            TaggedValue* index = get_input(context, op, 1);
+
+            bool doJump = as_int(index) < list_get_length(list);
+
+            if (doJump) {
+                ca_assert(jop->offset != 0);
+                pc += jop->offset;
+            } else {
+                pc += 1;
+            }
+            continue;
+        }
 
         case OP_CALL_BRANCH: {
 
@@ -600,6 +653,13 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
             TaggedValue* right = get_input(context, op, 1);
             copy(left, right);
 
+            pc += 1;
+            continue;
+        }
+
+        case OP_INCREMENT: {
+            TaggedValue* val = get_input(context, op, 0);
+            set_int(val, as_int(val) + 1);
             pc += 1;
             continue;
         }

@@ -292,6 +292,51 @@ void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)
     Branch* contents = nested_contents(caller);
     Branch* parentBranch = caller->owningBranch;
     bool useState = has_any_inlined_state(contents);
+    Branch* outerRebinds = get_for_loop_outer_rebinds(caller);
+
+    Term* indexTerm = contents->get(index_location);
+    ca_assert(indexTerm->function == LOOP_INDEX_FUNC);
+
+    // Loop setup. Write 0 to the index
+    bc_call(writer, indexTerm);
+    
+    // Check if we are already finished (ie, iterating over an empty list)
+    int jumpPastEmptyList = bc_jump_if_within_range(writer);
+    bc_write_input(writer, contents, caller->input(0));
+    bc_write_input(writer, contents, indexTerm);
+
+    // These instructions are evaluated when iterating over an empty list. Copy
+    // joined locals appropriately.
+    for (int i=0; i < outerRebinds->length(); i++) {
+        bc_copy_value(writer);
+        bc_write_input(writer, contents, outerRebinds->get(i)->input(0));
+        bc_local_input(writer, 1, caller->index + 1 + i);
+    }
+
+    int jumpToEnd = bc_jump(writer);
+
+    // Loop contents
+    int loopStart = writer->writePosition;
+    bc_jump_to_here(writer, jumpPastEmptyList);
+
+    for (int i = inner_rebinds_location; i < contents->length() - 1; i++)
+        bc_call(writer, contents->get(i));
+
+    // Finish iteration, increment index.
+    bc_increment(writer);
+    bc_local_input(writer, 0, indexTerm->index);
+
+    // Jump back to the start of the loop (if we haven't reached the end).
+    int jumpToStart = bc_jump_if_within_range(writer);
+    bc_write_input(writer, contents, caller->input(0));
+    bc_write_input(writer, contents, indexTerm);
+    bc_jump_to_pos(writer, jumpToStart, loopStart);
+
+    // Finished looping, join locals.
+    // TODO
+
+    // End
+    bc_jump_to_here(writer, jumpToEnd);
 }
 
 } // namespace circa
