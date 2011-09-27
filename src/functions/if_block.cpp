@@ -100,7 +100,7 @@ namespace if_block_function {
             return;
 
         List* ifBlockState = List::lazyCast(stateEntry);
-        int caseIndex = get_int_input(CONTEXT, CALL_OPERATION, 0);
+        int caseIndex = get_int_input(CONTEXT, CALL_OPERATION, 1);
 
         const bool resetStateForUnusedBranches = true;
 
@@ -127,7 +127,7 @@ namespace if_block_function {
         Dict* prevScope = get_scope_state(context, 1);
         List* stateEntry = List::lazyCast(prevScope->insert(get_unique_name(caller)));
 
-        int caseIndex = get_int_input(CONTEXT, CALL_OPERATION, 0);
+        int caseIndex = get_int_input(CONTEXT, CALL_OPERATION, 1);
         if (stateEntry->length() <= caseIndex)
             stateEntry->resize(caseIndex + 1);
 

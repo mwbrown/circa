@@ -72,8 +72,6 @@ typedef Type* (*SpecializeTypeFunc)(Term* caller);
 typedef void (*FormatSource)(StyledSource* source, Term* term);
 typedef bool (*CheckInvariants)(Term* term, std::string* output);
 
-typedef char OpType;
-
 // Possibly enable ca_assert and/or ca_test_assert
 
 // when enabled, ca_assert will call internal_error if the condition is false.

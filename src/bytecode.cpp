@@ -47,10 +47,15 @@ static bool is_jump_op_type(OpType type)
 void print_bytecode_op(Operation* op, int loc, std::ostream& out)
 {
     switch (op->type) {
-        case OP_CALL:
-            out << "call " << get_unique_name(((OpCall*) op)->term)
-                << " out:" << ((OpCall*) op)->outputIndex;
+        case OP_CALL: {
+            out << "call ";
+            Term* term = ((OpCall*) op)->term;
+            if (term == NULL)
+                out << "NULL";
+            else
+                out << get_unique_name(term);
             break;
+        }
         case OP_CHECK_OUTPUT:
             out << "check_output " << get_unique_name(((OpCheckOutput*) op)->term);
             break;
@@ -197,7 +202,9 @@ void bc_write_call_op(BytecodeWriter* writer, Term* term, EvaluateFunc func)
     op->type = OP_CALL;
     op->term = term;
     op->func = func;
-    op->outputIndex = term->index;
+
+    // Write output instruction
+    bc_local_input(writer, 0, term->index);
 
     // Write information for each input
     for (int i=0; i < term->numInputs(); i++)
@@ -227,7 +234,9 @@ void bc_imaginary_call(BytecodeWriter* writer, EvaluateFunc func, int output)
     op->type = OP_CALL;
     op->term = NULL;
     op->func = func;
-    op->outputIndex = output;
+
+    // Write output instruction
+    bc_local_input(writer, 0, output);
 }
 void bc_imaginary_call(BytecodeWriter* writer, Term* func, int output)
 {

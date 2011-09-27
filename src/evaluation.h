@@ -106,7 +106,6 @@ int get_int_input(EvalContext* context, OpCall* op, int index);
 void consume_input(EvalContext* context, Term* term, int index, TaggedValue* dest);
 
 TaggedValue* get_output(EvalContext* context, Term* term);
-TaggedValue* get_output(EvalContext* context, OpCall* op);
 TaggedValue* get_extra_output(EvalContext* context, Term* term, int index);
 TaggedValue* get_state_input(EvalContext* cxt, Term* term);
 

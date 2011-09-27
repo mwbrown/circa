@@ -9,6 +9,8 @@
 
 namespace circa {
 
+typedef char OpType;
+
 const OpType OP_CALL = 1;
 const OpType OP_CALL_BRANCH = 2;
 const OpType OP_CHECK_OUTPUT = 3;
@@ -46,7 +48,6 @@ struct OpCall {
     OpType type;
     Term* term;
     EvaluateFunc func;
-    int outputIndex;
 };
 
 struct OpCheckOutput {

@@ -173,12 +173,6 @@ TaggedValue* get_output(EvalContext* context, Term* term)
     return list_get_index(frame, term->index);
 }
 
-TaggedValue* get_output(EvalContext* context, OpCall* op)
-{
-    TaggedValue* frame = get_stack_frame(context, 0);
-    return list_get_index(frame, op->outputIndex);
-}
-
 TaggedValue* get_extra_output(EvalContext* context, Term* term, int index)
 {
     TaggedValue* frame = get_stack_frame(context, 0);
