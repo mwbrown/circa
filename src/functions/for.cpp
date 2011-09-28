@@ -78,11 +78,11 @@ namespace for_function {
 
     CA_FUNCTION(evaluate_break)
     {
-        CONTEXT->forLoopContext.breakCalled = true;
+        for_loop_break(CONTEXT);
     }
     CA_FUNCTION(evaluate_continue)
     {
-        CONTEXT->forLoopContext.continueCalled = true;
+        for_loop_continue(CONTEXT);
     }
     CA_FUNCTION(evaluate_discard)
     {
@@ -110,8 +110,10 @@ namespace for_function {
         get_function_attrs(FOR_FUNC)->getOutputType = getOutputType;
         //get_function_attrs(FOR_FUNC)->writeBytecode = for_block_write_bytecode;
         //get_function_attrs(FOR_FUNC)->writeNestedBytecode = for_block_write_bytecode_contents;
+        get_function_attrs(FOR_FUNC)->beginBranch = for_loop_begin_branch;
+        get_function_attrs(FOR_FUNC)->finishBranch = for_loop_finish_iteration;
 
-        LOOP_INDEX_FUNC = import_function(kernel, evaluate_loop_index, "loop_index() -> int");
+        LOOP_INDEX_FUNC = import_function(kernel, NULL, "loop_index() -> int");
 
         import_function(kernel, loop_prepare_output, "loop_prepare_output(Indexable)->List");
 

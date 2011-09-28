@@ -6,6 +6,7 @@
 
 #include "branch.h"
 #include "name_list.h"
+#include "interpreter.h"
 #include "input_instructions.h"
 #include "term_list.h"
 #include "tagged_value.h"
@@ -83,6 +84,11 @@ struct Term : TaggedValue
 
     // Location in textual source code.
     TermSourceLocation sourceLoc;
+
+    // Information for the interpreter
+    Instruction instruction;
+    InputInstruction2* inputInstructions;
+    EvaluateFunc evaluateFunc;
 
     Term();
     ~Term();

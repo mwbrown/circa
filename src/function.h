@@ -21,6 +21,8 @@ struct FunctionAttrs
     typedef void (*PostCompile)(Term*);
     typedef void (*WriteBytecode)(Term*, BytecodeWriter* writer);
     typedef void (*WriteNestedBytecode)(Term*, BytecodeWriter* writer);
+    typedef void (*BeginBranch)(EvalContext* context);
+    typedef bool (*FinishBranch)(EvalContext* context, int flags);
 
     Term* declaringTerm;
 
@@ -47,6 +49,8 @@ struct FunctionAttrs
     PostCompile postCompile;
     WriteBytecode writeBytecode;
     WriteNestedBytecode writeNestedBytecode;
+    BeginBranch beginBranch;
+    FinishBranch finishBranch;
 
     List parameters;
 

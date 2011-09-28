@@ -22,6 +22,15 @@
 
 namespace circa {
 
+EvalContext::~EvalContext()
+{
+    while (numFrames > 0)
+        pop_frame(this);
+
+    free(frames);
+    frames = NULL;
+}
+
 void evaluate_branch_internal(EvalContext* context, Branch* branch)
 {
     push_stack_frame(context, branch);
@@ -59,6 +68,8 @@ void evaluate_branch_internal_with_state(EvalContext* context, Term* term,
 
 void evaluate_branch(EvalContext* context, Branch* branch)
 {
+    interpret(context, branch);
+#if 0
     push_stack_frame(context, branch);
     push_scope_state(context);
     Dict::lazyCast(&context->state);
@@ -73,6 +84,7 @@ void evaluate_branch(EvalContext* context, Branch* branch)
 
     swap(get_current_scope_state(context), &context->state);
     pop_scope_state(context);
+#endif
 }
 
 void evaluate_save_locals(EvalContext* context, Branch* branch)

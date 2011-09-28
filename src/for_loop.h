@@ -29,4 +29,10 @@ CA_FUNCTION(evaluate_for_loop);
 void for_block_write_bytecode(Term* caller, BytecodeWriter* writer);
 void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer);
 
+void for_loop_begin_branch(EvalContext* context);
+bool for_loop_finish_iteration(EvalContext* context, int flags);
+
+void for_loop_break(EvalContext* context);
+void for_loop_continue(EvalContext* context);
+
 } // namespace circa

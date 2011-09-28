@@ -37,6 +37,7 @@ struct CastResult;
 struct Dict;
 struct EvalContext;
 struct FeedbackOperation;
+struct Frame;
 struct FunctionAttrs;
 struct List;
 struct Operation;
@@ -65,9 +66,9 @@ union VariantValue {
 // Function-related typedefs:
 
 #define CA_FUNCTION(fname) \
-    void fname(circa::EvalContext* _context, circa::OpCall* _op)
+    void fname(circa::EvalContext* _context, int _count, circa::TaggedValue** _in)
 
-typedef void (*EvaluateFunc)(EvalContext* cxt, OpCall* op);
+typedef void (*EvaluateFunc)(EvalContext* cxt, int count, TaggedValue** inputs);
 typedef Type* (*SpecializeTypeFunc)(Term* caller);
 typedef void (*FormatSource)(StyledSource* source, Term* term);
 typedef bool (*CheckInvariants)(Term* term, std::string* output);
@@ -104,7 +105,6 @@ typedef bool (*CheckInvariants)(Term* term, std::string* output);
 
 void ca_assert_function(bool result, const char* expr, int line, const char* file);
 
-// An evaluation function which does nothing
-CA_FUNCTION(empty_evaluate_function);
+#define NEW_INTERPRETER 1
 
 } // namespace circa

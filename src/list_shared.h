@@ -34,6 +34,7 @@ void list_set_index(ListData* data, int index, TaggedValue* value);
 int list_get_length(TaggedValue* value);
 TaggedValue* list_get_index(TaggedValue* value, int index);
 TaggedValue* list_get_index_from_end(TaggedValue* value, int index);
+void list_set_index(TaggedValue* list, int index, TaggedValue* element);
 void list_remove_index(TaggedValue* list, int index);
 TaggedValue* list_append(TaggedValue* list);
 TaggedValue* list_insert(TaggedValue* list, int index);

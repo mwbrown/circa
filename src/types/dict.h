@@ -43,7 +43,6 @@ struct Dict : TaggedValue
 {
     Dict();
 
-    std::string toString();
     TaggedValue* get(const char* key);
     TaggedValue* operator[](const char* key);
     bool contains(const char* key);

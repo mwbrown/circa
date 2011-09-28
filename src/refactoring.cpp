@@ -36,6 +36,23 @@ void change_function(Term* term, Term* function)
             && function != INPUT_PLACEHOLDER_FUNC) {
         append_user(term, function);
     }
+
+    term->instruction = ISN_CALL;
+    FunctionAttrs* attrs = get_function_attrs(function);
+    if (attrs != NULL) {
+        term->evaluateFunc = attrs->evaluate;
+        if (attrs->evaluate == NULL)
+            term->instruction = ISN_SKIP;
+
+
+        if (attrs->beginBranch != NULL)
+            term->instruction = ISN_OPEN_BRANCH;
+    }
+
+    if (term->function == BREAK_FUNC
+            || term->function == CONTINUE_FUNC) {
+        term->instruction = ISN_CALL_MANUAL;
+    }
 }
 
 void unsafe_change_type(Term *term, Type *type)

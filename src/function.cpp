@@ -37,7 +37,9 @@ FunctionAttrs::FunctionAttrs()
     assignRegisters(NULL),
     postCompile(NULL),
     writeBytecode(NULL),
-    writeNestedBytecode(NULL)
+    writeNestedBytecode(NULL),
+    beginBranch(NULL),
+    finishBranch(NULL)
 {
     debug_register_valid_object(this, FUNCTION_ATTRS_OBJECT);
 }

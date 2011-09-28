@@ -8,6 +8,7 @@
 #pragma once
 
 #include "common_headers.h"
+#include "function.h"
 #include "for_loop.h"
 #include "tagged_value.h"
 #include "term_list.h"
@@ -15,6 +16,15 @@
 #include "types/dict.h"
 
 namespace circa {
+
+struct Frame {
+    int pc;
+    List locals;
+    Dict state;
+    Branch* branch;
+
+    FunctionAttrs::FinishBranch overrideFinishBranch;
+};
 
 struct EvalContext
 {
@@ -44,11 +54,6 @@ struct EvalContext
     // List of input values, passed in to the script from the caller.
     List argumentList;
 
-    struct Frame {
-        List locals;
-        Branch* branch;
-    };
-
     // Local variables.
     List stack;
 
@@ -57,10 +62,18 @@ struct EvalContext
 
     List stateStack;
 
+    // List of stack frames
+    Frame* frames;
+    int numFrames;
+
     EvalContext()
       : preserveLocals(false),
         interruptSubroutine(false),
-        errorOccurred(false) {}
+        errorOccurred(false),
+        frames(NULL),
+        numFrames(0)
+    {}
+    ~EvalContext();
 };
 
 void evaluate_branch_internal(EvalContext* context, Branch* branch);

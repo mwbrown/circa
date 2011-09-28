@@ -47,6 +47,12 @@ namespace overloaded_function {
     CA_FUNCTION(evaluate_dynamic_overload)
     {
         Branch* contents = nested_contents(CALLER);
+
+        // FIXME
+        Term* call = contents->get(0);
+        call->evaluateFunc(CONTEXT, _count, _in);
+#if 0
+
         Term* func = CALLER->function;
         FunctionAttrs* funcAttrs = get_function_attrs(func);
 
@@ -101,6 +107,7 @@ namespace overloaded_function {
             msg << "specialized func not found for: " << CALLER->function->name;
             return error_occurred(CONTEXT, CALLER, msg.str());
         }
+#endif
     }
 
     void overload_post_input_change(Term* term)

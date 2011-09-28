@@ -182,4 +182,80 @@ void if_block_write_bytecode(Term* caller, BytecodeWriter* writer)
         bc_jump_to_here(writer, jumpsToFinish[i]);
 }
 
+void if_block_begin_branch(EvalContext* context)
+{
+    Term* caller = get_pc_term(context);
+    Branch* contents = nested_contents(caller);
+
+    // Walk across cases, find the one that succeeded
+    int acceptedBranch = contents->length() - 2;
+    for (int caseIndex=0; caseIndex < contents->length() - 2; caseIndex++) {
+        Term* caseTerm = contents->get(caseIndex);
+        TaggedValue* caseInput = get_input2(context, caseTerm, 0);
+
+        if (as_bool(caseInput)) {
+            acceptedBranch = caseIndex;
+            break;
+        }
+    }
+
+    // Push stack frame
+    Term* caseTerm = contents->get(acceptedBranch);
+    Frame* frame = push_frame(context, nested_contents(caseTerm));
+    frame->overrideFinishBranch = if_block_finish_branch;
+
+    // Fetch local state
+    Dict* outsideState = &get_frame(context, 1)->state;
+    TaggedValue* stateEntry = outsideState->get(get_unique_name(caller));
+    if (stateEntry != NULL) {
+        List* stateList = List::lazyCast(stateEntry);
+        if (acceptedBranch < stateList->length()) {
+            TaggedValue* entry = stateList->get(acceptedBranch);
+            if (!is_dict(entry))
+                set_dict(entry);
+            swap(entry, &frame->state);
+        }
+
+        const bool resetStateForUnusedBranches = true;
+        if (resetStateForUnusedBranches)
+            set_null(stateEntry);
+    }
+}
+
+bool if_block_finish_branch(EvalContext* context, int flags)
+{
+    // Copy joined locals
+    Term* caseTerm = top_frame(context)->branch->owningTerm;
+    ca_assert(caseTerm->function == IF_FUNC || caseTerm->function == BRANCH_FUNC);
+
+    int caseIndex = caseTerm->index;
+    Term* caller = get_parent_term(caseTerm);
+    Branch* contents = nested_contents(caller);
+    Branch* joining = nested_contents(contents->getFromEnd(0));
+
+    for (int i=0; i < joining->length(); i++) {
+        Term* joinTerm = joining->get(i);
+        Term* joinInput = joinTerm->input(i);
+
+        TaggedValue* result = NULL;
+        if (get_parent_term(joinInput) == caseTerm)
+            result = get_output2(context, joinInput);
+        else
+            result = get_input2(context, joinTerm, caseIndex);
+        TaggedValue* dest = get_extra_output2_rel(context, caller, 1, i);
+        copy(result, dest);
+    }
+
+    // Save local state
+    Dict* prevScope = &get_frame(context, 1)->state;
+    List* stateEntry = List::lazyCast(prevScope->insert(get_unique_name(caller)));
+
+    if (stateEntry->length() <= caseIndex)
+        stateEntry->resize(caseIndex + 1);
+
+    swap(&get_frame(context, 0)->state, stateEntry->get(caseIndex));
+
+    return true;
+}
+
 } // namespace circa

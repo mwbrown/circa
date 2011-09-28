@@ -274,6 +274,12 @@ TaggedValue* list_get_index_from_end(TaggedValue* value, int reverseIndex)
 
     return list_get_index(data, index);
 }
+void list_set_index(TaggedValue* list, int index, TaggedValue* element)
+{
+    ca_assert(list->value_type->storageType == STORAGE_TYPE_LIST);
+    ListData* data = (ListData*) list->value_data.ptr;
+    list_set_index(data, index, element);
+}
 
 ListData* list_remove_index(ListData* original, int index)
 {

@@ -448,6 +448,7 @@ void post_compile_term(Term* term)
 
 void finish_minor_branch(Branch* branch)
 {
+#if !NEW_INTERPRETER
     if (branch->length() > 0
             && branch->get(branch->length()-1)->function == FINISH_MINOR_BRANCH_FUNC)
         return;
@@ -467,6 +468,7 @@ void finish_minor_branch(Branch* branch)
         return;
 
     post_compile_term(apply(branch, FINISH_MINOR_BRANCH_FUNC, TermList()));
+#endif
 }
 
 void check_to_add_branch_finish_term(Branch* branch, int previousLastTerm)

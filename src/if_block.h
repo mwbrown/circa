@@ -14,4 +14,7 @@ Branch* if_block_get_branch(Term* ifCall, int index);
 
 void if_block_write_bytecode(Term* caller, BytecodeWriter* writer);
 
+void if_block_begin_branch(EvalContext* context);
+bool if_block_finish_branch(EvalContext* context, int flags);
+
 } // namespace circa

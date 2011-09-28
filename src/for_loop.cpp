@@ -35,6 +35,9 @@ static const int index_location = 1;
 static const int iterator_location = 2;
 static const int inner_rebinds_location = 3;
 
+void for_loop_start_iteration(EvalContext* context, Term* caller);
+void for_loop_complete_empty_list(EvalContext* context, Term* caller);
+
 Term* get_for_loop_iterator(Term* forTerm)
 {
     return forTerm->contents(iterator_location);
@@ -56,7 +59,7 @@ Branch* get_for_loop_outer_rebinds(Term* forTerm)
 void setup_for_loop_pre_code(Term* forTerm)
 {
     Branch* forContents = nested_contents(forTerm);
-    Branch* attributes = create_branch(forContents, "#attributes");
+    Branch* attributes = create_branch_unevaluated(forContents, "#attributes");
     create_bool(attributes, false, "#modify_list");
 }
 
@@ -80,7 +83,7 @@ void setup_for_loop_post_code(Term* forTerm)
     finish_minor_branch(forContents);
 
     // Create a branch that has all the names which are rebound in this loop
-    Branch* outerRebinds = create_branch(forContents, "#outer_rebinds");
+    Branch* outerRebinds = create_branch_unevaluated(forContents, "#outer_rebinds");
 
     std::vector<std::string> reboundNames;
     list_names_that_this_branch_rebinds(forContents, reboundNames);
@@ -388,6 +391,223 @@ void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)
 
     // End
     bc_jump_to_here(writer, jumpToEnd);
+}
+
+void for_loop_begin_branch(EvalContext* context)
+{
+    Term* caller = get_pc_term(context);
+    ca_assert(caller->function == FOR_FUNC);
+    Branch* contents = nested_contents(caller);
+
+    // Initialize output
+    List* inputList = as_list(get_current_input(context, 0));
+    List* output = set_list(get_current_output(context), inputList->length());
+
+    // Check if this is an empty list. If so, there is a special path for copying rebinds
+    if (inputList->length() == 0) {
+        for_loop_complete_empty_list(context, caller);
+        return;
+    }
+
+    // Create stack frame
+    Frame* frame = push_frame(context, contents);
+    frame->overrideFinishBranch = for_loop_finish_iteration;
+
+    // Copy inner rebinds for 1st iteration
+    {
+        int index = inner_rebinds_location;
+        while (contents->get(index)->function == JOIN_FUNC) {
+            Term* rebindTerm = contents->get(index);
+            TaggedValue* dest = get_output2(context, rebindTerm);
+
+            copy(get_input2(context, rebindTerm, 0), dest);
+            index++;
+        }
+    }
+
+    // Initialize index term
+    Term* indexTerm = contents->get(index_location);
+    set_int(get_output2(context, indexTerm), 0);
+
+    // Begin the loop proper
+    for_loop_start_iteration(context, caller);
+
+#if 0
+    Branch* forContents = nested_contents(caller);
+    Branch* outerRebinds = get_for_loop_outer_rebinds(caller);
+    Term* iterator = get_for_loop_iterator(caller);
+
+    TaggedValue* inputList = INPUT(0);
+    int inputListLength = inputList->numElements();
+
+    TaggedValue outputTv;
+    bool saveOutput = forContents->outputIndex != -1;
+    List* output = set_list(&outputTv, inputListLength);
+    int nextOutputIndex = 0;
+
+    push_stack_frame(context, forContents);
+    context->callStack.append(CALLER);
+
+    // Prepare state container
+    bool useState = has_implicit_state(CALLER);
+    TaggedValue localState;
+    List* state = NULL;
+    if (useState) {
+        push_scope_state(context);
+        fetch_state_container(CALLER, get_scope_state(context, 1), &localState);
+
+        state = List::lazyCast(&localState);
+        state->resize(inputListLength);
+    }
+
+    // Preserve old for-loop context
+    ForLoopContext prevLoopContext = context->forLoopContext;
+
+    context->forLoopContext.breakCalled = false;
+#endif
+}
+
+// This is called before starting the 2nd or later iterations
+void for_loop_prepare_another_iteration(EvalContext* context, Term* caller)
+{
+    Branch* contents = nested_contents(caller);
+
+    // Copy inner rebinds
+    int index = inner_rebinds_location;
+    while (contents->get(index)->function == JOIN_FUNC) {
+        Term* rebindTerm = contents->get(index);
+        TaggedValue* dest = get_output2(context, rebindTerm);
+
+        copy(get_input2(context, rebindTerm, 1), dest);
+        index++;
+    }
+}
+
+void for_loop_start_iteration(EvalContext* context, Term* caller)
+{
+    Branch* contents = nested_contents(caller);
+
+    // Fetch current iterator value
+    Term* indexTerm = contents->get(index_location);
+    int indexValue = as_int(get_output2(context, indexTerm));
+    List* inputList = as_list(get_input2_rel(context, caller, 1, 0));
+
+    Term* iteratorTerm = contents->get(iterator_location);
+    copy(inputList->get(indexValue), get_output2(context, iteratorTerm));
+
+    // Fetch local state
+    set_dict(&get_frame(context,0)->state);
+    Dict* outsideState = &get_frame(context, 1)->state;
+    TaggedValue* stateEntry = outsideState->get(get_unique_name(caller));
+    if (stateEntry != NULL) {
+        List* stateList = List::lazyCast(stateEntry);
+        if (indexValue < stateList->length()) {
+            TaggedValue* entry = stateList->get(indexValue);
+            if (!is_dict(entry))
+                set_dict(entry);
+            move(entry, &get_frame(context, 0)->state);
+        }
+    }
+
+    // Skip PC past some metadata
+    top_frame(context)->pc = iterator_location+1;
+}
+
+void for_loop_complete_empty_list(EvalContext* context, Term* caller)
+{
+    top_frame(context)->pc++;
+
+    // Copy outer rebinds
+    Branch* outerRebinds = get_for_loop_outer_rebinds(caller);
+    for (int i=0; i < outerRebinds->length(); i++) {
+
+        Term* rebindTerm = outerRebinds->get(i);
+
+        TaggedValue* result = get_input2_rel(context, rebindTerm, -1, 0);
+        copy(result, get_extra_output2(context, caller, i));
+    }
+}
+
+bool for_loop_finish_iteration(EvalContext* context, int flags)
+{
+    bool exitLoop = (flags & 1) != 0;
+    Branch* contents = top_frame(context)->branch;
+    Term* caller = contents->owningTerm;
+    ca_assert(caller->function == FOR_FUNC);
+
+    // Fetch index
+    Term* indexTerm = contents->get(index_location);
+    TaggedValue* indexValue = get_output2(context, indexTerm);
+    int index = as_int(indexValue);
+
+    // Save output for this iteration
+    Term* listResultTerm = NULL;
+    if (as_bool(get_for_loop_modify_list(caller)))
+        listResultTerm = contents->get(get_for_loop_iterator(caller)->name);
+    else
+        listResultTerm = find_last_non_comment_expression(contents);
+    TaggedValue* listResult = get_output2(context, listResultTerm);
+    list_set_index(get_output2_rel(context, caller, 1), index, listResult);
+
+    // Save local state
+    Dict* prevScope = &get_frame(context, 1)->state;
+    List* stateList = List::lazyCast(prevScope->insert(get_unique_name(caller)));
+
+    if (stateList->length() <= index)
+        stateList->resize(index + 1);
+
+    swap(&get_frame(context, 0)->state, stateList->get(index));
+
+    // Increment iterator index
+    set_int(indexValue, index + 1);
+
+    // Check if we have completed the loop
+    List* inputList = as_list(get_input2_rel(context, caller, 1, 0));
+
+    if (!exitLoop && (as_int(indexValue) < inputList->length())) {
+        // Start a new iteration
+        for_loop_prepare_another_iteration(context, caller);
+        for_loop_start_iteration(context, caller);
+        return false;
+    }
+
+    // Finish the loop
+    
+    // Copy external rebinds
+    Branch* outerRebinds = get_for_loop_outer_rebinds(caller);
+    for (int i=0; i < outerRebinds->length(); i++) {
+
+        Term* rebindTerm = outerRebinds->get(i);
+        TaggedValue* result = get_input2(context, rebindTerm, 1);
+        TaggedValue* dest = get_extra_output2_rel(context, caller, 1, i);
+        copy(result, dest);
+    }
+
+    return true;
+}
+
+void for_loop_break(EvalContext* context)
+{
+    while (true) {
+        Branch* branch = get_frame(context, 0)->branch;
+        Term* caller = branch->owningTerm;
+        if (caller->function == FOR_FUNC)
+            break;
+        finish_branch(context, 0);
+    }
+    finish_branch(context, 1);
+}
+
+void for_loop_continue(EvalContext* context)
+{
+    while (true) {
+        Branch* branch = get_frame(context, 0)->branch;
+        Term* caller = branch->owningTerm;
+        if (caller->function == FOR_FUNC)
+            break;
+        finish_branch(context, 0);
+    }
+    finish_branch(context, 0);
 }
 
 } // namespace circa
