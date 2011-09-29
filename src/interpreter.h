@@ -39,6 +39,10 @@ void finish_branch(EvalContext* context, int flags);
 
 InterpretResult interpret(EvalContext* context, Branch* branch);
 
+void interpreter_start(EvalContext* context, Branch* branch);
+void interpreter_step(EvalContext* context);
+bool interpreter_finished(EvalContext* context);
+
 void copy_locals_to_terms(EvalContext* context, Branch* branch);
 TaggedValue* get_state_input(EvalContext* cxt);
 

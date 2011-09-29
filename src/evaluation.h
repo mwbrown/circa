@@ -31,8 +31,8 @@ struct Frame {
 struct EvalContext
 {
     // If this flag is on, then we'll copy all local variables back to their
-    // associated terms when we're finished with a stack frame. This is very
-    // helpful for testing and local evaluation.
+    // associated terms when we're finished with a stack frame. This is helpful
+    // for testing.
     bool preserveLocals;
 
     bool interruptSubroutine;

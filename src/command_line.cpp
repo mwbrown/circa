@@ -18,6 +18,7 @@
 #include "tools/exporting_parser.h"
 #include "tools/file_checker.h"
 #include "tools/repl.h"
+#include "tools/text_debugger.h"
 
 namespace circa {
 
@@ -148,6 +149,10 @@ int run_command_line(std::vector<std::string> args)
     // Start debugger repl
     if (args[0] == "-d")
         return run_debugger_repl(args[1]);
+
+    // Start text debugger
+    if (args[0] == "-td")
+        return run_text_debugger(args[1].c_str());
 
     // Do a feedback test
     #if 0

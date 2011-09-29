@@ -124,7 +124,7 @@ void finish_branch(EvalContext* context, int flags)
 {
     Frame* frame = top_frame(context);
 
-    // Preserve stateful terms. Good candidate for optimization.
+    // Preserve stateful terms. Good candidate for optimization...
     {
         Branch* branch = frame->branch;
         for (int i=0; i < branch->length(); i++) {
@@ -156,77 +156,89 @@ bool top_level_finish_branch(EvalContext* context, int flags)
     return true;
 }
 
-InterpretResult interpret(EvalContext* context, Branch* branch)
+void interpreter_start(EvalContext* context, Branch* branch)
 {
     Frame* firstFrame = push_frame(context, branch);
     if (is_dict(&context->state))
         copy(&context->state, &firstFrame->state);
     firstFrame->finishBranch = top_level_finish_branch;
+}
 
-    // This TaggedValue pointer array is used as temporary storage for ISN_CALLs.
-    TaggedValue* value_pointers[MAX_INPUTS];
+void interpreter_step(EvalContext* context)
+{
+    Frame* frame = top_frame(context);
+
+    // Check to finish this branch
+    if (frame->pc >= frame->branch->length()) {
+
+        finish_branch(context, 0);
+        return;
+    }
+
+    Term* term = frame->branch->get(frame->pc);
+
+    switch (term->instruction) {
+    case ISN_CALL: {
+        TaggedValue* value_pointers[MAX_INPUTS];
+
+        // Copy pointers to value_pointers
+        // Input 0 is used for output
+        value_pointers[0] = frame->locals[frame->pc];
+
+        int numInputs = term->numInputs();
+
+        for (int i=0; i < numInputs; i++) {
+
+            Term* input = term->input(i);
+
+            if (input == NULL) {
+                value_pointers[i+1] = NULL;
+            } else if (is_value(input)) {
+                value_pointers[i+1] = input;
+            } else {
+                int relativeFrame = get_frame_distance(input->owningBranch, term);
+                Frame* frame = get_frame(context, relativeFrame);
+                value_pointers[i+1] = frame->locals[term->input(i)->index];
+            }
+        }
+    
+        // Execute the call
+        term->evaluateFunc(context, numInputs+1, value_pointers);
+
+        frame->pc += 1;
+        break;
+    }
+
+    case ISN_CALL_MANUAL:
+        get_function_attrs(term->function)->evaluateManual(context);
+        break;
+    
+    case ISN_SKIP:
+        frame->pc += 1;
+        break;
+
+    default: {
+        internal_error("unrecognized term->instruction");
+    }
+    }
+}
+
+bool interpreter_finished(EvalContext* context)
+{
+    return context->numFrames <= 0;
+}
+
+InterpretResult interpret(EvalContext* context, Branch* branch)
+{
+    interpreter_start(context, branch);
 
     // Main loop
     while (true) {
 
-        if (context->numFrames == 0) {
+        if (interpreter_finished(context))
             return SUCCESS;
-        }
-
-        Frame* frame = top_frame(context);
-
-        // Check to finish this branch
-        if (frame->pc >= frame->branch->length()) {
-
-            finish_branch(context, 0);
-            continue;
-        }
-
-        Term* term = frame->branch->get(frame->pc);
-
-        switch (term->instruction) {
-        case ISN_CALL: {
-
-            // Copy pointers to value_pointers
-            // Input 0 is used for output
-            value_pointers[0] = frame->locals[frame->pc];
-
-            int numInputs = term->numInputs();
-
-            for (int i=0; i < numInputs; i++) {
-
-                Term* input = term->input(i);
-
-                if (input == NULL) {
-                    value_pointers[i+1] = NULL;
-                } else if (is_value(input)) {
-                    value_pointers[i+1] = input;
-                } else {
-                    int relativeFrame = get_frame_distance(input->owningBranch, term);
-                    Frame* frame = get_frame(context, relativeFrame);
-                    value_pointers[i+1] = frame->locals[term->input(i)->index];
-                }
-            }
         
-            // Execute the call
-            term->evaluateFunc(context, numInputs+1, value_pointers);
-
-            frame->pc += 1;
-            continue;
-        }
-
-        case ISN_CALL_MANUAL:
-            get_function_attrs(term->function)->evaluateManual(context);
-            continue;
-        
-        case ISN_SKIP:
-            frame->pc += 1;
-            continue;
-
-        default: {
-            internal_error("unrecognized term->instruction");
-        }
-        }
+        interpreter_step(context);
     }
 }
 
