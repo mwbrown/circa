@@ -27,7 +27,6 @@ Term::Term()
     index(0),
     nestedContents(NULL),
     instruction(0),
-    inputInstructions(NULL),
     evaluateFunc(NULL)
 {
     globalID = gNextGlobalID++;
@@ -66,11 +65,6 @@ int
 Term::numInputs() const
 {
     return this->inputs.size();
-}
-int
-Term::numInputInstructions() const
-{
-    return inputIsns.inputs.size();
 }
 
 void

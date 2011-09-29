@@ -203,7 +203,7 @@ void create_primitive_types()
 
 void update_bootstrapped_term(Term* term)
 {
-    update_input_instructions(term);
+    // This once did stuff
 }
 
 void bootstrap_kernel()

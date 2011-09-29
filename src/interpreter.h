@@ -16,10 +16,6 @@ const Instruction ISN_CALL_MANUAL = 2;
 const Instruction ISN_OPEN_BRANCH = 3;
 const Instruction ISN_SKIP = 4;
 
-struct InputInstruction2 {
-    short relativeFrame;
-};
-
 const int MAX_INPUTS = 100;
 
 Frame* push_frame(EvalContext* context, Branch* branch);
@@ -43,8 +39,6 @@ void finish_branch(EvalContext* context, int flags);
 InterpretResult interpret(EvalContext* context, Branch* branch);
 
 void copy_locals_to_terms2(EvalContext* context, Branch* branch);
-void refresh_input_instructions(Term* term);
-
 TaggedValue* get_state_input2(EvalContext* cxt);
 
 } // namespace circa

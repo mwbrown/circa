@@ -64,7 +64,6 @@ Term* apply(Branch* branch, Term* function, TermList const& inputs, std::string 
 
     update_unique_name(result);
     on_inputs_changed(result);
-    update_input_instructions(result);
     dirty_branch(branch);
 
     if (is_get_state(result) || has_implicit_state(result))
@@ -94,7 +93,6 @@ void set_input(Term* term, int index, Term* input)
     possibly_prune_user_list(term, previousInput);
 
     mark_inputs_changed(term);
-    update_input_instructions(term);
 }
 
 void set_inputs(Term* term, TermList const& inputs)
@@ -122,7 +120,6 @@ void set_inputs(Term* term, TermList const& inputs)
         possibly_prune_user_list(term, previousInputs[i].term);
 
     mark_inputs_changed(term);
-    update_input_instructions(term);
 }
 
 void insert_input(Term* term, Term* input)
@@ -240,7 +237,7 @@ Term* create_value(Branch* branch, Type* type, std::string const& name)
     change_declared_type(term, type);
     change_type((TaggedValue*) term, type);
     update_unique_name(term);
-    update_input_instructions(term);
+    dirty_branch(branch);
 
     return term;
 }

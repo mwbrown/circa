@@ -234,23 +234,6 @@ InterpretResult interpret(EvalContext* context, Branch* branch)
     }
 }
 
-void refresh_input_instructions(Term* term)
-{
-    int instructionCount = term->numInputs();
-    term->inputInstructions = (InputInstruction2*) realloc(term->inputInstructions,
-        sizeof(InputInstruction2) * instructionCount);
-
-    for (int i=0; i < instructionCount; i++) {
-        Term* input = term->input(i);
-        if (input == NULL)
-            term->inputInstructions[i].relativeFrame = 0;
-        else if (is_value(input))
-            term->inputInstructions[i].relativeFrame = -1;
-        else
-            term->inputInstructions[i].relativeFrame = get_frame_distance(term->input(i)->owningBranch, term);
-    }
-}
-
 void copy_locals_to_terms2(EvalContext* context, Branch* branch)
 {
     // Copy locals back to the original terms. Many tests depend on this functionality.

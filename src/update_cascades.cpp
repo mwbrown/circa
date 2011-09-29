@@ -125,8 +125,6 @@ void on_inputs_changed(Term* term)
 
     if (func)
         func(term);
-
-    update_input_instructions(term);
 }
 
 void on_repairable_link(Term* term, List& brokenLinks)
