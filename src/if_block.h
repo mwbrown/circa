@@ -12,8 +12,6 @@ void update_if_block_joining_branch(Term* ifCall);
 int if_block_num_branches(Term* ifCall);
 Branch* if_block_get_branch(Term* ifCall, int index);
 
-void if_block_write_bytecode(Term* caller, BytecodeWriter* writer);
-
 void if_block_begin_branch(EvalContext* context);
 bool if_block_finish_branch(EvalContext* context, int flags);
 

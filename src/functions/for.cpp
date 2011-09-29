@@ -73,7 +73,7 @@ namespace for_function {
     CA_FUNCTION(loop_prepare_output)
     {
         List* inputList = as_list(INPUT(0));
-        List* output = set_list(OUTPUT, inputList->length());
+        /*List* output =*/ set_list(OUTPUT, inputList->length());
     }
 
     CA_FUNCTION(evaluate_break)

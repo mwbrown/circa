@@ -39,6 +39,6 @@
 #define STATE_INPUT (get_state_input2(_context))
 #define INPUT_TERM(index) (CALLER->input(index))
 #define OUTPUT (_in[0])
-#define EXTRA_OUTPUT(index) (get_extra_output(_context, CALLER, (index)))
+#define EXTRA_OUTPUT(index) (get_extra_output2(_context, CALLER, (index)))
 #define FUNCTION (CALLER->function)
 #define ERROR_OCCURRED(msg) (error_occurred(_context, CALLER, (msg)))

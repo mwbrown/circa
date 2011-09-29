@@ -29,12 +29,14 @@ Frame* get_frame(EvalContext* context, int frame);
 Term* get_pc_term(EvalContext* context);
 TaggedValue* get_input2(EvalContext* context, Term* term, int index);
 TaggedValue* get_input2_rel(EvalContext* context, Term* term, int frameDistance, int index);
+void consume_input(EvalContext* context, Term* term, int index, TaggedValue* output);
 TaggedValue* get_current_input(EvalContext* context, int index);
 TaggedValue* get_output2(EvalContext* context, Term* term);
 TaggedValue* get_output2_rel(EvalContext* context, Term* term, int frameDistance);
 TaggedValue* get_current_output(EvalContext* context);
 TaggedValue* get_extra_output2(EvalContext* context, Term* term, int index);
 TaggedValue* get_extra_output2_rel(EvalContext* context, Term* term, int frameDistance, int index);
+TaggedValue* get_output_safe(EvalContext* context, Term* term);
 
 void finish_branch(EvalContext* context, int flags);
 

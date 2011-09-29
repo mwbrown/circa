@@ -5,7 +5,6 @@
 #include "../importing.h"
 #include "../importing_macros.h"
 
-#include "bytecode.h"
 #include "types/ref.h"
 
 namespace circa {
@@ -131,14 +130,6 @@ namespace overloaded_function {
         return contents->get(0)->type;
     }
 
-    void writeBytecode(Term* term, BytecodeWriter* writer)
-    {
-        Branch* contents = nested_contents(term);
-        if (contents->length() > 0)
-            bc_call(writer, contents->get(0));
-        else
-            bc_write_call_op(writer, term, evaluate_dynamic_overload);
-    }
 
     bool is_overloaded_function(Term* func)
     {
@@ -256,7 +247,6 @@ namespace overloaded_function {
         OVERLOADED_FUNCTION_FUNC = import_function(kernel, evaluate_declaration,
                 "overloaded_function(Function...) -> Function");
         get_function_attrs(OVERLOADED_FUNCTION_FUNC)->postCompile = overloaded_func_post_compile;
-        get_function_attrs(OVERLOADED_FUNCTION_FUNC)->writeBytecode = writeBytecode;
     }
 }
 }

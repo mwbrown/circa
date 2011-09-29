@@ -5,7 +5,7 @@
 #include "branch.h"
 #include "code_iterators.h"
 #include "building.h"
-#include "bytecode.h"
+#include "dirtying.h"
 #include "evaluation.h"
 #include "function.h"
 #include "importing_macros.h"
@@ -50,6 +50,7 @@ Type* get_subroutine_output_type(Branch* contents)
 
 CA_FUNCTION(evaluate_subroutine)
 {
+#if 0
     EvalContext* context = CONTEXT;
     Term* caller = CALLER;
     Term* function = caller->function;
@@ -151,6 +152,7 @@ CA_FUNCTION(evaluate_subroutine)
     // Write extra outputs
     for (int i=1; i < outputs.length(); i++)
         swap(outputs[i], get_extra_output(context, caller, i-1));
+#endif
 }
 
 bool is_subroutine(Term* term)

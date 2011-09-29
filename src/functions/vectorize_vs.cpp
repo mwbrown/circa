@@ -23,6 +23,7 @@ namespace vectorize_vs_function {
 
     CA_FUNCTION(evaluate)
     {
+#if 0 // FIXME
         EvalContext* context = CONTEXT;
         Branch* contents = nested_contents(CALLER);
         TaggedValue input0, input1;
@@ -57,6 +58,7 @@ namespace vectorize_vs_function {
         pop_stack_frame(CONTEXT);
 
         swap(&output, OUTPUT);
+#endif
     }
 
     void post_input_change(Term* term)

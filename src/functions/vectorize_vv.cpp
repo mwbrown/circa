@@ -21,6 +21,7 @@ namespace vectorize_vv_function {
 
     CA_FUNCTION(evaluate)
     {
+#if 0 // FIXME
         EvalContext* context = CONTEXT;
         Branch* contents = nested_contents(CALLER);
         TaggedValue input0, input1;
@@ -48,7 +49,7 @@ namespace vectorize_vv_function {
             swap(input0.getIndex(i), get_local(context, 0, input0_placeholder));
             swap(input1.getIndex(i), get_local(context, 0, input1_placeholder));
 
-            evaluate_single_term_with_bytecode(CONTEXT, content_output);
+            //FIXME evaluate_single_term_with_bytecode(CONTEXT, content_output);
 
             // Save output
             swap(get_local(context, 0, content_output), output[i]);
@@ -57,6 +58,7 @@ namespace vectorize_vv_function {
         pop_stack_frame(context);
 
         swap(&output, OUTPUT);
+#endif
     }
 
     void post_input_change(Term* term)

@@ -39,7 +39,7 @@ void repl_evaluate_line(Branch* branch, std::string const& input, std::ostream& 
     // Evaluate
     EvalContext context;
     context.preserveLocals = true;
-    evaluate_range(&context, branch, previousHead, newHead);
+    //FIXME evaluate_range(&context, branch, previousHead, newHead);
 
     if (context.errorOccurred) {
         std::cout << "runtime error: ";

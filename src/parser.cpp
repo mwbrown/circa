@@ -4,7 +4,7 @@
 
 #include "building.h"
 #include "branch.h"
-#include "bytecode.h"
+#include "dirtying.h"
 #include "evaluation.h"
 #include "for_loop.h"
 #include "function.h"
@@ -52,7 +52,7 @@ TermPtr compile(Branch* branch, ParsingStep step, std::string const& input)
     }
 
     post_parse_branch(branch);
-    dirty_bytecode(branch);
+    dirty_branch(branch);
 
     ca_assert(branch_check_invariants_print_result(branch, std::cout));
 

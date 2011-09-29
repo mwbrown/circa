@@ -141,7 +141,7 @@ void statically_infer_result(Term* term, TaggedValue* result)
         copy(resultTerm, result);
     else {
         EvalContext context;
-        evaluate_minimum(&context, resultTerm, result);
+        //FIXME evaluate_minimum(&context, resultTerm, result);
     }
 }
 

@@ -19,8 +19,6 @@ struct FunctionAttrs
     typedef Type* (*GetOutputType)(Term*, int index);
     typedef void (*AssignRegisters)(Term*);
     typedef void (*PostCompile)(Term*);
-    typedef void (*WriteBytecode)(Term*, BytecodeWriter* writer);
-    typedef void (*WriteNestedBytecode)(Term*, BytecodeWriter* writer);
     typedef void (*BeginBranch)(EvalContext* context);
     typedef bool (*FinishBranch)(EvalContext* context, int flags);
 
@@ -47,8 +45,6 @@ struct FunctionAttrs
     GetOutputType getOutputType;
     AssignRegisters assignRegisters;
     PostCompile postCompile;
-    WriteBytecode writeBytecode;
-    WriteNestedBytecode writeNestedBytecode;
     BeginBranch beginBranch;
     FinishBranch finishBranch;
 

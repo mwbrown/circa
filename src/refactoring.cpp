@@ -2,7 +2,7 @@
 
 #include "branch.h"
 #include "building.h"
-#include "bytecode.h"
+#include "dirtying.h"
 #include "function.h"
 #include "heap_debugging.h"
 #include "introspection.h"
@@ -25,7 +25,7 @@ void change_function(Term* term, Term* function)
     Term* previousFunction = term->function;
 
     term->function = function;
-    dirty_bytecode(term);
+    dirty_branch(term);
 
     possibly_prune_user_list(term, previousFunction);
     respecialize_type(term);

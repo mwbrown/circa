@@ -4,7 +4,6 @@
 
 #include "branch.h"
 #include "building.h"
-#include "bytecode.h"
 #include "filesystem.h"
 #include "importing.h"
 #include "importing_macros.h"
@@ -276,7 +275,6 @@ void initialize_primitive_types(Branch* kernel)
     create_type_value(kernel, &BRANCH_T, "Branch");
 
     initialize_function(VALUE_FUNC);
-    get_function_attrs(VALUE_FUNC)->writeBytecode = null_bytecode_writer;
 
     // ANY_TYPE was created in bootstrap_kernel
 }
@@ -297,7 +295,6 @@ void pre_setup_types(Branch* kernel)
 {
     // Declare input_placeholder first because it's used while compiling functions
     INPUT_PLACEHOLDER_FUNC = import_function(kernel, NULL, "input_placeholder() -> any");
-    get_function_attrs(INPUT_PLACEHOLDER_FUNC)->writeBytecode = null_bytecode_writer;
     ADDITIONAL_OUTPUT_FUNC = import_function(kernel, NULL, "additional_output() -> any");
 
     // FileSignature is used in some builtin functions

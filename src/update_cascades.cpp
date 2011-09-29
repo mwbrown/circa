@@ -1,7 +1,7 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
 #include "branch.h"
-#include "bytecode.h"
+#include "dirtying.h"
 #include "heap_debugging.h"
 #include "function.h"
 #include "locals.h"

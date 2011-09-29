@@ -146,7 +146,6 @@ namespace if_block_function {
         get_function_attrs(IF_BLOCK_FUNC)->getOutputCount = getOutputCount;
         get_function_attrs(IF_BLOCK_FUNC)->getOutputName = getOutputName;
         get_function_attrs(IF_BLOCK_FUNC)->getOutputType = getOutputType;
-        get_function_attrs(IF_BLOCK_FUNC)->writeBytecode = if_block_write_bytecode;
         get_function_attrs(IF_BLOCK_FUNC)->beginBranch = if_block_begin_branch;
         get_function_attrs(IF_BLOCK_FUNC)->finishBranch = if_block_finish_branch;
 

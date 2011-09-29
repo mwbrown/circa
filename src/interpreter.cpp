@@ -77,6 +77,11 @@ TaggedValue* get_input2_rel(EvalContext* context, Term* term, int frameDistance,
         return frame->locals[term->input(index)->index];
     }
 }
+void consume_input(EvalContext* context, Term* term, int index, TaggedValue* output)
+{
+    // TEMP: Don't actually consume
+    copy(get_input2(context, term, index), output);
+}
 TaggedValue* get_current_input(EvalContext* context, int index)
 {
     Term* term = get_pc_term(context);
@@ -108,6 +113,11 @@ TaggedValue* get_extra_output2_rel(EvalContext* context, Term* term, int frameDi
 {
     Frame* frame = get_frame(context, frameDistance);
     return frame->locals[term->index + 1 + index];
+}
+TaggedValue* get_output_safe(EvalContext* context, Term* term)
+{
+    // FIXME
+    return NULL;
 }
 
 void finish_branch(EvalContext* context, int flags)
@@ -222,8 +232,6 @@ InterpretResult interpret(EvalContext* context, Branch* branch)
         }
         }
     }
-
-
 }
 
 void refresh_input_instructions(Term* term)
