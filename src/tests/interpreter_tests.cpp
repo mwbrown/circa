@@ -62,12 +62,28 @@ void test_for_loop_control_flow()
     branch.clear();
 }
 
+void test_interpret_range_simple()
+{
+    Branch branch;
+
+    Term* a = branch.compile("a = 1 + 1");
+    Term* b = branch.compile("b = 2 + 2");
+    Term* c = branch.compile("c = 3 + 3");
+
+    EvalContext context;
+    interpret_range(&context, &branch, b->index, c->index);
+    test_equals(a, "null");
+    test_equals(b, "4");
+    test_equals(c, "null");
+}
+
 void register_tests()
 {
     REGISTER_TEST_CASE(interpreter_tests::test_simple);
     REGISTER_TEST_CASE(interpreter_tests::test_for_loop_simple);
     REGISTER_TEST_CASE(interpreter_tests::test_if_simple);
     REGISTER_TEST_CASE(interpreter_tests::test_for_loop_control_flow);
+    REGISTER_TEST_CASE(interpreter_tests::test_interpret_range_simple);
 }
 
 }

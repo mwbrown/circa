@@ -228,7 +228,7 @@ void evaluate_minimum(EvalContext* context, Term* term, TaggedValue* result)
 }
 void evaluate_range(EvalContext* context, Branch* branch, int start, int end)
 {
-    //FIXME
+    interpret_range(context, branch, start, end);
 }
 
 } // namespace circa

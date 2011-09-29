@@ -75,7 +75,8 @@ int run_text_debugger(const char* filename)
         std::cout << "> ";
 
         std::string input;
-        std::getline(std::cin, input);
+        if (!std::getline(std::cin, input))
+            break;
 
         interpreter_step(&context);
     }

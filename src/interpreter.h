@@ -37,11 +37,15 @@ TaggedValue* get_output_safe(EvalContext* context, Term* term);
 
 void finish_branch(EvalContext* context, int flags);
 
+// High-level interpreter control
 InterpretResult interpret(EvalContext* context, Branch* branch);
+void interpret_range(EvalContext* context, Branch* branch, int start, int end);
 
+// Lower-level interpreter control
 void interpreter_start(EvalContext* context, Branch* branch);
 void interpreter_step(EvalContext* context);
 bool interpreter_finished(EvalContext* context);
+void interpreter_halt(EvalContext* context);
 
 void copy_locals_to_terms(EvalContext* context, Branch* branch);
 TaggedValue* get_state_input(EvalContext* cxt);

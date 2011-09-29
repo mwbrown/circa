@@ -227,18 +227,39 @@ bool interpreter_finished(EvalContext* context)
 {
     return context->numFrames <= 0;
 }
+void interpreter_halt(EvalContext* context)
+{
+    while (context->numFrames > 0)
+        finish_branch(context, 0);
+}
 
 InterpretResult interpret(EvalContext* context, Branch* branch)
 {
     interpreter_start(context, branch);
 
     // Main loop
-    while (true) {
-
-        if (interpreter_finished(context))
-            return SUCCESS;
-        
+    while (!interpreter_finished(context))
         interpreter_step(context);
+
+    return SUCCESS;
+}
+
+void interpret_range(EvalContext* context, Branch* branch, int start, int end)
+{
+    context->preserveLocals = true;
+
+    interpreter_start(context, branch);
+
+    get_frame(context, 0)->pc = start;
+
+    while (!interpreter_finished(context)) {
+        interpreter_step(context);
+
+        // Exit if we have reached 'end'
+        if (get_frame(context, 0)->branch == branch && get_frame(context, 0)->pc >= end) {
+            interpreter_halt(context);
+            return;
+        }
     }
 }
 

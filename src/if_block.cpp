@@ -8,6 +8,7 @@
 #include "building.h"
 #include "evaluation.h"
 #include "importing_macros.h"
+#include "introspection.h"
 #include "kernel.h"
 #include "list_shared.h"
 #include "locals.h"
@@ -180,7 +181,9 @@ bool if_block_finish_branch(EvalContext* context, int flags)
         Term* joinInput = joinTerm->input(i);
 
         TaggedValue* result = NULL;
-        if (get_parent_term(joinInput) == caseTerm)
+        if (is_value(joinInput))
+            result = joinInput;
+        else if (get_parent_term(joinInput) == caseTerm)
             result = get_output(context, joinInput);
         else
             result = get_input(context, joinTerm, caseIndex);
