@@ -25,8 +25,6 @@ Term* find_enclosing_for_loop(Term* term);
 
 void for_loop_update_output_index(Term* forTerm);
 
-CA_FUNCTION(evaluate_for_loop);
-
 void for_loop_begin_branch(EvalContext* context);
 bool for_loop_finish_iteration(EvalContext* context, int flags);
 

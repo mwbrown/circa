@@ -37,21 +37,20 @@ void change_function(Term* term, Term* function)
         append_user(term, function);
     }
 
-    term->instruction = ISN_CALL;
+    // Update term->instruction and evaluateFunc
     FunctionAttrs* attrs = get_function_attrs(function);
-    if (attrs != NULL) {
-        term->evaluateFunc = attrs->evaluate;
-        if (attrs->evaluate == NULL)
-            term->instruction = ISN_SKIP;
-
-
-        if (attrs->beginBranch != NULL)
-            term->instruction = ISN_OPEN_BRANCH;
-    }
-
-    if (term->function == BREAK_FUNC
-            || term->function == CONTINUE_FUNC) {
+    if (attrs == NULL) {
+        term->instruction = ISN_SKIP;
+        term->evaluateFunc = NULL;
+    } else if (attrs->evaluateManual != NULL) {
         term->instruction = ISN_CALL_MANUAL;
+        term->evaluateFunc = NULL;
+    } else if (attrs->evaluate == NULL) {
+        term->instruction = ISN_SKIP;
+        term->evaluateFunc = NULL;
+    } else {
+        term->instruction = ISN_CALL;
+        term->evaluateFunc = attrs->evaluate;
     }
 }
 

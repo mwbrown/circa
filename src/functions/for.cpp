@@ -103,15 +103,12 @@ namespace for_function {
 
     void setup(Branch* kernel)
     {
-        FOR_FUNC = import_function(kernel, evaluate_for_loop, "for(Indexable) -> List");
+        FOR_FUNC = import_function(kernel, NULL, "for(Indexable) -> List");
         get_function_attrs(FOR_FUNC)->formatSource = formatSource;
         get_function_attrs(FOR_FUNC)->getOutputCount = getOutputCount;
         get_function_attrs(FOR_FUNC)->getOutputName = getOutputName;
         get_function_attrs(FOR_FUNC)->getOutputType = getOutputType;
-        //get_function_attrs(FOR_FUNC)->writeBytecode = for_block_write_bytecode;
-        //get_function_attrs(FOR_FUNC)->writeNestedBytecode = for_block_write_bytecode_contents;
-        get_function_attrs(FOR_FUNC)->beginBranch = for_loop_begin_branch;
-        get_function_attrs(FOR_FUNC)->finishBranch = for_loop_finish_iteration;
+        get_function_attrs(FOR_FUNC)->evaluateManual = for_loop_begin_branch;
 
         LOOP_INDEX_FUNC = import_function(kernel, NULL, "loop_index() -> int");
 

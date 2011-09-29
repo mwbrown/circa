@@ -8,12 +8,6 @@
 namespace circa {
 namespace value_function {
 
-    CA_FUNCTION(evaluate)
-    {
-        if (OUTPUT != NULL)
-            copy(CALLER, OUTPUT);
-    }
-
     void setup(Branch* kernel)
     {
     }

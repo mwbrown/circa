@@ -146,8 +146,7 @@ namespace if_block_function {
         get_function_attrs(IF_BLOCK_FUNC)->getOutputCount = getOutputCount;
         get_function_attrs(IF_BLOCK_FUNC)->getOutputName = getOutputName;
         get_function_attrs(IF_BLOCK_FUNC)->getOutputType = getOutputType;
-        get_function_attrs(IF_BLOCK_FUNC)->beginBranch = if_block_begin_branch;
-        get_function_attrs(IF_BLOCK_FUNC)->finishBranch = if_block_finish_branch;
+        get_function_attrs(IF_BLOCK_FUNC)->evaluateManual = if_block_begin_branch;
 
         JOIN_FUNC = import_function(kernel, NULL, "join(any...) -> any");
         get_function_attrs(JOIN_FUNC)->specializeType = joinFunc_specializeType;

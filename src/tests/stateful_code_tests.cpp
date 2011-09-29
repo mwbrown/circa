@@ -162,7 +162,7 @@ namespace test_interpreted_state_access
 {
     CA_FUNCTION(evaluate)
     {
-        TaggedValue* state = get_state_input2(CONTEXT);
+        TaggedValue* state = get_state_input(CONTEXT);
         change_type(state, &INT_T);
         set_int(state, as_int(state) + 1);
     }

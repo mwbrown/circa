@@ -133,7 +133,7 @@ void if_block_begin_branch(EvalContext* context)
     int acceptedBranch = contents->length() - 2;
     for (int caseIndex=0; caseIndex < contents->length() - 2; caseIndex++) {
         Term* caseTerm = contents->get(caseIndex);
-        TaggedValue* caseInput = get_input2(context, caseTerm, 0);
+        TaggedValue* caseInput = get_input(context, caseTerm, 0);
 
         if (as_bool(caseInput)) {
             acceptedBranch = caseIndex;
@@ -144,7 +144,7 @@ void if_block_begin_branch(EvalContext* context)
     // Push stack frame
     Term* caseTerm = contents->get(acceptedBranch);
     Frame* frame = push_frame(context, nested_contents(caseTerm));
-    frame->overrideFinishBranch = if_block_finish_branch;
+    frame->finishBranch = if_block_finish_branch;
 
     // Fetch local state
     Dict* outsideState = &get_frame(context, 1)->state;
@@ -181,10 +181,10 @@ bool if_block_finish_branch(EvalContext* context, int flags)
 
         TaggedValue* result = NULL;
         if (get_parent_term(joinInput) == caseTerm)
-            result = get_output2(context, joinInput);
+            result = get_output(context, joinInput);
         else
-            result = get_input2(context, joinTerm, caseIndex);
-        TaggedValue* dest = get_extra_output2_rel(context, caller, 1, i);
+            result = get_input(context, joinTerm, caseIndex);
+        TaggedValue* dest = get_extra_output_rel(context, caller, 1, i);
         copy(result, dest);
     }
 

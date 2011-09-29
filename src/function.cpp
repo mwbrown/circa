@@ -5,6 +5,7 @@
 #include "evaluation.h"
 #include "function.h"
 #include "heap_debugging.h"
+#include "interpreter.h"
 #include "introspection.h"
 #include "kernel.h"
 #include "source_repro.h"
@@ -26,6 +27,7 @@ FunctionAttrs::FunctionAttrs()
     throws(false),
     outputCount(1),
     evaluate(NULL),
+    evaluateManual(NULL),
     specializeType(NULL),
     formatSource(NULL),
     checkInvariants(NULL),
@@ -35,9 +37,7 @@ FunctionAttrs::FunctionAttrs()
     getOutputName(NULL),
     getOutputType(NULL),
     assignRegisters(NULL),
-    postCompile(NULL),
-    beginBranch(NULL),
-    finishBranch(NULL)
+    postCompile(NULL)
 {
     debug_register_valid_object(this, FUNCTION_ATTRS_OBJECT);
 }

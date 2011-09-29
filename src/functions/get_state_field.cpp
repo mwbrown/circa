@@ -18,7 +18,7 @@ namespace get_state_field_function {
         "get_state_field(any container :optional, any default_value :optional) -> any")
     {
 #if 0 // FIXME
-        TaggedValue* value = get_state_input2(_context);
+        TaggedValue* value = get_state_input(_context);
 
         // Try to cast 'value' to the declared type.
         if (value != NULL) {

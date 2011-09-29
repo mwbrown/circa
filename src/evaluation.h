@@ -23,7 +23,9 @@ struct Frame {
     Dict state;
     Branch* branch;
 
-    FunctionAttrs::FinishBranch overrideFinishBranch;
+    typedef bool (*FinishBranchFunc)(EvalContext* context, int flags);
+
+    FinishBranchFunc finishBranch;
 };
 
 struct EvalContext

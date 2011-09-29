@@ -303,23 +303,23 @@ void for_loop_begin_branch(EvalContext* context)
 
     // Create stack frame
     Frame* frame = push_frame(context, contents);
-    frame->overrideFinishBranch = for_loop_finish_iteration;
+    frame->finishBranch = for_loop_finish_iteration;
 
     // Copy inner rebinds for 1st iteration
     {
         int index = inner_rebinds_location;
         while (contents->get(index)->function == JOIN_FUNC) {
             Term* rebindTerm = contents->get(index);
-            TaggedValue* dest = get_output2(context, rebindTerm);
+            TaggedValue* dest = get_output(context, rebindTerm);
 
-            copy(get_input2(context, rebindTerm, 0), dest);
+            copy(get_input(context, rebindTerm, 0), dest);
             index++;
         }
     }
 
     // Initialize index term
     Term* indexTerm = contents->get(index_location);
-    set_int(get_output2(context, indexTerm), 0);
+    set_int(get_output(context, indexTerm), 0);
 
     // Begin the loop proper
     for_loop_start_iteration(context, caller);
@@ -368,9 +368,9 @@ void for_loop_prepare_another_iteration(EvalContext* context, Term* caller)
     int index = inner_rebinds_location;
     while (contents->get(index)->function == JOIN_FUNC) {
         Term* rebindTerm = contents->get(index);
-        TaggedValue* dest = get_output2(context, rebindTerm);
+        TaggedValue* dest = get_output(context, rebindTerm);
 
-        copy(get_input2(context, rebindTerm, 1), dest);
+        copy(get_input(context, rebindTerm, 1), dest);
         index++;
     }
 }
@@ -381,11 +381,11 @@ void for_loop_start_iteration(EvalContext* context, Term* caller)
 
     // Fetch current iterator value
     Term* indexTerm = contents->get(index_location);
-    int indexValue = as_int(get_output2(context, indexTerm));
-    List* inputList = as_list(get_input2_rel(context, caller, 1, 0));
+    int indexValue = as_int(get_output(context, indexTerm));
+    List* inputList = as_list(get_input_rel(context, caller, 1, 0));
 
     Term* iteratorTerm = contents->get(iterator_location);
-    copy(inputList->get(indexValue), get_output2(context, iteratorTerm));
+    copy(inputList->get(indexValue), get_output(context, iteratorTerm));
 
     // Fetch local state
     set_dict(&get_frame(context,0)->state);
@@ -415,8 +415,8 @@ void for_loop_complete_empty_list(EvalContext* context, Term* caller)
 
         Term* rebindTerm = outerRebinds->get(i);
 
-        TaggedValue* result = get_input2_rel(context, rebindTerm, -1, 0);
-        copy(result, get_extra_output2(context, caller, i));
+        TaggedValue* result = get_input_rel(context, rebindTerm, -1, 0);
+        copy(result, get_extra_output(context, caller, i));
     }
 }
 
@@ -429,7 +429,7 @@ bool for_loop_finish_iteration(EvalContext* context, int flags)
 
     // Fetch index
     Term* indexTerm = contents->get(index_location);
-    TaggedValue* indexValue = get_output2(context, indexTerm);
+    TaggedValue* indexValue = get_output(context, indexTerm);
     int index = as_int(indexValue);
 
     // Save output for this iteration
@@ -438,8 +438,8 @@ bool for_loop_finish_iteration(EvalContext* context, int flags)
         listResultTerm = contents->get(get_for_loop_iterator(caller)->name);
     else
         listResultTerm = find_last_non_comment_expression(contents);
-    TaggedValue* listResult = get_output2(context, listResultTerm);
-    list_set_index(get_output2_rel(context, caller, 1), index, listResult);
+    TaggedValue* listResult = get_output(context, listResultTerm);
+    list_set_index(get_output_rel(context, caller, 1), index, listResult);
 
     // Save local state
     Dict* prevScope = &get_frame(context, 1)->state;
@@ -454,7 +454,7 @@ bool for_loop_finish_iteration(EvalContext* context, int flags)
     set_int(indexValue, index + 1);
 
     // Check if we have completed the loop
-    List* inputList = as_list(get_input2_rel(context, caller, 1, 0));
+    List* inputList = as_list(get_input_rel(context, caller, 1, 0));
 
     if (!exitLoop && (as_int(indexValue) < inputList->length())) {
         // Start a new iteration
@@ -470,8 +470,8 @@ bool for_loop_finish_iteration(EvalContext* context, int flags)
     for (int i=0; i < outerRebinds->length(); i++) {
 
         Term* rebindTerm = outerRebinds->get(i);
-        TaggedValue* result = get_input2(context, rebindTerm, 1);
-        TaggedValue* dest = get_extra_output2_rel(context, caller, 1, i);
+        TaggedValue* result = get_input(context, rebindTerm, 1);
+        TaggedValue* dest = get_extra_output_rel(context, caller, 1, i);
         copy(result, dest);
     }
 
