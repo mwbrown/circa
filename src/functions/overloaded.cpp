@@ -10,42 +10,74 @@
 namespace circa {
 namespace overloaded_function {
 
-    bool is_overloaded_function(Term* func);
-
-    Term* dynamically_specialize_func(List* overloadRefs, List* inputs)
+    // update_overloaded_function_call will update the nested_contents of the
+    // given term, with an appropriate specialized call.
+    void update_overloaded_function_call(Term* term)
     {
-        for (int i=0; i < overloadRefs->length(); i++) {
-            Term* overload = as_ref(overloadRefs->get(i));
+        TermList inputs;
+        term->inputsToList(inputs);
 
-            if (values_fit_function_dynamic(overload, inputs))
-                return overload;
-        }
-        return NULL;
-    }
+        Branch* contents = nested_contents(term);
+        clear_branch(contents);
 
-    Term* statically_specialize_function(Term* func, TermList const& inputs)
-    {
-        if (!is_function(func))
-            return func;
-        if (!is_overloaded_function(func))
-            return func;
+        List& overloads = get_function_attrs(term->function)->parameters;
 
-        List& overloads = get_function_attrs(func)->parameters;
+        ca_assert(overloads.length() > 0);
 
+        // Walk through overloads and find the first one that fits
+        Term* matchedOverload = NULL;
         for (int i=0; i < overloads.length(); i++) {
             Term* overload = as_ref(overloads[i]);
 
-            if (inputs_statically_fit_function(overload, inputs))
-                return overload;
+            if (inputs_statically_fit_function(overload, inputs)) {
+                matchedOverload = overload;
+                break;
+            }
         }
 
-        // no overload found
-        return NULL;
+        // If one was found, write a call to nested_contents
+        if (matchedOverload != NULL) {
+            Term* specialized = apply(contents, matchedOverload, inputs);
+            change_declared_type(term, specialized->type);
+            return;
+        }
+
+        // Otherwise, leave nested_contents blank, we'll do a dynamic overload.
     }
 
+    CA_FUNCTION(evaluate_overload)
+    {
+        Term* term = CALLER;
+
+        Branch* contents = nested_contents(term);
+
+        // Check if there is a specialized call.
+        if (contents->length() > 0) {
+            Term* specialized = contents->get(0);
+            get_function_attrs(specialized->function)->evaluate(CONTEXT, specialized);
+            return;
+        }
+
+        // No specialized call, perform a dynamic lookup
+        List& overloads = get_function_attrs(term->function)->parameters;
+
+#if 0
+        for (int i=0; i < overloads.length(); i++) {
+            Term* overload = as_ref(overloads[i]);
+
+            if (values_fit_function_dynamic(overload, inputs)) {
+                get_function_attrs(specialized->function)->evaluate(CONTEXT, specialized);
+                return;
+            }
+        }
+#endif
+
+        error_occurred(CONTEXT, CALLER, "No matching specialized function");
+    }
+
+#if 0
     CA_FUNCTION(evaluate_dynamic_overload)
     {
-#if 0
         Branch* contents = nested_contents(CALLER);
 
         // FIXME
@@ -106,35 +138,13 @@ namespace overloaded_function {
             msg << "specialized func not found for: " << CALLER->function->name;
             return error_occurred(CONTEXT, CALLER, msg.str());
         }
+    }
 #endif
-    }
-
-    void overload_post_input_change(Term* term)
-    {
-        Branch* contents = nested_contents(term);
-        clear_branch(contents);
-
-        TermList inputs;
-        term->inputsToList(inputs);
-        Term* specializedFunc = statically_specialize_function(term->function, inputs);
-
-        if (specializedFunc != NULL) {
-            apply(contents, specializedFunc, inputs);
-            change_declared_type(term, contents->get(0)->type);
-        }
-    }
 
     Type* overload_specialize_type(Term* term)
     {
         Branch* contents = nested_contents(term);
         return contents->get(0)->type;
-    }
-
-
-    bool is_overloaded_function(Term* func)
-    {
-        ca_assert(is_function(func));
-        return get_function_attrs(func)->evaluate == evaluate_dynamic_overload;
     }
 
     int num_overloads(Term* func)
@@ -197,8 +207,8 @@ namespace overloaded_function {
 
         FunctionAttrs* attrs = get_function_attrs(term);
         attrs->name = name;
-        attrs->evaluate = evaluate_dynamic_overload;
-        attrs->postInputChange = overload_post_input_change;
+        attrs->evaluate = evaluate_overload;
+        attrs->postInputChange = update_overloaded_function_call;
         // attrs->specializeType = overload_specialize_type;
 
         List& parameters = get_function_attrs(term)->parameters;
@@ -228,8 +238,6 @@ namespace overloaded_function {
 
     void append_overload(Term* overloadedFunction, Term* overload)
     {
-        ca_assert(is_overloaded_function(overloadedFunction));
-
         List& parameters = get_function_attrs(overloadedFunction)->parameters;
         set_ref(parameters.append(), overload);
         update_function_signature(overloadedFunction);
@@ -238,7 +246,7 @@ namespace overloaded_function {
     CA_FUNCTION(evaluate_declaration)
     {
         // Make our output of type Function so that the type checker doesn't
-        // get mad. This value isn't used.
+        // get mad.
         change_type(OUTPUT, unbox_type(FUNCTION_TYPE));
     }
 

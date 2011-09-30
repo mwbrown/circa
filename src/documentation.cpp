@@ -4,6 +4,7 @@
 
 #include "kernel.h"
 #include "function.h"
+#include "introspection.h"
 #include "source_repro.h"
 #include "term.h"
 #include "type.h"
@@ -70,7 +71,7 @@ void generate_docs_for_function(Term* func, std::stringstream &out)
     out << ", \"declaration\": \"" << header << "\"";
     //escape_string_for_json(get_term_source(func), out);
 
-    if (overloaded_function::is_overloaded_function(func)) {
+    if (is_overloaded_function(func)) {
         out << ", \"containsOverloads\": [";
 
         List& overloads = get_function_attrs(func)->parameters;

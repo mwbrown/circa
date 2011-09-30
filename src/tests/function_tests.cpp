@@ -57,16 +57,6 @@ void overloaded_function()
 {
     Branch branch;
 
-    Term* floatInput = branch.eval("5.2");
-    Term* intInput = branch.eval("11");
-
-    test_assert(overloaded_function::is_overloaded_function(MULT_FUNC));
-
-    // Test statically_specialize_function
-    test_equals(overloaded_function::statically_specialize_function(
-                    MULT_FUNC, TermList(floatInput, intInput))
-            ->name, "mult_f");
-
     Term* add_i = branch.eval("add(1 2)");
     test_equals(add_i->contents(0)->function->name, "add_i");
     Term* add_f = branch.eval("add(1.0 2)");

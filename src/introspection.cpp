@@ -60,6 +60,12 @@ bool is_major_branch(Term* term)
     return is_subroutine(term);
 }
 
+bool is_overloaded_function(Term* term)
+{
+    // FIXME
+    return false;
+}
+
 bool has_an_error_listener(Term* term)
 {
     for (int i=0; i < term->users.length(); i++) {
