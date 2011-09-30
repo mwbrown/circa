@@ -45,12 +45,12 @@ namespace overloaded_function {
 
     CA_FUNCTION(evaluate_dynamic_overload)
     {
+#if 0
         Branch* contents = nested_contents(CALLER);
 
         // FIXME
         Term* call = contents->get(0);
         call->evaluateFunc(CONTEXT, _count, _in);
-#if 0
 
         Term* func = CALLER->function;
         FunctionAttrs* funcAttrs = get_function_attrs(func);

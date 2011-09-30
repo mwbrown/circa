@@ -5,6 +5,7 @@
 namespace circa {
 namespace map_function {
 
+#if 0
     CA_FUNCTION(evaluate_map)
     {
         EvalContext* context = CONTEXT;
@@ -63,12 +64,13 @@ namespace map_function {
             func(context, 3, pointers);
         }
     }
+#endif
 
     void setup(Branch* kernel)
     {
-        import_function(kernel, evaluate_map, "map(Function,List)->List");
-        import_function(kernel, evaluate_zip, "zip(Function,List,List)->List");
-        import_function(kernel, evaluate_zip_vs, "zip_vs(Function,List,any)->List");
+        //import_function(kernel, evaluate_map, "map(Function,List)->List");
+        //import_function(kernel, evaluate_zip, "zip(Function,List,List)->List");
+        //import_function(kernel, evaluate_zip_vs, "zip_vs(Function,List,any)->List");
     }
 }
 }

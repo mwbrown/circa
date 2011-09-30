@@ -179,8 +179,8 @@ void interpreter_step(EvalContext* context)
 
     switch (term->instruction) {
     case ISN_CALL: {
-        TaggedValue* value_pointers[MAX_INPUTS];
 
+#if 0
         // Copy pointers to value_pointers
         // Input 0 is used for output
         value_pointers[0] = frame->locals[frame->pc];
@@ -201,9 +201,10 @@ void interpreter_step(EvalContext* context)
                 value_pointers[i+1] = frame->locals[term->input(i)->index];
             }
         }
+#endif
     
         // Execute the call
-        term->evaluateFunc(context, numInputs+1, value_pointers);
+        term->evaluateFunc(context, term);
 
         frame->pc += 1;
         break;
