@@ -52,6 +52,9 @@ bool branch_creates_separate_stack_frame(Branch* branch)
     if (branch->owningTerm->function == IF_BLOCK_FUNC)
         return false;
 
+    if (!get_function_attrs(branch->owningTerm->function)->createsStackFrame)
+        return false;
+
     return true;
 }
 

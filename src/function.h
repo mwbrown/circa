@@ -46,6 +46,8 @@ struct FunctionAttrs
     AssignRegisters assignRegisters;
     PostCompile postCompile;
 
+    bool createsStackFrame;
+
     List parameters;
 
     FunctionAttrs();

@@ -37,7 +37,8 @@ FunctionAttrs::FunctionAttrs()
     getOutputName(NULL),
     getOutputType(NULL),
     assignRegisters(NULL),
-    postCompile(NULL)
+    postCompile(NULL),
+    createsStackFrame(true)
 {
     debug_register_valid_object(this, FUNCTION_ATTRS_OBJECT);
 }

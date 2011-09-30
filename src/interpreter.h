@@ -51,4 +51,6 @@ void interpreter_halt(EvalContext* context);
 void copy_locals_to_terms(EvalContext* context, Branch* branch);
 TaggedValue* get_state_input(EvalContext* cxt);
 
+void evaluate_single_term(EvalContext* context, Term* term);
+
 } // namespace circa

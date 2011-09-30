@@ -31,40 +31,30 @@ namespace vectorized_functions {
 
         Term* input0 = apply(contents, INPUT_PLACEHOLDER_FUNC, TermList());
         Term* input1 = apply(contents, INPUT_PLACEHOLDER_FUNC, TermList());
+        apply(contents, func, TermList(input0, input1));
     }
-
-    void evaluate_vs(Term* term)
-    {
-
-    }
-
 
     CA_FUNCTION(evaluate_vs)
     {
-#if 0
-        // Fetch function
-        TaggedValue* funcParam = &get_function_attrs(CALLER->function)->parameter;
-        Term* funcTerm = as_ref(funcParam);
-        EvaluateFunc func = get_function_attrs(funcTerm)->evaluate;
-
         EvalContext* context = CONTEXT;
-
-        TaggedValue* left = INPUT(0);
-        TaggedValue* right = INPUT(1);
-        int count = left->numElements();
+        TaggedValue* inputList = INPUT(0);
+        int count = inputList->numElements();
+        Branch* contents = nested_contents(CALLER);
 
         List* output = set_list(OUTPUT, count);
+        Term* call = contents->get(2);
 
-        TaggedValue* pointers[3];
+        push_frame(context, contents);
 
-        pointers[1] = right;
+        copy(INPUT(1), get_local(context, 0, 1));
 
         for (int i=0; i < count; i++) {
-            pointers[0] = left->getIndex(i);
-            pointers[2] = output->get(i);
-            func(context, 3, pointers);
+            copy(inputList->getIndex(i), get_local(context, 0, 0));
+            evaluate_single_term(context, call);
+            move(get_local(context, 0, 2), output->get(i));
         }
-#endif
+
+        finish_branch(context, 0);
     }
 
     Type* specializeType_vv(Term* caller)

@@ -289,4 +289,9 @@ TaggedValue* get_state_input(EvalContext* cxt)
     return currentScopeState->insert(get_unique_name(term));
 }
 
+void evaluate_single_term(EvalContext* context, Term* term)
+{
+    get_function_attrs(term->function)->evaluate(context, term);
+}
+
 } // namespace circa
