@@ -110,8 +110,6 @@ namespace for_function {
         get_function_attrs(FOR_FUNC)->getOutputType = getOutputType;
         get_function_attrs(FOR_FUNC)->evaluateManual = for_loop_begin_branch;
 
-        LOOP_INDEX_FUNC = import_function(kernel, NULL, "loop_index() -> int");
-
         import_function(kernel, loop_prepare_output, "loop_prepare_output(Indexable)->List");
 
         DISCARD_FUNC = import_function(kernel, evaluate_discard, "discard(any)");

@@ -20,6 +20,7 @@ namespace circa {
 struct Frame {
     int pc;
     List locals;
+    TaggedValue temporary;
     Dict state;
     Branch* branch;
 

@@ -23,6 +23,7 @@ Frame* push_frame(EvalContext* context, Branch* branch)
     top->locals.initializeNull();
     set_list(&top->locals, branch->length());
     top->state.initializeNull();
+    top->temporary.initializeNull();
     set_dict(&top->state);
     top->finishBranch = NULL;
     return top;
@@ -35,6 +36,7 @@ void pop_frame(EvalContext* context)
     Frame* top = top_frame(context);
     set_null(&top->locals);
     set_null(&top->state);
+    set_null(&top->temporary);
     context->numFrames--;
 
     if (context->numFrames > 0)
@@ -118,6 +120,10 @@ TaggedValue* get_output_safe(EvalContext* context, Term* term)
 {
     // FIXME
     return NULL;
+}
+TaggedValue* get_local(EvalContext* context, int relativeFrame, int index)
+{
+    return get_frame(context, relativeFrame)->locals[index];
 }
 
 void finish_branch(EvalContext* context, int flags)

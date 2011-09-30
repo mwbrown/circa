@@ -21,6 +21,24 @@ namespace vectorized_functions {
         return &LIST_T;
     }
 
+    void post_compile_vs(Term* term)
+    {
+        Branch* contents = nested_contents(term);
+        clear_branch(contents);
+
+        TaggedValue* funcRef = &get_function_attrs(term->function)->parameter;
+        Term* func = as_ref(funcRef);
+
+        Term* input0 = apply(contents, INPUT_PLACEHOLDER_FUNC, TermList());
+        Term* input1 = apply(contents, INPUT_PLACEHOLDER_FUNC, TermList());
+    }
+
+    void evaluate_vs(Term* term)
+    {
+
+    }
+
+
     CA_FUNCTION(evaluate_vs)
     {
 #if 0
