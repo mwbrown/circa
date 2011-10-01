@@ -16,13 +16,12 @@
 
 namespace circa {
 
-Frame* push_frame(EvalContext* context, Branch* branch, BytecodeData* bytecode)
+Frame* push_frame(EvalContext* context, BytecodeData* bytecode)
 {
     context->numFrames++;
     context->frames = (Frame*) realloc(context->frames, sizeof(Frame) * context->numFrames);
     Frame* top = &context->frames[context->numFrames-1];
     top->pc = 0;
-    top->branch = branch;
     top->locals.initializeNull();
     set_list(&top->locals, bytecode->stackSize);
     top->state.initializeNull();
@@ -31,10 +30,9 @@ Frame* push_frame(EvalContext* context, Branch* branch, BytecodeData* bytecode)
     top->bytecode = bytecode;
     return top;
 }
-
 Frame* push_frame(EvalContext* context, Branch* branch)
 {
-    return push_frame(context, branch, branch->bytecode);
+    return push_frame(context, branch->bytecode);
 }
 
 void pop_frame(EvalContext* context)
@@ -65,7 +63,7 @@ Frame* get_frame(EvalContext* context, int frame)
 Term* get_pc_term(EvalContext* context)
 {
     Frame* frame = top_frame(context);
-    return frame->branch->get(frame->pc);
+    return frame->bytecode->branch->get(frame->pc);
 }
 TaggedValue* get_input(EvalContext* context, Term* term, int index)
 {
@@ -100,13 +98,11 @@ TaggedValue* get_current_input(EvalContext* context, int index)
 TaggedValue* get_output(EvalContext* context, Term* term)
 {
     Frame* frame = top_frame(context);
-    ca_assert(frame->branch == term->owningBranch);
     return frame->locals[term->index];
 }
 TaggedValue* get_output_rel(EvalContext* context, Term* term, int frameDistance)
 {
     Frame* frame = get_frame(context, frameDistance);
-    ca_assert(frame->branch == term->owningBranch);
     return frame->locals[term->index];
 }
 TaggedValue* get_current_output(EvalContext* context)
@@ -154,7 +150,7 @@ TaggedValue* follow_input_instruction(EvalContext* context, Operation* op)
 
 void finish_branch(EvalContext* context, int flags)
 {
-    Frame* frame = top_frame(context);
+    //Frame* frame = top_frame(context);
 
 #if 0
     // Preserve stateful terms. Good candidate for optimization...
@@ -180,8 +176,10 @@ void finish_branch(EvalContext* context, int flags)
     }
 #endif
 
+#if 0
     if (context->preserveLocals && frame->branch != NULL)
         copy_locals_to_terms(context, frame->branch);
+#endif
 
     pop_frame(context);
 }
@@ -220,17 +218,11 @@ bool check_output_type(EvalContext* context, Term* term)
     return true;
 }
 
-void interpreter_start(EvalContext* context, Branch* branch, BytecodeData* bytecode)
+void interpreter_start(EvalContext* context, BytecodeData* bytecode)
 {
-    Frame* firstFrame = push_frame(context, branch, bytecode);
+    Frame* firstFrame = push_frame(context, bytecode);
     if (is_dict(&context->state))
         copy(&context->state, &firstFrame->state);
-}
-
-void interpreter_start(EvalContext* context, Branch* branch)
-{
-    update_bytecode_for_branch(branch);
-    return interpreter_start(context, branch, branch->bytecode);
 }
 
 void interpreter_step(EvalContext* context)
@@ -247,9 +239,9 @@ void interpreter_halt(EvalContext* context)
         finish_branch(context, 0);
 }
 
-void interpret(EvalContext* context, Branch* branch, BytecodeData* bytecode)
+void interpret(EvalContext* context, BytecodeData* bytecode)
 {
-    interpreter_start(context, branch, bytecode);
+    interpreter_start(context, bytecode);
 
     int pc = 0;
 
@@ -395,6 +387,7 @@ void interpret(EvalContext* context, Branch* branch, BytecodeData* bytecode)
     }
 
     case OP_CALL_BRANCH: {
+#if 0
 
         // TODO: Push branch to the stack but continue in this loop
         OpCallBranch* cop = (OpCallBranch*) op;
@@ -407,6 +400,7 @@ void interpret(EvalContext* context, Branch* branch, BytecodeData* bytecode)
         Branch* branch = nested_contents(cop->term);
         push_frame(context, branch);
         evaluate_branch_with_bytecode(context, branch);
+#endif
         pc += 1;
 
         continue;
@@ -442,7 +436,7 @@ void interpret(EvalContext* context, Branch* branch, BytecodeData* bytecode)
 void interpret(EvalContext* context, Branch* branch)
 {
     update_bytecode_for_branch(branch);
-    interpret(context, branch, branch->bytecode);
+    interpret(context, branch->bytecode);
 }
 
 void interpret_single_term(EvalContext* context, Term* term)
@@ -452,19 +446,15 @@ void interpret_single_term(EvalContext* context, Term* term)
     bc_call(&writer, term);
     bc_stop(&writer);
 
-    interpret(context, NULL, writer.data);
+    interpret(context, writer.data);
 }
 
 void interpret_range(EvalContext* context, Branch* branch, int start, int end)
 {
     context->preserveLocals = true;
 
-    interpreter_start(context, branch);
-
     for (int i=start; i < end; i++)
         interpret_single_term(context, branch->get(i));
-
-    interpreter_halt(context);
 }
 
 void copy_locals_to_terms(EvalContext* context, Branch* branch)

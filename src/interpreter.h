@@ -13,6 +13,7 @@ const Instruction ISN_SKIP = 4;
 
 const int MAX_INPUTS = 100;
 
+Frame* push_frame(EvalContext* context, BytecodeData* bytecode);
 Frame* push_frame(EvalContext* context, Branch* branch);
 void pop_frame(EvalContext* context);
 Frame* top_frame(EvalContext* context);
@@ -34,7 +35,7 @@ TaggedValue* get_local(EvalContext* context, int relativeFrame, int index);
 void finish_branch(EvalContext* context, int flags);
 
 // High-level interpreter control
-void interpret(EvalContext* context, Branch* branch, BytecodeData* bytecode);
+void interpret(EvalContext* context, BytecodeData* bytecode);
 void interpret(EvalContext* context, Branch* branch);
 //void interpret_range(EvalContext* context, Branch* branch, int start, int end);
 

@@ -13,6 +13,7 @@ namespace circa {
 
 void print_debugger_state(EvalContext* context, int frameIndex, int indent)
 {
+#if 0 // FIXME
     std::ostream &out = std::cout;
 
     Frame* frame = get_frame(context, frameIndex);
@@ -56,6 +57,7 @@ void print_debugger_state(EvalContext* context, int frameIndex, int indent)
         if (frame->pc == index && frameIndex > 0)
             print_debugger_state(context, frameIndex - 1, indent + 1);
     }
+#endif
 }
 
 int run_text_debugger(const char* filename)

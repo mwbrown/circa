@@ -174,6 +174,7 @@ static void bc_reserve_size(BytecodeWriter* writer, int opCount)
         writer->data->operationCount = 0;
         writer->data->dirty = false;
         writer->data->stackSize = 0;
+        writer->data->branch = NULL;
     } else {
         writer->data = (BytecodeData*) realloc(writer->data,
                 sizeof(BytecodeData) + sizeof(Operation) * newLength);
@@ -428,6 +429,7 @@ void write_bytecode_for_branch(Branch* branch, BytecodeWriter* writer)
 
     bc_reserve_size(writer, 0);
     writer->data->stackSize = branch->length();
+    writer->data->branch = branch;
 
     // Check if parent function has a writeNestedBytecode
     if (parent != NULL) {

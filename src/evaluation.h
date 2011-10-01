@@ -22,7 +22,6 @@ struct Frame {
     List locals;
     TaggedValue temporary;
     Dict state;
-    Branch* branch;
     BytecodeData* bytecode;
 };
 

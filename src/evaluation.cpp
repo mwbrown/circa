@@ -74,7 +74,7 @@ void evaluate_branch_internal_with_state(EvalContext* context, Term* term,
 
 void evaluate_branch(EvalContext* context, Branch* branch)
 {
-    interpret(context, branch);
+    interpret(context, branch->bytecode);
 #if 0
     push_stack_frame(context, branch);
     push_scope_state(context);
@@ -95,7 +95,7 @@ void evaluate_branch(EvalContext* context, Branch* branch)
 
 void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
 {
-    interpret(context, NULL, bytecode);
+    interpret(context, bytecode);
 }
 
 void evaluate_save_locals(EvalContext* context, Branch* branch)

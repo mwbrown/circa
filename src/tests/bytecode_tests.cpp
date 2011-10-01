@@ -24,7 +24,6 @@ void test_static_assertions()
 
 void test_simple_write()
 {
-#if 0
     Branch branch;
     Term* a = branch.compile("add(1,2)");
     Term* b = branch.compile("mult(3,4)");
@@ -33,19 +32,16 @@ void test_simple_write()
     bc_write_call_op(&writer, a, NULL);
     bc_write_call_op(&writer, b, NULL);
 
-    test_assert(writer.data->operationCount == 6);
+    dump(writer.data);
+    test_assert(writer.data->operationCount == 8);
     test_assert(writer.data->operations[0].type == OP_CALL);
-    test_assert(writer.data->operations[1].type == OP_INPUT_GLOBAL);
+    test_assert(writer.data->operations[1].type == OP_INPUT_LOCAL);
     test_assert(writer.data->operations[2].type == OP_INPUT_GLOBAL);
-    test_assert(writer.data->operations[3].type == OP_CALL);
-    test_assert(writer.data->operations[4].type == OP_INPUT_GLOBAL);
-    test_assert(writer.data->operations[5].type == OP_INPUT_GLOBAL);
-
-    OpCall* op0 = (OpCall*) &writer.data->operations[0];
-    test_assert(op0->term == a);
-    OpCall* op1 = (OpCall*) &writer.data->operations[3];
-    test_assert(op1->term == b);
-#endif
+    test_assert(writer.data->operations[3].type == OP_INPUT_GLOBAL);
+    test_assert(writer.data->operations[4].type == OP_CALL);
+    test_assert(writer.data->operations[5].type == OP_INPUT_LOCAL);
+    test_assert(writer.data->operations[6].type == OP_INPUT_GLOBAL);
+    test_assert(writer.data->operations[7].type == OP_INPUT_GLOBAL);
 }
 
 void test_no_instructions_for_value()
@@ -100,7 +96,6 @@ void test_jump_if()
 
 void test_check_output_type()
 {
-#if 0 // TEST_DISABLED
     BytecodeWriter writer;
     writer.alwaysCheckOutputs = true;
 
@@ -116,11 +111,10 @@ void test_check_output_type()
     write_bytecode_for_branch(&branch, &writer);
 
     EvalContext context;
-    push_stack_frame(&context, &branch);
+    push_frame(&context, &branch);
     evaluate_bytecode(&context, writer.data);
 
     test_assert(context.errorOccurred);
-#endif
 }
 
 void register_tests()
