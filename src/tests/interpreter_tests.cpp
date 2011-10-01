@@ -64,19 +64,17 @@ void test_for_loop_control_flow()
 
 void test_interpret_range_simple()
 {
-#if 0 // TEST_DISABLED
     Branch branch;
 
-    Term* a = branch.compile("a = 1 + 1");
-    Term* b = branch.compile("b = 2 + 2");
-    Term* c = branch.compile("c = 3 + 3");
+    Term* a = branch.compile("a = add_i(1 1)");
+    Term* b = branch.compile("b = add_i(2 2)");
+    Term* c = branch.compile("c = add_i(3 3)");
 
     EvalContext context;
     interpret_range(&context, &branch, b->index, c->index);
     test_equals(a, "null");
     test_equals(b, "4");
     test_equals(c, "null");
-#endif
 }
 
 void register_tests()

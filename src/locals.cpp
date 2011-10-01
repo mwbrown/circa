@@ -86,6 +86,7 @@ int get_frame_distance(Term* term, Term* input)
     return get_frame_distance(term->owningBranch, input);
 }
 
+#if 0
 void update_input_instructions(Term* term)
 {
     InputInstructionList& list = term->inputIsns;
@@ -119,5 +120,6 @@ void update_input_instructions(Branch* branch)
     for (int i=0; i < branch->length(); i++)
         update_input_instructions(branch->get(i));
 }
+#endif
 
 } // namespace circa

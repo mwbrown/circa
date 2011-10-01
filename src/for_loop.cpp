@@ -120,7 +120,6 @@ void setup_for_loop_post_code(Term* forTerm)
     }
 
     for_loop_update_output_index(forTerm);
-    update_input_instructions(forTerm);
     recursively_finish_update_cascade(forContents);
 }
 
@@ -294,8 +293,8 @@ void for_block_write_bytecode(Term* caller, BytecodeWriter* writer)
 void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)
 {
     Branch* contents = nested_contents(caller);
-    Branch* parentBranch = caller->owningBranch;
-    bool useState = has_any_inlined_state(contents);
+    //Branch* parentBranch = caller->owningBranch;
+    /*bool useState =*/ has_any_inlined_state(contents);
     Branch* outerRebinds = get_for_loop_outer_rebinds(caller);
     Term* inputList = caller->input(0);
 

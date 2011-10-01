@@ -46,7 +46,6 @@ TermPtr compile(Branch* branch, ParsingStep step, std::string const& input)
     if (prevLast && prevLast->function == FINISH_MINOR_BRANCH_FUNC) {
         branch->moveToEnd(branch->get(prevLastIndex));
         update_branch_finish_term(branch->get(branch->length()-1));
-        update_input_instructions(nested_contents(prevLast));
     } else {
         check_to_add_branch_finish_term(branch, prevLastIndex+1);
     }
@@ -839,7 +838,6 @@ ParseResult if_block(Branch* branch, TokenStream& tokens, ParserCxt* context)
     branch->moveToEnd(result);
 
     update_if_block_joining_branch(result);
-    update_input_instructions(nested_contents(result));
     set_source_location(result, startPosition, tokens);
 
     return ParseResult(result);

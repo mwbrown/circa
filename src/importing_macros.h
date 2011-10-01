@@ -30,7 +30,7 @@
 
 #define CALLER (get_pc_term(_context))
 #define CONTEXT (_context)
-#define NUM_INPUTS (_count)
+#define NUM_INPUTS (_count-1)
 #define INPUT(index) (_in[(index)+1])
 #define FLOAT_INPUT(index) (circa::to_float(INPUT(index)))
 #define BOOL_INPUT(index) (circa::as_bool(INPUT(index)))

@@ -443,6 +443,8 @@ void interpret_single_term(EvalContext* context, Term* term)
 {
     BytecodeWriter writer;
 
+    writer.useStack = false;
+
     bc_call(&writer, term);
     bc_stop(&writer);
 

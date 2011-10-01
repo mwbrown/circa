@@ -412,9 +412,6 @@ void update_bytecode_for_branch(Branch* branch)
     if (branch->bytecode != NULL && !branch->bytecode->dirty)
         return;
 
-    // Deprecated steps:
-    update_input_instructions(branch);
-
     BytecodeWriter writer;
     start_bytecode_update(branch, &writer);
 

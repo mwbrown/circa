@@ -32,7 +32,6 @@ void test_simple_write()
     bc_write_call_op(&writer, a, NULL);
     bc_write_call_op(&writer, b, NULL);
 
-    dump(writer.data);
     test_assert(writer.data->operationCount == 8);
     test_assert(writer.data->operations[0].type == OP_CALL);
     test_assert(writer.data->operations[1].type == OP_INPUT_LOCAL);
@@ -111,7 +110,6 @@ void test_check_output_type()
     write_bytecode_for_branch(&branch, &writer);
 
     EvalContext context;
-    push_frame(&context, &branch);
     evaluate_bytecode(&context, writer.data);
 
     test_assert(context.errorOccurred);

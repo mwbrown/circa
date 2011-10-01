@@ -46,6 +46,8 @@ void interpreter_step(EvalContext* context);
 bool interpreter_finished(EvalContext* context);
 void interpreter_halt(EvalContext* context);
 
+void interpret_range(EvalContext* context, Branch* branch, int start, int end);
+
 void copy_locals_to_terms(EvalContext* context, Branch* branch);
 TaggedValue* get_state_input(EvalContext* cxt);
 
