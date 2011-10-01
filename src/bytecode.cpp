@@ -162,7 +162,7 @@ static void finish_bytecode_update(Branch* branch, BytecodeWriter* writer)
 // of operations.
 static void bc_reserve_size(BytecodeWriter* writer, int opCount)
 {
-    if (writer->listLength >= opCount)
+    if (writer->listLength >= opCount && writer->data != NULL)
         return;
 
     int newLength = opCount;
@@ -173,6 +173,7 @@ static void bc_reserve_size(BytecodeWriter* writer, int opCount)
                 sizeof(BytecodeData) + sizeof(Operation) * newLength);
         writer->data->operationCount = 0;
         writer->data->dirty = false;
+        writer->data->stackSize = 0;
     } else {
         writer->data = (BytecodeData*) realloc(writer->data,
                 sizeof(BytecodeData) + sizeof(Operation) * newLength);
@@ -425,6 +426,9 @@ void write_bytecode_for_branch(Branch* branch, BytecodeWriter* writer)
 {
     Term* parent = branch->owningTerm;
 
+    bc_reserve_size(writer, 0);
+    writer->data->stackSize = branch->length();
+
     // Check if parent function has a writeNestedBytecode
     if (parent != NULL) {
         FunctionAttrs::WriteNestedBytecode func =
@@ -437,7 +441,6 @@ void write_bytecode_for_branch(Branch* branch, BytecodeWriter* writer)
     }
 
     // Default behavior
-
     for (int i=0; i < branch->length(); i++) {
         Term* term = branch->get(i);
         if (term == NULL)
@@ -448,7 +451,6 @@ void write_bytecode_for_branch(Branch* branch, BytecodeWriter* writer)
     // Finish up with a final return call.
     bc_finish(writer);
 }
-
 
 #if 0
 void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)

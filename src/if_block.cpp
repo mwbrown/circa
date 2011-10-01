@@ -126,6 +126,7 @@ Branch* if_block_get_branch(Term* ifCall, int index)
     return ifCall->contents(index)->contents();
 }
 
+#if 0
 void if_block_write_bytecode(Term* caller, BytecodeWriter* writer)
 {
     Branch* contents = nested_contents(caller);
@@ -179,6 +180,15 @@ void if_block_write_bytecode(Term* caller, BytecodeWriter* writer)
     // Finish
     for (size_t i=0; i < jumpsToFinish.size(); i++)
         bc_jump_to_here(writer, jumpsToFinish[i]);
+}
+#endif
+
+void if_block_write_calling_bytecode(Term* term, BytecodeWriter* writer)
+{
+}
+
+void if_block_write_nested_bytecode(BytecodeWriter* writer, Term* term)
+{
 }
 
 } // namespace circa

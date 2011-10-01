@@ -12,6 +12,7 @@ void update_if_block_joining_branch(Term* ifCall);
 int if_block_num_branches(Term* ifCall);
 Branch* if_block_get_branch(Term* ifCall, int index);
 
-void if_block_write_bytecode(Term* caller, BytecodeWriter* writer);
+void if_block_write_calling_bytecode(Term* term, BytecodeWriter* writer);
+void if_block_write_nested_bytecode(BytecodeWriter* writer, Term* term);
 
 } // namespace circa

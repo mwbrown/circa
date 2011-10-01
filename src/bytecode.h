@@ -87,6 +87,7 @@ struct BytecodeData
 {
     bool dirty;
     int operationCount;
+    int stackSize;
     Operation operations[0];
     // 'operations' has a length of at least 'operationCount'.
 };

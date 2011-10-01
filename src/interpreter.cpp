@@ -24,7 +24,7 @@ Frame* push_frame(EvalContext* context, Branch* branch, BytecodeData* bytecode)
     top->pc = 0;
     top->branch = branch;
     top->locals.initializeNull();
-    set_list(&top->locals, branch->length());
+    set_list(&top->locals, bytecode->stackSize);
     top->state.initializeNull();
     top->temporary.initializeNull();
     set_dict(&top->state);
@@ -156,6 +156,7 @@ void finish_branch(EvalContext* context, int flags)
 {
     Frame* frame = top_frame(context);
 
+#if 0
     // Preserve stateful terms. Good candidate for optimization...
     {
         Branch* branch = frame->branch;
@@ -168,6 +169,7 @@ void finish_branch(EvalContext* context, int flags)
             }
         }
     }
+#endif
 
 #if 0
     // Check if the calling function specifies a custom finishBranch handler
@@ -178,7 +180,7 @@ void finish_branch(EvalContext* context, int flags)
     }
 #endif
 
-    if (context->preserveLocals)
+    if (context->preserveLocals && frame->branch != NULL)
         copy_locals_to_terms(context, frame->branch);
 
     pop_frame(context);
@@ -218,19 +220,17 @@ bool check_output_type(EvalContext* context, Term* term)
     return true;
 }
 
-void interpreter_start(EvalContext* context, Branch* branch)
+void interpreter_start(EvalContext* context, Branch* branch, BytecodeData* bytecode)
 {
-    update_bytecode_for_branch(branch);
-
-    Frame* firstFrame = push_frame(context, branch);
+    Frame* firstFrame = push_frame(context, branch, bytecode);
     if (is_dict(&context->state))
         copy(&context->state, &firstFrame->state);
 }
-void interpreter_start(EvalContext* context, BytecodeData* bytecode)
+
+void interpreter_start(EvalContext* context, Branch* branch)
 {
-    Frame* firstFrame = push_frame(context, NULL, bytecode);
-    if (is_dict(&context->state))
-        copy(&context->state, &firstFrame->state);
+    update_bytecode_for_branch(branch);
+    return interpreter_start(context, branch, branch->bytecode);
 }
 
 void interpreter_step(EvalContext* context)
@@ -438,9 +438,9 @@ void interpreter_halt(EvalContext* context)
         finish_branch(context, 0);
 }
 
-InterpretResult interpret(EvalContext* context, Branch* branch)
+InterpretResult interpret(EvalContext* context, Branch* branch, BytecodeData* bytecode)
 {
-    interpreter_start(context, branch);
+    interpreter_start(context, branch, bytecode);
 
     // Main loop
     while (!interpreter_finished(context))
@@ -448,15 +448,26 @@ InterpretResult interpret(EvalContext* context, Branch* branch)
 
     return SUCCESS;
 }
-InterpretResult interpret(EvalContext* context, BytecodeData* bytecode)
+InterpretResult interpret(EvalContext* context, Branch* branch)
 {
-    interpreter_start(context, bytecode);
+    update_bytecode_for_branch(branch);
+    interpreter_start(context, branch, branch->bytecode);
 
     // Main loop
     while (!interpreter_finished(context))
         interpreter_step(context);
 
     return SUCCESS;
+}
+
+void interpret_single_term(EvalContext* context, Term* term)
+{
+    BytecodeWriter writer;
+
+    bc_call(&writer, term);
+    bc_return(&writer);
+
+    interpret(context, NULL, writer.data);
 }
 
 void interpret_range(EvalContext* context, Branch* branch, int start, int end)
@@ -465,17 +476,10 @@ void interpret_range(EvalContext* context, Branch* branch, int start, int end)
 
     interpreter_start(context, branch);
 
-    get_frame(context, 0)->pc = start;
+    for (int i=start; i < end; i++)
+        interpret_single_term(context, branch->get(i));
 
-    while (!interpreter_finished(context)) {
-        interpreter_step(context);
-
-        // Exit if we have reached 'end'
-        if (get_frame(context, 0)->branch == branch && get_frame(context, 0)->pc >= end) {
-            interpreter_halt(context);
-            return;
-        }
-    }
+    interpreter_halt(context);
 }
 
 void copy_locals_to_terms(EvalContext* context, Branch* branch)

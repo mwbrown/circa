@@ -39,11 +39,12 @@ TaggedValue* get_local(EvalContext* context, int relativeFrame, int index);
 void finish_branch(EvalContext* context, int flags);
 
 // High-level interpreter control
+InterpretResult interpret(EvalContext* context, Branch* branch, BytecodeData* bytecode);
 InterpretResult interpret(EvalContext* context, Branch* branch);
-InterpretResult interpret(EvalContext* context, BytecodeData* bytecode);
-void interpret_range(EvalContext* context, Branch* branch, int start, int end);
+//void interpret_range(EvalContext* context, Branch* branch, int start, int end);
 
 // Lower-level interpreter control
+void interpreter_start(EvalContext* context, Branch* branch, BytecodeData* bytecode);
 void interpreter_start(EvalContext* context, Branch* branch);
 void interpreter_step(EvalContext* context);
 bool interpreter_finished(EvalContext* context);

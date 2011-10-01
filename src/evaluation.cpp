@@ -95,7 +95,7 @@ void evaluate_branch(EvalContext* context, Branch* branch)
 
 void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
 {
-    interpret(context, bytecode);
+    interpret(context, NULL, bytecode);
 }
 
 void evaluate_save_locals(EvalContext* context, Branch* branch)
@@ -162,7 +162,7 @@ void evaluate_minimum(EvalContext* context, Term* term, TaggedValue* result)
 }
 void evaluate_range(EvalContext* context, Branch* branch, int start, int end)
 {
-    interpret_range(context, branch, start, end);
+    //FIXME interpret_range(context, branch, start, end);
 }
 
 } // namespace circa
