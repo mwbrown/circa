@@ -235,17 +235,28 @@ void interpreter_start(EvalContext* context, Branch* branch)
 
 void interpreter_step(EvalContext* context)
 {
-    Frame* frame = top_frame(context);
-    BytecodeData* bytecode = frame->bytecode;
+}
 
-    // Check to finish this branch
-    if (frame->pc >= bytecode->operationCount) {
-
+bool interpreter_finished(EvalContext* context)
+{
+    return context->numFrames <= 0;
+}
+void interpreter_halt(EvalContext* context)
+{
+    while (context->numFrames > 0)
         finish_branch(context, 0);
-        return;
-    }
+}
 
-    Operation* op = &bytecode->operations[frame->pc];
+void interpret(EvalContext* context, Branch* branch, BytecodeData* bytecode)
+{
+    interpreter_start(context, branch, bytecode);
+
+    int pc = 0;
+
+    // Main loop
+    while (true) {
+
+    Operation* op = &bytecode->operations[pc];
 
     switch (op->type) {
     case OP_CALL: {
@@ -292,9 +303,9 @@ void interpreter_step(EvalContext* context)
         } catch (std::exception const& e) { error_occurred(context, cop->term, e.what()); }
         #endif
 
-        frame->pc += inputCount + 1;
+        pc += inputCount + 1;
 
-        break;
+        continue;
     }
 
     case OP_CHECK_OUTPUT: {
@@ -304,32 +315,31 @@ void interpreter_step(EvalContext* context)
         if (!check_output_type(context, term))
             return;
 
-        frame->pc += 1;
-        break;
+        pc += 1;
+        continue;
     }
 
     case OP_INPUT_LOCAL:
     case OP_INPUT_GLOBAL:
     case OP_INPUT_NULL:
     case OP_INPUT_INT:
-        frame->pc += 1;
-        break;
+        pc += 1;
+        continue;
 
-    case OP_RETURN:
-        frame->pc += 1;
+    case OP_STOP:
         return;
 
     case OP_RETURN_ON_ERROR:
         if (context->errorOccurred)
             return;
-        frame->pc++;
-        break;
+        pc++;
+        continue;
 
     case OP_JUMP: {
         OpJump* jop = (OpJump*) op;
         ca_assert(jop->offset != 0);
-        frame->pc += jop->offset;
-        break;
+        pc += jop->offset;
+        continue;
     }
 
     case OP_JUMP_IF: {
@@ -338,11 +348,11 @@ void interpreter_step(EvalContext* context)
         ca_assert(is_bool(input));
         if (as_bool(input)) {
             ca_assert(jop->offset != 0);
-            frame->pc += jop->offset;
+            pc += jop->offset;
         } else {
-            frame->pc += 1;
+            pc += 1;
         }
-        break;
+        continue;
     }
     case OP_JUMP_IF_NOT: {
         OpJump* jop = (OpJump*) op;
@@ -350,11 +360,11 @@ void interpreter_step(EvalContext* context)
         ca_assert(is_bool(input));
         if (!as_bool(input)) {
             ca_assert(jop->offset != 0);
-            frame->pc += jop->offset;
+            pc += jop->offset;
         } else {
-            frame->pc += 1;
+            pc += 1;
         }
-        break;
+        continue;
     }
     case OP_JUMP_IF_NOT_EQUAL: {
         OpJump* jop = (OpJump*) op;
@@ -362,11 +372,11 @@ void interpreter_step(EvalContext* context)
         TaggedValue* right = follow_input_instruction(context, op+2);
         if (!equals(left,right)) {
             ca_assert(jop->offset != 0);
-            frame->pc += jop->offset;
+            pc += jop->offset;
         } else {
-            frame->pc += 1;
+            pc += 1;
         }
-        break;
+        continue;
     }
     case OP_JUMP_IF_WITHIN_RANGE: {
         OpJump* jop = (OpJump*) op;
@@ -377,11 +387,11 @@ void interpreter_step(EvalContext* context)
 
         if (doJump) {
             ca_assert(jop->offset != 0);
-            frame->pc += jop->offset;
+            pc += jop->offset;
         } else {
-            frame->pc += 1;
+            pc += 1;
         }
-        break;
+        continue;
     }
 
     case OP_CALL_BRANCH: {
@@ -397,14 +407,14 @@ void interpreter_step(EvalContext* context)
         Branch* branch = nested_contents(cop->term);
         push_frame(context, branch);
         evaluate_branch_with_bytecode(context, branch);
-        frame->pc += 1;
+        pc += 1;
 
-        break;
+        continue;
     }
     case OP_POP_STACK: {
         pop_frame(context);
-        frame->pc += 1;
-        break;
+        pc += 1;
+        continue;
     }
 
     case OP_COPY: {
@@ -412,52 +422,27 @@ void interpreter_step(EvalContext* context)
         TaggedValue* right = follow_input_instruction(context, op + 2);
         copy(left, right);
 
-        frame->pc += 1;
-        break;
+        pc += 1;
+        continue;
     }
 
     case OP_INCREMENT: {
         TaggedValue* val = follow_input_instruction(context, op + 1);
         set_int(val, as_int(val) + 1);
-        frame->pc += 1;
-        break;
+        pc += 1;
+        continue;
     }
 
     default:
         internal_error("in evaluate_bytecode, unrecognized op type");
     }
+    }
 }
 
-bool interpreter_finished(EvalContext* context)
-{
-    return context->numFrames <= 0;
-}
-void interpreter_halt(EvalContext* context)
-{
-    while (context->numFrames > 0)
-        finish_branch(context, 0);
-}
-
-InterpretResult interpret(EvalContext* context, Branch* branch, BytecodeData* bytecode)
-{
-    interpreter_start(context, branch, bytecode);
-
-    // Main loop
-    while (!interpreter_finished(context))
-        interpreter_step(context);
-
-    return SUCCESS;
-}
-InterpretResult interpret(EvalContext* context, Branch* branch)
+void interpret(EvalContext* context, Branch* branch)
 {
     update_bytecode_for_branch(branch);
-    interpreter_start(context, branch, branch->bytecode);
-
-    // Main loop
-    while (!interpreter_finished(context))
-        interpreter_step(context);
-
-    return SUCCESS;
+    interpret(context, branch, branch->bytecode);
 }
 
 void interpret_single_term(EvalContext* context, Term* term)
@@ -465,7 +450,7 @@ void interpret_single_term(EvalContext* context, Term* term)
     BytecodeWriter writer;
 
     bc_call(&writer, term);
-    bc_return(&writer);
+    bc_stop(&writer);
 
     interpret(context, NULL, writer.data);
 }

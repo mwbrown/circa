@@ -4,11 +4,6 @@
 
 namespace circa {
 
-typedef char InterpretResult;
-
-const InterpretResult SUCCESS = 0;
-const InterpretResult ERROR = -1;
-
 typedef char Instruction;
 
 const Instruction ISN_CALL = 1;
@@ -39,8 +34,8 @@ TaggedValue* get_local(EvalContext* context, int relativeFrame, int index);
 void finish_branch(EvalContext* context, int flags);
 
 // High-level interpreter control
-InterpretResult interpret(EvalContext* context, Branch* branch, BytecodeData* bytecode);
-InterpretResult interpret(EvalContext* context, Branch* branch);
+void interpret(EvalContext* context, Branch* branch, BytecodeData* bytecode);
+void interpret(EvalContext* context, Branch* branch);
 //void interpret_range(EvalContext* context, Branch* branch, int start, int end);
 
 // Lower-level interpreter control

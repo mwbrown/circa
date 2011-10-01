@@ -21,7 +21,7 @@ const OpType OP_JUMP_IF_NOT = 12;
 const OpType OP_JUMP_IF_NOT_EQUAL = 13;
 const OpType OP_JUMP_IF_WITHIN_RANGE = 14;
 
-const OpType OP_RETURN = 20;
+const OpType OP_STOP = 20;
 const OpType OP_RETURN_ON_ERROR = 21;
 const OpType OP_POP_STACK = 23;
 
@@ -117,7 +117,7 @@ std::string get_bytecode_as_string(BytecodeData* bytecode);
 void bc_write_call_op(BytecodeWriter* writer, Term* term, EvaluateFunc func);
 void bc_write_call_op_with_func(BytecodeWriter* writer, Term* term, Term* func);
 void bc_check_output(BytecodeWriter* writer, Term* term);
-void bc_return(BytecodeWriter* writer);
+void bc_stop(BytecodeWriter* writer);
 
 // Write a CALL instruction with no Term*, just an EvaluateFunc. Input
 // instructions must be appended by the caller. Some functions don't work

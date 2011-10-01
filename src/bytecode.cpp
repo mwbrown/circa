@@ -81,8 +81,8 @@ void print_bytecode_op(Operation* op, int loc, std::ostream& out)
             out << "input_int " << iop->value;
             break;
         }
-        case OP_RETURN:
-            out << "return";
+        case OP_STOP:
+            out << "stop";
             break;
         case OP_RETURN_ON_ERROR:
             out << "return_on_error";
@@ -215,9 +215,9 @@ void bc_write_call_op_with_func(BytecodeWriter* writer, Term* term, Term* func)
     bc_write_call_op(writer, term, get_function_attrs(func)->evaluate);
 }
 
-void bc_return(BytecodeWriter* writer)
+void bc_stop(BytecodeWriter* writer)
 {
-    bc_append_op(writer)->type = OP_RETURN;
+    bc_append_op(writer)->type = OP_STOP;
 }
 void bc_imaginary_call(BytecodeWriter* writer, EvaluateFunc func, int output)
 {
@@ -395,7 +395,7 @@ void bc_check_output(BytecodeWriter* writer, Term* term)
 
 void bc_finish(BytecodeWriter* writer)
 {
-    bc_return(writer);
+    bc_stop(writer);
 }
 
 void bc_reset_writer(BytecodeWriter* writer)
@@ -514,7 +514,7 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
             pc += 1;
             continue;
 
-        case OP_RETURN:
+        case OP_STOP:
             return;
 
         case OP_RETURN_ON_ERROR:

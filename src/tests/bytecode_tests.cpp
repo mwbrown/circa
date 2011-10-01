@@ -54,7 +54,7 @@ void test_no_instructions_for_value()
     branch.compile("a = 1");
     update_bytecode_for_branch(&branch);
     test_assert(branch.bytecode->operationCount == 1);
-    test_assert(branch.bytecode->operations[0].type == OP_RETURN);
+    test_assert(branch.bytecode->operations[0].type == OP_STOP);
 }
 
 void test_jump_if()
