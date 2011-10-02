@@ -101,14 +101,14 @@ struct BytecodeWriter
 
     // Configuration options
     bool alwaysCheckOutputs;
-    bool useStack;
+    bool useLocals;
 
     BytecodeWriter()
       : writePosition(0),
         listLength(0),
         data(NULL),
         alwaysCheckOutputs(false),
-        useStack(true)
+        useLocals(true)
     {}
     ~BytecodeWriter() { free(data); }
 };

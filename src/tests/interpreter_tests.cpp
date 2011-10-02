@@ -72,9 +72,9 @@ void test_interpret_range_simple()
 
     EvalContext context;
     interpret_range(&context, &branch, b->index, c->index);
-    test_equals(a, "null");
+    test_equals(a, "0");
     test_equals(b, "4");
-    test_equals(c, "null");
+    test_equals(c, "0");
 }
 
 void register_tests()

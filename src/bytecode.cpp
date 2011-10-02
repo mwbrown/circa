@@ -200,7 +200,7 @@ void bc_write_call_op(BytecodeWriter* writer, Term* term, EvaluateFunc func)
     op->func = func;
 
     // Write output instruction
-    bc_local_input(writer, 0, term->index);
+    bc_write_input(writer, term->owningBranch, term);
 
     // Write information for each input
     for (int i=0; i < term->numInputs(); i++)
@@ -307,7 +307,7 @@ void bc_write_input(BytecodeWriter* writer, Branch* frame, Term* input)
         return;
     }
 
-    if (is_value(input)) {
+    if (is_value(input) || !writer->useLocals) {
         bc_global_input(writer, (TaggedValue*) input);
     } else {
         int relativeFrame = get_frame_distance(frame, input);

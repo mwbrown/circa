@@ -443,7 +443,7 @@ void interpret_single_term(EvalContext* context, Term* term)
 {
     BytecodeWriter writer;
 
-    writer.useStack = false;
+    writer.useLocals = false;
 
     bc_call(&writer, term);
     bc_stop(&writer);
@@ -453,8 +453,6 @@ void interpret_single_term(EvalContext* context, Term* term)
 
 void interpret_range(EvalContext* context, Branch* branch, int start, int end)
 {
-    context->preserveLocals = true;
-
     for (int i=start; i < end; i++)
         interpret_single_term(context, branch->get(i));
 }
