@@ -74,7 +74,7 @@ void evaluate_branch_internal_with_state(EvalContext* context, Term* term,
 
 void evaluate_branch(EvalContext* context, Branch* branch)
 {
-    interpret(context, branch->bytecode);
+    interpret(context, branch);
 #if 0
     push_stack_frame(context, branch);
     push_scope_state(context);
@@ -162,7 +162,7 @@ void evaluate_minimum(EvalContext* context, Term* term, TaggedValue* result)
 }
 void evaluate_range(EvalContext* context, Branch* branch, int start, int end)
 {
-    //FIXME interpret_range(context, branch, start, end);
+    interpret_range(context, branch, start, end);
 }
 
 } // namespace circa

@@ -181,6 +181,7 @@ void dirty_bytecode(Branch* branch);
 
 // Write bytecode to call the given term. This will use any custom behavior,
 // like the function's custom writeBytecode handler.
+void bc_call(BytecodeWriter* writer, Term* term, Term* function);
 void bc_call(BytecodeWriter* writer, Term* term);
 
 void bc_finish(BytecodeWriter* writer);

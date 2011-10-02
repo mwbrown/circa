@@ -47,8 +47,8 @@ void test_bool()
 {
     Branch branch;
 
-    test_assert(as_string(branch.eval("cond(true, 'a', 'b')")) == "a");
-    test_assert(as_string(branch.eval("cond(false, 'a', 'b')")) == "b");
+    test_equals(branch.eval("cond(true, 'a', 'b')"), "a");
+    test_equals(branch.eval("cond(false, 'a', 'b')"), "b");
 }
 
 void test_builtin_equals()
