@@ -51,7 +51,10 @@ namespace overloaded_function {
         if (contents->length() == 0) {
             // TODO
         } else {
-            bc_call(writer, contents->get(0));
+            Term* specialized = contents->get(0);
+            bc_push_term_input_remap(writer, specialized, term);
+            bc_call(writer, specialized);
+            bc_pop_term_input_remap(writer);
         }
     }
 

@@ -182,6 +182,10 @@ static void bc_reserve_size(BytecodeWriter* writer, int opCount)
 
     writer->listLength = newLength;
 }
+int bc_get_write_position(BytecodeWriter* writer)
+{
+    return writer->writePosition;
+}
 
 // Appends a slot for an operation, returns the operation's index.
 Operation* bc_append_op(BytecodeWriter* writer)
@@ -199,12 +203,18 @@ void bc_write_call_op(BytecodeWriter* writer, Term* term, EvaluateFunc func)
     op->term = term;
     op->func = func;
 
+    // Apply term input remaps
+    Term* termForInputs = term;
+    for (int i=writer->numRemappedCallingTerms - 1; i >= 0; i--)
+        if (writer->remappedCallingTerms[i].original == termForInputs)
+            termForInputs = writer->remappedCallingTerms[i].replacement;
+
     // Write output instruction
-    bc_write_input(writer, term->owningBranch, term);
+    bc_write_input(writer, termForInputs->owningBranch, termForInputs);
 
     // Write information for each input
     for (int i=0; i < term->numInputs(); i++)
-        bc_write_input(writer, term->owningBranch, term->input(i));
+        bc_write_input(writer, termForInputs->owningBranch, term->input(i));
 
     // Possibly write a CHECK_OUTPUT op.
     if (writer->alwaysCheckOutputs || DEBUG_ALWAYS_CHECK_OUTPUT_TYPE)
@@ -385,6 +395,26 @@ void bc_call(BytecodeWriter* writer, Term* term)
 
     // Default: Add an OP_CALL
     bc_write_call_op(writer, term, evaluateFunc);
+}
+
+void bc_push_term_input_remap(BytecodeWriter* writer, Term* original, Term* replacement)
+{
+    int index = writer->numRemappedCallingTerms;
+    writer->numRemappedCallingTerms += 1;
+    writer->remappedCallingTerms = (BytecodeWriter::TermInputRemap*) 
+        realloc(writer->remappedCallingTerms,
+            sizeof(BytecodeWriter::TermInputRemap) * writer->numRemappedCallingTerms);
+    writer->remappedCallingTerms[index].original = original;
+    writer->remappedCallingTerms[index].replacement = replacement;
+}
+
+void bc_pop_term_input_remap(BytecodeWriter* writer)
+{
+    ca_assert(writer->numRemappedCallingTerms > 0);
+    writer->numRemappedCallingTerms--;
+    writer->remappedCallingTerms = (BytecodeWriter::TermInputRemap*) 
+        realloc(writer->remappedCallingTerms,
+            sizeof(BytecodeWriter::TermInputRemap) * writer->numRemappedCallingTerms);
 }
 
 void bc_check_output(BytecodeWriter* writer, Term* term)
