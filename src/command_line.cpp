@@ -3,6 +3,7 @@
 #include "common_headers.h"
 #include "branch.h"
 #include "building.h"
+#include "bytecode.h"
 #include "codegen.h"
 #include "evaluation.h"
 #include "feedback.h"
@@ -32,6 +33,7 @@ void print_usage()
         "  circa -test <name>      : Run unit test of a certain name\n"
         "  circa -list-tests       : List every unit test name\n"
         "  circa -p <filename>     : Show the raw display of a source file\n"
+        "  circa -b <filename>     : Show the bytecode of a source file\n"
         "  circa -ep <filename>    : Evaluate a source file and then show raw display\n"
         "  circa -pp <filename>    : Like -p but also print term properties\n"
         "  circa -s <filename>     : Compile the source file and reproduce its source code\n"
@@ -132,6 +134,16 @@ int run_command_line(std::vector<std::string> args)
         print_branch_with_properties(std::cout, &branch);
         return 0;
     }
+
+    // Show bytecode
+    if (args[0] == "-b") {
+        Branch branch;
+        load_script(&branch, args[1].c_str());
+        update_bytecode_for_branch(&branch);
+        print_bytecode(branch.bytecode, std::cout);
+        return 0;
+    }
+
 
     // Reproduce source
     if (args[0] == "-s") {
