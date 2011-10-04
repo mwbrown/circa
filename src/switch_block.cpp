@@ -38,7 +38,7 @@ void switch_block_write_bytecode(Term* caller, BytecodeWriter* writer)
             bc_write_input(writer, parentBranch, caseTerm->input(0));
         }
 
-        bc_call_branch(writer, caseTerm);
+        bc_push_branch(writer, caseTerm);
 
         // Copy joined locals
         Branch* joining = nested_contents(contents->getFromEnd(0));
@@ -51,7 +51,7 @@ void switch_block_write_bytecode(Term* caller, BytecodeWriter* writer)
         }
 
         // Finish, clean up stack and wrap up jumps.
-        bc_pop_stack(writer);
+        bc_pop_branch(writer);
 
         jumpsToFinish.push_back(bc_jump(writer));
 

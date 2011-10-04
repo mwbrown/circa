@@ -286,8 +286,8 @@ CA_FUNCTION(evaluate_for_loop)
 
 void for_block_write_bytecode(Term* caller, BytecodeWriter* writer)
 {
-    bc_call_branch(writer, caller);
-    bc_pop_stack(writer);
+    bc_push_branch(writer, caller);
+    //bc_pop_stack(writer);
 }
 
 void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)

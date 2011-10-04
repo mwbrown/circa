@@ -12,7 +12,6 @@ namespace circa {
 typedef char OpType;
 
 const OpType OP_CALL = 1;
-const OpType OP_CALL_BRANCH = 2;
 const OpType OP_CHECK_OUTPUT = 3;
 
 const OpType OP_JUMP = 10;
@@ -23,7 +22,9 @@ const OpType OP_JUMP_IF_WITHIN_RANGE = 14;
 
 const OpType OP_STOP = 20;
 const OpType OP_RETURN_ON_ERROR = 21;
-const OpType OP_POP_STACK = 23;
+
+const OpType OP_PUSH_BRANCH = 22;
+const OpType OP_POP_BRANCH = 23;
 
 const OpType OP_INPUT_LOCAL = 31;
 const OpType OP_INPUT_GLOBAL = 32;
@@ -53,7 +54,7 @@ struct OpCheckOutput {
     Term* term;
 };
 
-struct OpCallBranch {
+struct OpPushBranch {
     OpType type;
     Term* term;
 };
@@ -180,11 +181,11 @@ void bc_copy_value(BytecodeWriter* writer);
 // Write an INCREMENT operation. One input instruction must follow.
 void bc_increment(BytecodeWriter* writer);
 
-// Write a CALL_BRANCH operation.
-void bc_call_branch(BytecodeWriter* writer, Term* term);
+// Write a PUSH_BRANCH operation.
+void bc_push_branch(BytecodeWriter* writer, Term* term);
 
-// Write a POP_STACK operation.
-void bc_pop_stack(BytecodeWriter* writer);
+// Write a POP_BRANCH operation.
+void bc_pop_branch(BytecodeWriter* writer);
 
 // Mark the term's owning branch as needing to recompute bytecode.
 void dirty_bytecode(Term* term);

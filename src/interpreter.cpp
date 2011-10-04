@@ -386,8 +386,8 @@ void interpret(EvalContext* context, BytecodeData* bytecode)
         continue;
     }
 
-    case OP_CALL_BRANCH: {
 #if 0
+    case OP_CALL_BRANCH: {
 
         // TODO: Push branch to the stack but continue in this loop
         OpCallBranch* cop = (OpCallBranch*) op;
@@ -400,14 +400,28 @@ void interpret(EvalContext* context, BytecodeData* bytecode)
         Branch* branch = nested_contents(cop->term);
         push_frame(context, branch);
         evaluate_branch_with_bytecode(context, branch);
-#endif
         pc += 1;
 
         continue;
     }
-    case OP_POP_STACK: {
+#endif
+    case OP_PUSH_BRANCH: {
+        OpPushBranch* bop = (OpPushBranch*) op;
+
+        // save pc
+        top_frame(context)->pc = pc;
+
+        Branch* branch = nested_contents(bop->term);
+        update_bytecode_for_branch(branch);
+        bytecode = branch->bytecode;
+        push_frame(context, bytecode);
+        pc = 0;
+        continue;
+    }
+
+    case OP_POP_BRANCH: {
         pop_frame(context);
-        pc += 1;
+        pc = top_frame(context)->pc + 1;
         continue;
     }
 

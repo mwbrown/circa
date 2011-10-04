@@ -102,11 +102,11 @@ void print_bytecode_op(Operation* op, int loc, std::ostream& out)
         case OP_JUMP_IF_WITHIN_RANGE:
             out << "jump_if_within_range " << loc + ((OpJump*) op)->offset;
             break;
-        case OP_CALL_BRANCH:
-            out << "call_branch " << global_id(((OpCallBranch*) op)->term);
+        case OP_POP_BRANCH:
+            out << "pop_branch";
             break;
-        case OP_POP_STACK:
-            out << "pop_stack";
+        case OP_PUSH_BRANCH:
+            out << "push_branch " << global_id(((OpPushBranch*) op)->term);
             break;
         case OP_COPY:
             out << "copy";
@@ -338,15 +338,15 @@ void bc_increment(BytecodeWriter* writer)
 {
     bc_append_op(writer)->type = OP_INCREMENT;
 }
-void bc_call_branch(BytecodeWriter* writer, Term* term)
+void bc_push_branch(BytecodeWriter* writer, Term* term)
 {
-    OpCallBranch *cop = (OpCallBranch*) bc_append_op(writer);
-    cop->type = OP_CALL_BRANCH;
+    OpPushBranch *cop = (OpPushBranch*) bc_append_op(writer);
+    cop->type = OP_PUSH_BRANCH;
     cop->term = term;
 }
-void bc_pop_stack(BytecodeWriter* writer)
+void bc_pop_branch(BytecodeWriter* writer)
 {
-    bc_append_op(writer)->type = OP_POP_STACK;
+    bc_append_op(writer)->type = OP_POP_BRANCH;
 }
 
 void dirty_bytecode(Term* term)

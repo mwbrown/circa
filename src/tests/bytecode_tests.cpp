@@ -11,7 +11,7 @@ namespace bytecode_tests {
 void test_static_assertions()
 {
     test_assert(sizeof(Operation) >= sizeof(OpCall));
-    test_assert(sizeof(Operation) >= sizeof(OpCallBranch));
+    test_assert(sizeof(Operation) >= sizeof(OpPushBranch));
     test_assert(sizeof(Operation) >= sizeof(OpStackSize));
     test_assert(sizeof(Operation) >= sizeof(OpInputLocal));
     test_assert(sizeof(Operation) >= sizeof(OpInputGlobal));
