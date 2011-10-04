@@ -16,6 +16,8 @@ namespace subroutine_function {
     CA_DEFINE_FUNCTION(subroutine_output,
         "subroutine_output(any :optional :multiple)")
     {
+#if 0
+        FIXME
         List* out = List::lazyCast(&CONTEXT->subroutineOutput);
         out->resize(NUM_INPUTS);
         for (int i=0; i < NUM_INPUTS; i++) {
@@ -24,6 +26,7 @@ namespace subroutine_function {
             else
                 consume_input(CONTEXT, CALLER, i, out->get(i));
         }
+#endif
     }
 
     void setup(Branch* kernel)

@@ -21,6 +21,15 @@ namespace vectorized_functions {
         return &LIST_T;
     }
 
+    void write_calling_bytecode(Term* term, BytecodeWriter* writer)
+    {
+        bc_push_branch(writer, term);
+    }
+
+    void write_nested_bytecode(Term* term, BytecodeWriter* writer)
+    {
+    }
+
     CA_FUNCTION(evaluate_vs)
     {
 #if 0 // FIXME
@@ -164,13 +173,13 @@ namespace vectorized_functions {
 
     void setup(Branch* kernel)
     {
-        Term* vs = import_function(kernel, evaluate_vs,
-                "vectorize_vs(List,any) -> List");
+        Term* vs = import_function(kernel, NULL, "vectorize_vs(List,any) -> List");
         get_function_attrs(vs)->specializeType = specializeType_vs;
         get_function_attrs(vs)->postInputChange = post_input_change_vs;
+        get_function_attrs(vs)->writeBytecode = write_calling_bytecode;
+        get_function_attrs(vs)->writeNestedBytecode = write_nested_bytecode;
 
-        Term* vv = import_function(kernel, evaluate_vv,
-                "vectorize_vv(List,List) -> List");
+        Term* vv = import_function(kernel, NULL, "vectorize_vv(List,List) -> List");
         get_function_attrs(vv)->specializeType = specializeType_vv;
         get_function_attrs(vv)->postInputChange = post_input_change_vv;
     }

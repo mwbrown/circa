@@ -23,9 +23,8 @@ Frame* push_frame(EvalContext* context, BytecodeData* bytecode)
     Frame* top = &context->frames[context->numFrames-1];
     top->pc = 0;
     top->locals.initializeNull();
-    set_list(&top->locals, bytecode->stackSize);
+    set_list(&top->locals, bytecode->localsCount);
     top->state.initializeNull();
-    top->temporary.initializeNull();
     set_dict(&top->state);
     top->bytecode = bytecode;
     return top;
@@ -42,11 +41,7 @@ void pop_frame(EvalContext* context)
     Frame* top = top_frame(context);
     set_null(&top->locals);
     set_null(&top->state);
-    set_null(&top->temporary);
     context->numFrames--;
-
-    if (context->numFrames > 0)
-        top_frame(context)->pc++;
 }
 
 Frame* top_frame(EvalContext* context)
@@ -140,12 +135,24 @@ TaggedValue* follow_input_instruction(EvalContext* context, Operation* op)
         case OP_INPUT_LOCAL: {
             OpInputLocal* lop = (OpInputLocal*) op;
             Frame* frame = get_frame(context, lop->relativeFrame);
-            return list_get_index(&frame->locals, lop->index);
+            return list_get_index(&frame->locals, lop->local);
         }
         case OP_INPUT_NULL:
             return NULL;
     }
     return NULL;
+}
+
+void consume_input_instruction(EvalContext* context, Operation* op, TaggedValue* output)
+{
+    switch (op->type) {
+        case OP_INPUT_INT: {
+            set_int(output, ((OpInputInt*) op)->value);
+            break;
+        default:
+            copy(follow_input_instruction(context, op), output);
+        }
+    }
 }
 
 void finish_branch(EvalContext* context, int flags)
@@ -250,6 +257,12 @@ void interpret(EvalContext* context, BytecodeData* bytecode)
 
     Operation* op = &bytecode->operations[pc];
 
+#if 1
+    print_bytecode_op(bytecode, pc, std::cout);
+    std::cout << std::endl;
+    //print_bytecode(bytecode, std::cout);
+#endif
+
     switch (op->type) {
     case OP_CALL: {
 
@@ -273,7 +286,7 @@ void interpret(EvalContext* context, BytecodeData* bytecode)
                 case OP_INPUT_LOCAL: {
                     OpInputLocal* lop = (OpInputLocal*) inputOp;
                     Frame* frame = get_frame(context, lop->relativeFrame);
-                    input_pointers[input++] = list_get_index(&frame->locals, lop->index);
+                    input_pointers[input++] = list_get_index(&frame->locals, lop->local);
                     break;
                 }
                 case OP_INPUT_NULL:
@@ -321,12 +334,6 @@ void interpret(EvalContext* context, BytecodeData* bytecode)
     case OP_STOP:
         return;
 
-    case OP_RETURN_ON_ERROR:
-        if (context->errorOccurred)
-            return;
-        pc++;
-        continue;
-
     case OP_JUMP: {
         OpJump* jop = (OpJump*) op;
         ca_assert(jop->offset != 0);
@@ -370,18 +377,15 @@ void interpret(EvalContext* context, BytecodeData* bytecode)
         }
         continue;
     }
-    case OP_JUMP_IF_WITHIN_RANGE: {
+    case OP_JUMP_IF_LESS_THAN: {
         OpJump* jop = (OpJump*) op;
-        TaggedValue* list = follow_input_instruction(context, op+1);
-        TaggedValue* index = follow_input_instruction(context, op+2);
-
-        bool doJump = as_int(index) < list_get_length(list);
-
-        if (doJump) {
+        TaggedValue* left = follow_input_instruction(context, op+1);
+        TaggedValue* right = follow_input_instruction(context, op+2);
+        if (to_float(left) < to_float(right)) {
             ca_assert(jop->offset != 0);
             pc += jop->offset;
         } else {
-            pc += 1;
+            pc += 3;
         }
         continue;
     }
@@ -422,6 +426,7 @@ void interpret(EvalContext* context, BytecodeData* bytecode)
     case OP_POP_BRANCH: {
         pop_frame(context);
         pc = top_frame(context)->pc + 1;
+        bytecode = top_frame(context)->bytecode;
         continue;
     }
 
@@ -437,6 +442,13 @@ void interpret(EvalContext* context, BytecodeData* bytecode)
     case OP_INCREMENT: {
         TaggedValue* val = follow_input_instruction(context, op + 1);
         set_int(val, as_int(val) + 1);
+        pc += 2;
+        continue;
+    }
+
+    case OP_ASSIGN_LOCAL: {
+        TaggedValue* local = top_frame(context)->locals[((OpAssignLocal*) op)->local];
+        consume_input_instruction(context, op + 1, local);
         pc += 1;
         continue;
     }

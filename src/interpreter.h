@@ -4,15 +4,6 @@
 
 namespace circa {
 
-typedef char Instruction;
-
-const Instruction ISN_CALL = 1;
-const Instruction ISN_CALL_MANUAL = 2;
-const Instruction ISN_OPEN_BRANCH = 3;
-const Instruction ISN_SKIP = 4;
-
-const int MAX_INPUTS = 100;
-
 Frame* push_frame(EvalContext* context, BytecodeData* bytecode);
 Frame* push_frame(EvalContext* context, Branch* branch);
 void pop_frame(EvalContext* context);

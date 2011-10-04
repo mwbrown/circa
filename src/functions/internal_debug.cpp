@@ -105,10 +105,13 @@ namespace internal_debug_function {
 
     CA_DEFINE_FUNCTION(get_term_stack, "debug_get_term_stack() -> List")
     {
+#if 0
+        FIXME
         int len = CONTEXT->callStack.length();
         List& output = *List::cast(OUTPUT, len);
         for (int i=0; i < len; i++)
             set_ref(output[i], CONTEXT->callStack[i]);
+#endif
     }
 
     CA_DEFINE_FUNCTION(dump_current_branch, "dump_current_branch()")

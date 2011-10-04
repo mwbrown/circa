@@ -20,7 +20,6 @@ namespace circa {
 struct Frame {
     int pc;
     List locals;
-    TaggedValue temporary;
     Dict state;
     BytecodeData* bytecode;
 };
@@ -32,10 +31,6 @@ struct EvalContext
     // for testing.
     bool preserveLocals;
 
-    bool interruptSubroutine;
-
-    TaggedValue subroutineOutput;
-
     // Error information:
     bool errorOccurred;
     Term* errorTerm;
@@ -44,17 +39,11 @@ struct EvalContext
     // Tree of persistent state
     TaggedValue state;
 
-    // State used for the current for loop
-    ForLoopContext forLoopContext;
-
     // Intra-program messages
     Dict messages;
 
     // List of input values, passed in to the script from the caller.
     List argumentList;
-
-    // Current stack of in-progress terms. Used for introspection.
-    TermList callStack;
 
     // List of stack frames
     Frame* frames;
@@ -62,7 +51,6 @@ struct EvalContext
 
     EvalContext()
       : preserveLocals(false),
-        interruptSubroutine(false),
         errorOccurred(false),
         frames(NULL),
         numFrames(0)

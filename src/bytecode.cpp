@@ -37,15 +37,17 @@ static bool is_jump_op_type(OpType type)
         case OP_JUMP_IF:
         case OP_JUMP_IF_NOT:
         case OP_JUMP_IF_NOT_EQUAL:
-        case OP_JUMP_IF_WITHIN_RANGE:
+        case OP_JUMP_IF_LESS_THAN:
             return true;
         default:
             return false;
     }
 }
 
-void print_bytecode_op(Operation* op, int loc, std::ostream& out)
+void print_bytecode_op(BytecodeData* bytecode, int loc, std::ostream& out)
 {
+    Operation* op = &bytecode->operations[loc];
+
     switch (op->type) {
         case OP_CALL: {
             out << "call ";
@@ -73,7 +75,7 @@ void print_bytecode_op(Operation* op, int loc, std::ostream& out)
         }
         case OP_INPUT_LOCAL: {
             OpInputLocal* lop = (OpInputLocal*) op;
-            out << "input_local frame:" << lop->relativeFrame << " idx:" << lop->index;
+            out << "input_local frame:" << lop->relativeFrame << " idx:" << lop->local;
             break;
         }
         case OP_INPUT_INT: {
@@ -83,9 +85,6 @@ void print_bytecode_op(Operation* op, int loc, std::ostream& out)
         }
         case OP_STOP:
             out << "stop";
-            break;
-        case OP_RETURN_ON_ERROR:
-            out << "return_on_error";
             break;
         case OP_JUMP:
             out << "jump " << loc + ((OpJump*) op)->offset;
@@ -99,8 +98,8 @@ void print_bytecode_op(Operation* op, int loc, std::ostream& out)
         case OP_JUMP_IF_NOT_EQUAL:
             out << "jump_if_not_eq " << loc + ((OpJump*) op)->offset;
             break;
-        case OP_JUMP_IF_WITHIN_RANGE:
-            out << "jump_if_within_range " << loc + ((OpJump*) op)->offset;
+        case OP_JUMP_IF_LESS_THAN:
+            out << "jump_if_less_than " << loc + ((OpJump*) op)->offset;
             break;
         case OP_POP_BRANCH:
             out << "pop_branch";
@@ -113,6 +112,9 @@ void print_bytecode_op(Operation* op, int loc, std::ostream& out)
             break;
         case OP_INCREMENT:
             out << "increment";
+            break;
+        case OP_ASSIGN_LOCAL:
+            out << "assign_local " << ((OpAssignLocal*) op)->local;
             break;
         default:
             out << "<unknown opcode " << int(op->type) << ">";
@@ -135,7 +137,7 @@ void print_bytecode(BytecodeData* bytecode, std::ostream& out)
         if (!isInput)
             std::cout << i << ": ";
 
-        print_bytecode_op(&bytecode->operations[i], i, out);
+        print_bytecode_op(bytecode, i, out);
     }
     out << std::endl;
 }
@@ -173,7 +175,7 @@ static void bc_reserve_size(BytecodeWriter* writer, int opCount)
                 sizeof(BytecodeData) + sizeof(Operation) * newLength);
         writer->data->operationCount = 0;
         writer->data->dirty = false;
-        writer->data->stackSize = 0;
+        writer->data->localsCount = 0;
         writer->data->branch = NULL;
     } else {
         writer->data = (BytecodeData*) realloc(writer->data,
@@ -225,11 +227,19 @@ void bc_write_call_op_with_func(BytecodeWriter* writer, Term* term, Term* func)
 {
     bc_write_call_op(writer, term, get_function_attrs(func)->evaluate);
 }
+void bc_write_call(BytecodeWriter* writer, Term* function)
+{
+    OpCall* op = (OpCall*) bc_append_op(writer);
+    op->type = OP_CALL;
+    op->term = function;
+    op->func = get_function_attrs(function)->evaluate;
+}
 
 void bc_stop(BytecodeWriter* writer)
 {
     bc_append_op(writer)->type = OP_STOP;
 }
+
 void bc_imaginary_call(BytecodeWriter* writer, EvaluateFunc func, int output)
 {
     OpCall* op = (OpCall*) bc_append_op(writer);
@@ -276,15 +286,14 @@ int bc_jump_if_not_equal(BytecodeWriter* writer)
     op->offset = 0;
     return pos;
 }
-int bc_jump_if_within_range(BytecodeWriter* writer)
+int bc_jump_if_less_than(BytecodeWriter* writer)
 {
     int pos = writer->writePosition;
     OpJump* op = (OpJump*) bc_append_op(writer);
-    op->type = OP_JUMP_IF_WITHIN_RANGE;
+    op->type = OP_JUMP_IF_LESS_THAN;
     op->offset = 0;
     return pos;
 }
-
 void bc_jump_to_here(BytecodeWriter* writer, int jumpLoc)
 {
     OpJump* op = (OpJump*) &writer->data->operations[jumpLoc];
@@ -303,12 +312,19 @@ void bc_global_input(BytecodeWriter* writer, TaggedValue* value)
     gop->type = OP_INPUT_GLOBAL;
     gop->value = (TaggedValue*) value;
 }
-void bc_local_input(BytecodeWriter* writer, int frame, int index)
+void bc_local_input(BytecodeWriter* writer, int local)
+{
+    OpInputLocal *lop = (OpInputLocal*) bc_append_op(writer);
+    lop->type = OP_INPUT_LOCAL;
+    lop->relativeFrame = 0;
+    lop->local = local;
+}
+void bc_local_input(BytecodeWriter* writer, int frame, int local)
 {
     OpInputLocal *lop = (OpInputLocal*) bc_append_op(writer);
     lop->type = OP_INPUT_LOCAL;
     lop->relativeFrame = frame;
-    lop->index = index;
+    lop->local = local;
 }
 void bc_write_input(BytecodeWriter* writer, Branch* frame, Term* input)
 {
@@ -324,11 +340,17 @@ void bc_write_input(BytecodeWriter* writer, Branch* frame, Term* input)
         bc_local_input(writer, relativeFrame, input->index);
     }
 }
-void bc_write_int_input(BytecodeWriter* writer, int value)
+void bc_int_input(BytecodeWriter* writer, int value)
 {
     OpInputInt *iop = (OpInputInt*) bc_append_op(writer);
     iop->type = OP_INPUT_INT;
     iop->value = value;
+}
+void bc_assign_local(BytecodeWriter* writer, int local)
+{
+    OpAssignLocal *aop = (OpAssignLocal*) bc_append_op(writer);
+    aop->type = OP_ASSIGN_LOCAL;
+    aop->local = local;
 }
 void bc_copy_value(BytecodeWriter* writer)
 {
@@ -455,7 +477,7 @@ void write_bytecode_for_branch(Branch* branch, BytecodeWriter* writer)
     Term* parent = branch->owningTerm;
 
     bc_reserve_size(writer, 0);
-    writer->data->stackSize = branch->length();
+    writer->data->localsCount = branch->length();
     writer->data->branch = branch;
 
     // Check if parent function has a writeNestedBytecode

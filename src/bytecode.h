@@ -18,10 +18,9 @@ const OpType OP_JUMP = 10;
 const OpType OP_JUMP_IF = 11;
 const OpType OP_JUMP_IF_NOT = 12;
 const OpType OP_JUMP_IF_NOT_EQUAL = 13;
-const OpType OP_JUMP_IF_WITHIN_RANGE = 14;
+const OpType OP_JUMP_IF_LESS_THAN = 14;
 
 const OpType OP_STOP = 20;
-const OpType OP_RETURN_ON_ERROR = 21;
 
 const OpType OP_PUSH_BRANCH = 22;
 const OpType OP_POP_BRANCH = 23;
@@ -31,6 +30,7 @@ const OpType OP_INPUT_GLOBAL = 32;
 const OpType OP_INPUT_NULL = 33;
 const OpType OP_INPUT_INT = 34;
 
+const OpType OP_ASSIGN_LOCAL = 42;
 const OpType OP_COPY = 40;
 const OpType OP_INCREMENT = 41;
 
@@ -66,7 +66,7 @@ struct OpStackSize {
 struct OpInputLocal {
     OpType type;
     short relativeFrame;
-    short index;
+    short local;
 };
 
 struct OpInputGlobal {
@@ -79,6 +79,11 @@ struct OpInputInt {
     int value;
 };
 
+struct OpAssignLocal {
+    OpType type;
+    int local;
+};
+
 struct OpJump {
     OpType type;
     int offset;
@@ -88,7 +93,7 @@ struct BytecodeData
 {
     bool dirty;
     int operationCount;
-    int stackSize;
+
     Branch* branch;
     Operation operations[0];
     // 'operations' has a length of at least 'operationCount'.
@@ -124,13 +129,17 @@ struct BytecodeWriter
     ~BytecodeWriter() { free(data); free(remappedCallingTerms); }
 };
 
+void print_bytecode_op(BytecodeData* bytecode, int loc, std::ostream& out);
 void print_bytecode(BytecodeData* bytecode, std::ostream& out);
 std::string get_bytecode_as_string(BytecodeData* bytecode);
 
 // Building functions
 int bc_get_write_position(BytecodeWriter* writer);
+
 void bc_write_call_op(BytecodeWriter* writer, Term* term, EvaluateFunc func);
 void bc_write_call_op_with_func(BytecodeWriter* writer, Term* term, Term* func);
+void bc_write_call(BytecodeWriter* writer, Term* function);
+
 void bc_check_output(BytecodeWriter* writer, Term* term);
 void bc_stop(BytecodeWriter* writer);
 
@@ -157,11 +166,10 @@ int bc_jump_if_not(BytecodeWriter* writer);
 // follow.
 int bc_jump_if_not_equal(BytecodeWriter* writer);
 
-// Write a JUMP_IF_WITHIN_RANGE operation. The jump is initialized without an offset,
+// Write a JUMP_IF_NOT_EQUAL operation. The jump is initialized without an offset,
 // caller should use bc_jump_to_here() to set one. Two input instructions must
-// follow, input 0 is a list and input 1 is an index. The jump will be performed if
-// the index is less than the length of the list.
-int bc_jump_if_within_range(BytecodeWriter* writer);
+// follow.
+int bc_jump_if_less_than(BytecodeWriter* writer);
 
 // Modify the jump operation to jump to the current write position.
 void bc_jump_to_here(BytecodeWriter* writer, int jumpLoc);
@@ -170,10 +178,13 @@ void bc_jump_to_here(BytecodeWriter* writer, int jumpLoc);
 void bc_jump_to_pos(BytecodeWriter* writer, int jumpLoc, int pos);
 
 void bc_global_input(BytecodeWriter* writer, TaggedValue* value);
+void bc_local_input(BytecodeWriter* writer, int index);
 void bc_local_input(BytecodeWriter* writer, int frame, int index);
+void bc_int_input(BytecodeWriter* writer, int value);
 
 void bc_write_input(BytecodeWriter* writer, Branch* frame, Term* input);
-void bc_write_int_input(BytecodeWriter* writer, int value);
+
+void bc_assign_local(BytecodeWriter* writer, int local);
 
 // Write a COPY operation. Two input instructions must follow.
 void bc_copy_value(BytecodeWriter* writer);
