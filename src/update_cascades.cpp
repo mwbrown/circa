@@ -4,7 +4,6 @@
 #include "bytecode.h"
 #include "heap_debugging.h"
 #include "function.h"
-#include "locals.h"
 #include "refactoring.h"
 #include "tagged_value.h"
 #include "term.h"

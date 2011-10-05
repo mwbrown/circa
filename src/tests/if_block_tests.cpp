@@ -2,7 +2,6 @@
 
 #include "circa.h"
 #include "importing_macros.h"
-#include "locals.h"
 
 namespace circa {
 namespace if_block_tests {

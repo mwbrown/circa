@@ -23,7 +23,6 @@
 #include "introspection.h"
 #include "kernel.h"
 #include "list_shared.h"
-#include "locals.h"
 #include "names.h"
 #include "parser.h"
 #include "refactoring.h"

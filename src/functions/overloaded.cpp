@@ -52,9 +52,7 @@ namespace overloaded_function {
             // TODO
         } else {
             Term* specialized = contents->get(0);
-            bc_push_term_input_remap(writer, specialized, term);
             bc_call(writer, specialized);
-            bc_pop_term_input_remap(writer);
         }
     }
 
@@ -230,6 +228,7 @@ namespace overloaded_function {
         attrs->evaluate = evaluate_overload;
         attrs->postInputChange = update_overloaded_function_call;
         attrs->writeBytecode = write_bytecode;
+        attrs->createsStackFrame = false;
         // attrs->specializeType = overload_specialize_type;
 
         List& parameters = get_function_attrs(term)->parameters;

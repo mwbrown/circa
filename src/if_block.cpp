@@ -11,7 +11,6 @@
 #include "importing_macros.h"
 #include "kernel.h"
 #include "list_shared.h"
-#include "locals.h"
 #include "stateful_code.h"
 #include "term.h"
 #include "type.h"

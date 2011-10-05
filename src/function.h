@@ -48,6 +48,8 @@ struct FunctionAttrs
     WriteBytecode writeBytecode;
     WriteNestedBytecode writeNestedBytecode;
 
+    bool createsStackFrame;
+
     List parameters;
 
     FunctionAttrs();

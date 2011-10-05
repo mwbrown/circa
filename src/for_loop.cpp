@@ -9,7 +9,6 @@
 #include "introspection.h"
 #include "kernel.h"
 #include "list_shared.h"
-#include "locals.h"
 #include "source_repro.h"
 #include "stateful_code.h"
 #include "refactoring.h"

@@ -14,7 +14,6 @@
 #include "kernel.h"
 #include "introspection.h"
 #include "list_shared.h"
-#include "locals.h"
 #include "parser.h"
 #include "refactoring.h"
 #include "stateful_code.h"

@@ -11,7 +11,6 @@
 #include "importing_macros.h"
 #include "interpreter.h"
 #include "kernel.h"
-#include "locals.h"
 #include "refactoring.h"
 #include "source_repro.h"
 #include "stateful_code.h"

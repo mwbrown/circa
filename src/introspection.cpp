@@ -8,7 +8,6 @@
 #include "heap_debugging.h"
 #include "introspection.h"
 #include "kernel.h"
-#include "locals.h"
 #include "subroutine.h"
 #include "term.h"
 #include "term_list.h"

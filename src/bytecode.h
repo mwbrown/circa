@@ -110,24 +110,14 @@ struct BytecodeWriter
     bool alwaysCheckOutputs;
     bool useLocals;
 
-    struct TermInputRemap {
-        Term* original;
-        Term* replacement;
-    };
-
-    int numRemappedCallingTerms;
-    TermInputRemap* remappedCallingTerms;
-
     BytecodeWriter()
       : writePosition(0),
         listLength(0),
         data(NULL),
         alwaysCheckOutputs(false),
-        useLocals(true),
-        numRemappedCallingTerms(0),
-        remappedCallingTerms(NULL)
+        useLocals(true)
     {}
-    ~BytecodeWriter() { free(data); free(remappedCallingTerms); }
+    ~BytecodeWriter() { free(data); }
 };
 
 void print_bytecode_op(BytecodeData* bytecode, int loc, std::ostream& out);
@@ -206,13 +196,6 @@ void dirty_bytecode(Branch* branch);
 // Write bytecode to call the given term. This will use any custom behavior,
 // like the function's custom writeBytecode handler.
 void bc_call(BytecodeWriter* writer, Term* term);
-
-// Push a term input remap. While this is on the BytecodeWriter, any inputs that
-// are relative to 'original' will instead be relative to 'replacement', and any
-// global inputs that use 'original' will use 'replacement'. This lasts until
-// bc_pop_term_input_remap is called.
-void bc_push_term_input_remap(BytecodeWriter* writer, Term* original, Term* replacement);
-void bc_pop_term_input_remap(BytecodeWriter* writer);
 
 void bc_finish(BytecodeWriter* writer);
 

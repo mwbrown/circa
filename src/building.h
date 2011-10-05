@@ -88,4 +88,9 @@ Term* find_last_non_comment_expression(Branch* branch);
 // Return the index of the next available local value, and increment Branch.localsCount.
 int reserve_local_value(Branch* branch);
 
+int get_extra_output_count(Term* term);
+bool branch_creates_stack_frame(Branch* branch);
+int get_frame_distance(Branch* frame, Term* input);
+int get_frame_distance(Term* term, Term* input);
+
 } // namespace circa

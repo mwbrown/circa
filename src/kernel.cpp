@@ -11,7 +11,6 @@
 #include "importing_macros.h"
 #include "interpreter.h"
 #include "kernel.h"
-#include "locals.h"
 #include "parser.h"
 #include "refactoring.h"
 #include "static_checking.h"
