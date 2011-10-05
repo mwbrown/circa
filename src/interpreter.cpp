@@ -257,7 +257,7 @@ void interpret(EvalContext* context, BytecodeData* bytecode)
 
     Operation* op = &bytecode->operations[pc];
 
-#if 1
+#if 0
     print_bytecode_op(bytecode, pc, std::cout);
     std::cout << std::endl;
     //print_bytecode(bytecode, std::cout);

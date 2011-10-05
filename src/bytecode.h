@@ -93,6 +93,7 @@ struct BytecodeData
 {
     bool dirty;
     int operationCount;
+    int localsCount;
 
     Branch* branch;
     Operation operations[0];

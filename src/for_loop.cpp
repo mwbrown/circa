@@ -25,9 +25,8 @@ namespace circa {
 /* Organization of for loop contents:
    [0] #attributes
      [0] #modify_list
-   [1] index
-   [2] iterator
-   [3..i] join() terms for inner rebinds
+   [1] iterator
+   [2..i] join() terms for inner rebinds
    [...] contents
    [n-1] #outer_rebinds
 */
@@ -272,6 +271,7 @@ void for_block_write_bytecode(Term* caller, BytecodeWriter* writer)
 void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)
 {
     Branch* contents = nested_contents(caller);
+    Branch* parent = caller->owningBranch;
     // bool useState = has_any_inlined_state(contents);
     Branch* outerRebinds = get_for_loop_outer_rebinds(caller);
     bool anyOuterRebinds = outerRebinds->length() > 0;
@@ -303,7 +303,7 @@ void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)
     for (int i=0; i < outerRebinds->length(); i++) {
         bc_copy_value(writer);
         bc_write_input(writer, contents, outerRebinds->get(i)->input(0));
-        bc_local_input(writer, 1, caller->index + 1 + i);
+        bc_local_input(writer, 1, parent->get(caller->index + 1 + i)->local);
     }
 
     // Finish branch for empty list
@@ -373,13 +373,11 @@ void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)
     for (int i=0; i < outerRebinds->length(); i++) {
         bc_copy_value(writer);
         bc_write_input(writer, contents, outerRebinds->get(i)->input(1));
-        bc_local_input(writer, 1, caller->index + 1 + i);
+        bc_local_input(writer, 1, parent->get(caller->index + 1 + i)->local);
     }
 
     // End
     bc_pop_branch(writer);
-
-    dump(writer->data);
 }
 
 } // namespace circa

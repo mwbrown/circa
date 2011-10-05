@@ -26,7 +26,11 @@ struct Branch
 
     int _refCount;
 
+    // Deprecated:
     int outputIndex;
+
+    // Number of local values.
+    int localsCount;
 
     // Variant value describing where this branch came from. 
     //   If the branch came from a file, then the value will be of format:

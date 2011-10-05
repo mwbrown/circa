@@ -36,6 +36,7 @@ Branch::Branch()
   : owningTerm(NULL),
     _refCount(0),
     outputIndex(0),
+    localsCount(0),
     currentlyCascadingUpdates(false),
     bytecode(NULL)
 {

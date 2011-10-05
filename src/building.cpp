@@ -62,6 +62,9 @@ Term* apply(Branch* branch, Term* function, TermList const& inputs, std::string 
     // change_function will also update the declared type.
     change_function(result, function);
 
+    // Assign local index
+    result->local = reserve_local_value(branch);
+
     update_unique_name(result);
     on_inputs_changed(result);
     dirty_bytecode(branch);
@@ -493,6 +496,11 @@ Term* find_last_non_comment_expression(Branch* branch)
             return term;
     }
     return NULL;
+}
+
+int reserve_local_value(Branch* branch)
+{
+    return branch->localsCount++;
 }
 
 } // namespace circa

@@ -65,6 +65,10 @@ struct Term : TaggedValue
     // The index that this term currently holds inside owningBranch
     int index;
 
+    // The stack index of this term's local value during execution. If this is -1
+    // then the term does not have a local value.
+    int local;
+
     // Code which is nested inside this term. This object is created on-demand.
     Branch* nestedContents;
 

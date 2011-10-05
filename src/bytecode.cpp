@@ -174,6 +174,7 @@ static void bc_reserve_size(BytecodeWriter* writer, int opCount)
         writer->data = (BytecodeData*) malloc(
                 sizeof(BytecodeData) + sizeof(Operation) * newLength);
         writer->data->operationCount = 0;
+        writer->data->localsCount = 0;
         writer->data->dirty = false;
         writer->data->localsCount = 0;
         writer->data->branch = NULL;
@@ -337,7 +338,7 @@ void bc_write_input(BytecodeWriter* writer, Branch* frame, Term* input)
         bc_global_input(writer, (TaggedValue*) input);
     } else {
         int relativeFrame = get_frame_distance(frame, input);
-        bc_local_input(writer, relativeFrame, input->index);
+        bc_local_input(writer, relativeFrame, input->local);
     }
 }
 void bc_int_input(BytecodeWriter* writer, int value)
@@ -477,7 +478,7 @@ void write_bytecode_for_branch(Branch* branch, BytecodeWriter* writer)
     Term* parent = branch->owningTerm;
 
     bc_reserve_size(writer, 0);
-    writer->data->localsCount = branch->length();
+    writer->data->localsCount = branch->localsCount;
     writer->data->branch = branch;
 
     // Check if parent function has a writeNestedBytecode

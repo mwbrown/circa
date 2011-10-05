@@ -83,4 +83,9 @@ void check_to_add_branch_finish_term(Branch* branch, int previousLastTerm);
 void update_branch_finish_term(Term* term);
 Term* find_last_non_comment_expression(Branch* branch);
 
+// Local values
+
+// Return the index of the next available local value, and increment Branch.localsCount.
+int reserve_local_value(Branch* branch);
+
 } // namespace circa

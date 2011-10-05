@@ -931,6 +931,11 @@ ParseResult for_block(Branch* branch, TokenStream& tokens, ParserCxt* context)
 
     Term* forTerm = apply(branch, FOR_FUNC, TermList(listExpr), name);
     Branch* contents = nested_contents(forTerm);
+
+    // Reserve 2 locals, used during execution
+    reserve_local_value(contents);
+    reserve_local_value(contents);
+
     setup_for_loop_pre_code(forTerm);
     set_starting_source_location(forTerm, startPosition, tokens);
 
