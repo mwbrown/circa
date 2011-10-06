@@ -169,7 +169,6 @@ void if_block_write_bytecode(Term* caller, BytecodeWriter* writer)
 
         // Finish, clean up stack and wrap up jumps.
         bc_pop_stack(writer);
-        bc_return_on_evaluation_interrupted(writer);
 
         jumpsToFinish.push_back(bc_jump(writer));
 

@@ -3,7 +3,7 @@
 #pragma once
 
 #include "common_headers.h"
-#include "evaluation.h"
+#include "interpreter.h"
 
 #define CA_START_FUNCTIONS \
     struct _circa_StaticFuncDeclaration; \
@@ -28,18 +28,17 @@
                 _circa_START_FUNCTIONS[i]->_header);\
     }
 
-#define CALL_OPERATION (_op)
-#define CALLER (_op->term)
+#define CALLER (get_pc_term(_context))
 #define CONTEXT (_context)
-#define NUM_INPUTS (_op->term->numInputs())
-#define INPUT(index) (get_input(_context, _op, (index)+1))
+#define NUM_INPUTS (_count)
+#define INPUT(index) (_in[(index)+1])
 #define FLOAT_INPUT(index) (circa::to_float(INPUT(index)))
 #define BOOL_INPUT(index) (circa::as_bool(INPUT(index)))
 #define STRING_INPUT(index) (circa::as_string(INPUT(index)).c_str())
 #define INT_INPUT(index) (circa::as_int(INPUT(index)))
-#define STATE_INPUT (get_state_input(_context, _op->term))
+#define STATE_INPUT (get_state_input(_context, CALLER))
 #define INPUT_TERM(index) (CALLER->input(index))
-#define OUTPUT (get_input(_context, _op, 0))
-#define EXTRA_OUTPUT(index) (get_extra_output(_context, _op->term, (index)))
+#define OUTPUT (_in[0])
+#define EXTRA_OUTPUT(index) (get_extra_output(_context, CALLER, (index)))
 #define FUNCTION (_op->term->function)
-#define ERROR_OCCURRED(msg) (error_occurred(_context, _op->term, (msg)))
+#define ERROR_OCCURRED(msg) (error_occurred(_context, CALLER, (msg)))

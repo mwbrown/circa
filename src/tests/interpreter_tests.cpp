@@ -19,18 +19,6 @@ void test_simple()
     test_equals(testing_get_spy_results(), "[1]");
 }
 
-void test_for_loop_simple()
-{
-    Branch branch;
-    branch.compile("for i in [1 2 3] { test_spy(i) }");
-
-    EvalContext context;
-    testing_clear_spy();
-    interpret(&context, &branch);
-
-    test_equals(testing_get_spy_results(), "[1, 2, 3]");
-}
-
 void test_if_simple()
 {
     Branch branch;
@@ -42,6 +30,18 @@ void test_if_simple()
     interpret(&context, &branch);
 
     test_equals(testing_get_spy_results(), "['t']");
+}
+
+void test_for_loop_simple()
+{
+    Branch branch;
+    branch.compile("for i in [1 2 3] { test_spy(i) }");
+
+    EvalContext context;
+    testing_clear_spy();
+    interpret(&context, &branch);
+
+    test_equals(testing_get_spy_results(), "[1, 2, 3]");
 }
 
 void test_for_loop_control_flow()
@@ -80,8 +80,8 @@ void test_interpret_range_simple()
 void register_tests()
 {
     REGISTER_TEST_CASE(interpreter_tests::test_simple);
-    REGISTER_TEST_CASE(interpreter_tests::test_for_loop_simple);
     REGISTER_TEST_CASE(interpreter_tests::test_if_simple);
+    REGISTER_TEST_CASE(interpreter_tests::test_for_loop_simple);
     REGISTER_TEST_CASE(interpreter_tests::test_for_loop_control_flow);
     REGISTER_TEST_CASE(interpreter_tests::test_interpret_range_simple);
 }

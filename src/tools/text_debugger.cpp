@@ -4,6 +4,7 @@
 
 #include "evaluation.h"
 #include "introspection.h"
+#include "interpreter.h"
 #include "source_repro.h"
 #include "static_checking.h"
 #include "term.h"

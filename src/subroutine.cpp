@@ -9,6 +9,7 @@
 #include "evaluation.h"
 #include "function.h"
 #include "importing_macros.h"
+#include "interpreter.h"
 #include "kernel.h"
 #include "locals.h"
 #include "refactoring.h"
@@ -50,6 +51,7 @@ Type* get_subroutine_output_type(Branch* contents)
 
 CA_FUNCTION(evaluate_subroutine)
 {
+#if 0
     EvalContext* context = CONTEXT;
     Term* caller = CALLER;
     Term* function = caller->function;
@@ -84,7 +86,7 @@ CA_FUNCTION(evaluate_subroutine)
 
     context->interruptSubroutine = false;
     context->callStack.append(caller);
-    push_stack_frame(context, &stackFrame);
+    push_frame(context, contents);
     set_null(&context->subroutineOutput);
 
     // Fetch state container
@@ -133,7 +135,7 @@ CA_FUNCTION(evaluate_subroutine)
     }
 
     // Clean up
-    pop_stack_frame(context);
+    pop_frame(context);
     context->callStack.pop();
     context->interruptSubroutine = false;
     
@@ -151,6 +153,7 @@ CA_FUNCTION(evaluate_subroutine)
     // Write extra outputs
     for (int i=1; i < outputs.length(); i++)
         swap(outputs[i], get_extra_output(context, caller, i-1));
+#endif
 }
 
 bool is_subroutine(Term* term)

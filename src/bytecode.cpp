@@ -87,12 +87,6 @@ void print_bytecode_op(Operation* op, int loc, std::ostream& out)
         case OP_RETURN_ON_ERROR:
             out << "return_on_error";
             break;
-        case OP_RETURN_ON_EVAL_INTERRUPTED:
-            out << "return_on_eval_interrupt";
-            break;
-        case OP_STACK_SIZE:
-            out << "stack_size " << ((OpStackSize*) op)->size;
-            break;
         case OP_JUMP:
             out << "jump " << loc + ((OpJump*) op)->offset;
             break;
@@ -223,10 +217,6 @@ void bc_write_call_op_with_func(BytecodeWriter* writer, Term* term, Term* func)
 void bc_return(BytecodeWriter* writer)
 {
     bc_append_op(writer)->type = OP_RETURN;
-}
-void bc_return_on_evaluation_interrupted(BytecodeWriter* writer)
-{
-    bc_append_op(writer)->type = OP_RETURN_ON_EVAL_INTERRUPTED;
 }
 void bc_imaginary_call(BytecodeWriter* writer, EvaluateFunc func, int output)
 {
@@ -459,34 +449,8 @@ void write_bytecode_for_branch(Branch* branch, BytecodeWriter* writer)
     bc_finish(writer);
 }
 
-bool check_output_type(EvalContext* context, Term* term)
-{
-    if (!context->errorOccurred) {
 
-        Type* outputType = declared_type(term);
-        TaggedValue* output = get_output(context, term);
-
-        // Special case, if the function's output type is void then we don't care
-        // if the output value is null or not.
-        if (outputType == &VOID_T)
-            ;
-
-        else if (!cast_possible(output, outputType)) {
-            std::stringstream msg;
-            msg << "term " << global_id(term) << ", function " << term->function->name
-                << " produced output "
-                << output->toString()
-                << " which doesn't fit output type "
-                << outputType->name;
-
-            error_occurred(context, term, msg.str());
-
-            return false;
-        }
-    }
-    return true;
-}
-
+#if 0
 void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
 {
     int pc = 0;
@@ -678,6 +642,7 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
         }
     }
 }
+#endif
 
 void evaluate_branch_with_bytecode(EvalContext* context, Branch* branch)
 {

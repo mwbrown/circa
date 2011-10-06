@@ -18,6 +18,7 @@ namespace get_state_field_function {
     CA_DEFINE_FUNCTION(get_state_field,
         "get_state_field(any container :optional, any default_value :optional) -> any")
     {
+#if 0 // FIXME
         Dict* stateContainer = NULL;
 
         // Check if a container was passed as input0
@@ -80,6 +81,7 @@ namespace get_state_field_function {
         // Otherwise, reset to default value of type
         change_type(OUTPUT, declared_type(CALLER));
         reset(OUTPUT);
+#endif
     }
 
     void formatSource(StyledSource* source, Term* term)

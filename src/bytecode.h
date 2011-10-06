@@ -23,8 +23,6 @@ const OpType OP_JUMP_IF_WITHIN_RANGE = 14;
 
 const OpType OP_RETURN = 20;
 const OpType OP_RETURN_ON_ERROR = 21;
-const OpType OP_RETURN_ON_EVAL_INTERRUPTED = 24; // deprecated
-const OpType OP_STACK_SIZE = 22;
 const OpType OP_POP_STACK = 23;
 
 const OpType OP_INPUT_LOCAL = 31;
@@ -119,7 +117,6 @@ void bc_write_call_op(BytecodeWriter* writer, Term* term, EvaluateFunc func);
 void bc_write_call_op_with_func(BytecodeWriter* writer, Term* term, Term* func);
 void bc_check_output(BytecodeWriter* writer, Term* term);
 void bc_return(BytecodeWriter* writer);
-void bc_return_on_evaluation_interrupted(BytecodeWriter* writer);
 
 // Write a CALL instruction with no Term*, just an EvaluateFunc. Input
 // instructions must be appended by the caller. Some functions don't work

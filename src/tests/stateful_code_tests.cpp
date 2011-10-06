@@ -160,6 +160,7 @@ void implicit_state()
 
 namespace test_interpreted_state_access
 {
+#if 0 // TEST_DISABLED
     CA_FUNCTION(evaluate)
     {
         TaggedValue* state = get_state_input(CONTEXT, CALLER);
@@ -187,6 +188,7 @@ namespace test_interpreted_state_access
         evaluate_save_locals(&context, &branch);
         test_equals(context.state.toString(), "{a: 3}");
     }
+#endif
 }
 
 void bug_with_top_level_state()
@@ -425,7 +427,7 @@ void register_tests()
     REGISTER_TEST_CASE(stateful_code_tests::one_time_assignment_inside_for_loop);
     REGISTER_TEST_CASE(stateful_code_tests::explicit_state);
     REGISTER_TEST_CASE(stateful_code_tests::implicit_state);
-    REGISTER_TEST_CASE(stateful_code_tests::test_interpreted_state_access::test);
+    //TEST_DISABLED REGISTER_TEST_CASE(stateful_code_tests::test_interpreted_state_access::test);
     REGISTER_TEST_CASE(stateful_code_tests::bug_with_top_level_state);
     REGISTER_TEST_CASE(stateful_code_tests::bug_with_state_and_plus_equals);
     REGISTER_TEST_CASE(stateful_code_tests::subroutine_unique_name_usage);

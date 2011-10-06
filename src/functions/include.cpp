@@ -52,6 +52,7 @@ namespace include_function {
 
     CA_FUNCTION(evaluate_include)
     {
+#if 0 // FIXME
         EvalContext* context = CONTEXT;
         Branch* contents = nested_contents(CALLER);
 
@@ -84,6 +85,7 @@ namespace include_function {
         save_and_pop_scope_state(CONTEXT, CALLER);
 
         set_branch(OUTPUT, contents);
+#endif
     }
     void include_post_compile(Term* term)
     {

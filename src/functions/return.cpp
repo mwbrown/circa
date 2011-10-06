@@ -14,12 +14,14 @@ namespace return_function {
 
     CA_DEFINE_FUNCTION(return_func, "return(any :optional)")
     {
+#if 0
         CONTEXT->interruptSubroutine = true;
 
         Branch* contents = nested_contents(CALLER);
         push_stack_frame(CONTEXT, contents);
         evaluate_branch_with_bytecode(CONTEXT, contents);
         pop_stack_frame(CONTEXT);
+#endif
     }
 
     void returnPostCompile(Term* returnCall)

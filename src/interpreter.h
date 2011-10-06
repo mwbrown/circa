@@ -40,6 +40,7 @@ void finish_branch(EvalContext* context, int flags);
 
 // High-level interpreter control
 InterpretResult interpret(EvalContext* context, Branch* branch);
+InterpretResult interpret(EvalContext* context, BytecodeData* bytecode);
 void interpret_range(EvalContext* context, Branch* branch, int start, int end);
 
 // Lower-level interpreter control
@@ -51,6 +52,6 @@ void interpreter_halt(EvalContext* context);
 void copy_locals_to_terms(EvalContext* context, Branch* branch);
 TaggedValue* get_state_input(EvalContext* cxt);
 
-void evaluate_single_term(EvalContext* context, Term* term);
+void error_occurred(EvalContext* context, Term* errorTerm, std::string const& message);
 
 } // namespace circa

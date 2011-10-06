@@ -5,6 +5,7 @@
 #include "bytecode.h"
 #include "evaluation.h"
 #include "importing_macros.h"
+#include "interpreter.h"
 #include "introspection.h"
 #include "kernel.h"
 #include "list_shared.h"
@@ -155,6 +156,7 @@ void for_loop_update_output_index(Term* forTerm)
     }
 }
 
+#if 0
 CA_FUNCTION(evaluate_for_loop)
 {
     Term* caller = CALLER;
@@ -281,12 +283,12 @@ CA_FUNCTION(evaluate_for_loop)
     // Copy output (need to do this after restoring stack)
     swap(output, OUTPUT);
 }
+#endif
 
 void for_block_write_bytecode(Term* caller, BytecodeWriter* writer)
 {
     bc_call_branch(writer, caller);
     bc_pop_stack(writer);
-    bc_return_on_evaluation_interrupted(writer);
 }
 
 void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)

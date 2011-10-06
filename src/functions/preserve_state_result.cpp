@@ -10,6 +10,7 @@ namespace preserve_state_result_function {
 
     CA_FUNCTION(preserve_state_result)
     {
+#if 0
         TaggedValue result;
         copy(INPUT(0), &result);
         // TODO: switch to use consume_input instead of copy
@@ -20,6 +21,7 @@ namespace preserve_state_result_function {
         Dict* state = get_scope_state(CONTEXT, 0);
         swap(&result, state->insert(name));
         set_null(OUTPUT);
+#endif
     }
 
     void setup(Branch* kernel)

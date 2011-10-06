@@ -88,6 +88,7 @@ namespace if_block_function {
 
     CA_FUNCTION(if_block_unpack_state)
     {
+#if 0 // FIXME
         Term* caller = CALLER;
         EvalContext* context = CONTEXT;
 
@@ -117,10 +118,12 @@ namespace if_block_function {
 
         if (resetStateForUnusedBranches)
             set_null(stateEntry);
+#endif
     }
 
     CA_FUNCTION(if_block_pack_state)
     {
+#if 0 // FIXME
         EvalContext* context = CONTEXT;
         Term* caller = CALLER;
 
@@ -133,6 +136,7 @@ namespace if_block_function {
 
         swap(get_scope_state(context, 0), stateEntry->get(caseIndex));
         pop_scope_state(context);
+#endif
     }
 
     void setup(Branch* kernel)
