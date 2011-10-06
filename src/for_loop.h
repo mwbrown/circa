@@ -6,10 +6,9 @@
 
 namespace circa {
 
-Term* get_for_loop_iterator(Term* forTerm);
-Term* get_for_loop_modify_list(Term* forTerm);
+Term* for_loop_get_iterator(Term* forTerm);
 void setup_for_loop_pre_code(Term* forTerm);
-Term* setup_for_loop_iterator(Term* forTerm, const char* name);
+void for_loop_rename_iterator(Term* forTerm, const char* name);
 void setup_for_loop_post_code(Term* forTerm);
 
 Term* find_enclosing_for_loop(Term* term);

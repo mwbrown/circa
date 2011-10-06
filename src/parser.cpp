@@ -931,19 +931,14 @@ ParseResult for_block(Branch* branch, TokenStream& tokens, ParserCxt* context)
     Term* forTerm = apply(branch, FOR_FUNC, TermList(listExpr), name);
     Branch* contents = nested_contents(forTerm);
 
-    // Reserve 2 locals, used during execution
-    reserve_local_value(contents);
-    reserve_local_value(contents);
-
     setup_for_loop_pre_code(forTerm);
+    for_loop_rename_iterator(forTerm, iterator_name.c_str());
     set_starting_source_location(forTerm, startPosition, tokens);
 
-    set_bool(get_for_loop_modify_list(forTerm), rebindListName);
+    forTerm->setBoolProp("modifyList", rebindListName);
 
     if (rebindListName)
         forTerm->setStringProp("syntax:rebindOperator", listExpr->name);
-
-    setup_for_loop_iterator(forTerm, iterator_name.c_str());
 
     consume_branch(contents, tokens, context);
 

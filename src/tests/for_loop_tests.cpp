@@ -38,12 +38,12 @@ void type_inference_for_iterator()
 {
     Branch branch;
     Term* loop = branch.compile("for i in [1] {}");
-    Term* iterator = get_for_loop_iterator(loop);
+    Term* iterator = for_loop_get_iterator(loop);
     //test_assert(iterator->type == INT_TYPE);
 
     // test a situation where we can't do inference
     loop = branch.compile("for i in [] {}");
-    iterator = get_for_loop_iterator(loop);
+    iterator = for_loop_get_iterator(loop);
     test_equals(iterator->type->name, "any");
 }
 

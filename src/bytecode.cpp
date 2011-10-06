@@ -399,8 +399,7 @@ void bc_call(BytecodeWriter* writer, Term* term)
 
     // Don't write anything for certain special names
     if (term->name == "#inner_rebinds"
-            || term->name == "#outer_rebinds"
-            || term->name == "#attributes")
+            || term->name == "#outer_rebinds")
         return;
 
     // Check if the function has a special writer function

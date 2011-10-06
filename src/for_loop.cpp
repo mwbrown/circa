@@ -22,27 +22,18 @@
 namespace circa {
 
 /* Organization of for loop contents:
-   [0] #attributes
-     [0] #modify_list
-   [1] iterator
-   [2..i] join() terms for inner rebinds
+   [0] iterator
+   [1..i] join() terms for inner rebinds
    [...] contents
    [n-1] #outer_rebinds
 */
 
-static const int iterator_location = 1;
-static const int inner_rebinds_location = 2;
+static const int iterator_location = 0;
+static const int inner_rebinds_location = 1;
 
-Term* get_for_loop_iterator(Term* forTerm)
+Term* for_loop_get_iterator(Term* forTerm)
 {
     return forTerm->contents(iterator_location);
-}
-
-Term* get_for_loop_modify_list(Term* forTerm)
-{
-    Term* term = forTerm->contents(0)->contents(0);
-    ca_assert(term != NULL);
-    return term;
 }
 
 Branch* get_for_loop_outer_rebinds(Term* forTerm)
@@ -53,28 +44,31 @@ Branch* get_for_loop_outer_rebinds(Term* forTerm)
 
 void setup_for_loop_pre_code(Term* forTerm)
 {
-    Branch* forContents = nested_contents(forTerm);
-    Branch* attributes = create_branch(forContents, "#attributes");
-    create_bool(attributes, false, "#modify_list");
-}
+    Branch* contents = nested_contents(forTerm);
 
-Term* setup_for_loop_iterator(Term* forTerm, const char* name)
-{
+    // Reserve 2 locals, used during execution
+    reserve_local_value(contents);
+    reserve_local_value(contents);
+
+    // Create iterator term
     Type* iteratorType = infer_type_of_get_index(forTerm->input(0));
-    Term* result = apply(nested_contents(forTerm), INPUT_PLACEHOLDER_FUNC, TermList(), name);
+    Term* result = apply(nested_contents(forTerm), INPUT_PLACEHOLDER_FUNC, TermList());
     change_declared_type(result, iteratorType);
     hide_from_source(result);
     ca_assert(result->index == iterator_location);
-    return result;
+}
+
+void for_loop_rename_iterator(Term* forTerm, const char* name)
+{
+    Term* term = forTerm->contents(0);
+    nested_contents(forTerm)->bindName(term, name);
 }
 
 void setup_for_loop_post_code(Term* forTerm)
 {
     Branch* forContents = nested_contents(forTerm);
     std::string listName = forTerm->input(0)->name;
-    std::string iteratorName = get_for_loop_iterator(forTerm)->name;
-
-    finish_minor_branch(forContents);
+    std::string iteratorName = for_loop_get_iterator(forTerm)->name;
 
     // Create a branch that has all the names which are rebound in this loop
     Branch* outerRebinds = create_branch(forContents, "#outer_rebinds");
@@ -132,135 +126,6 @@ Term* find_enclosing_for_loop(Term* term)
 
     return find_enclosing_for_loop(branch->owningTerm);
 }
-
-#if 0
-CA_FUNCTION(evaluate_for_loop)
-{
-    Term* caller = CALLER;
-    EvalContext* context = CONTEXT;
-    Branch* forContents = nested_contents(caller);
-    Branch* outerRebinds = get_for_loop_outer_rebinds(caller);
-    Term* iterator = get_for_loop_iterator(caller);
-
-    TaggedValue* inputList = INPUT(0);
-    int inputListLength = inputList->numElements();
-
-    TaggedValue outputTv;
-    bool saveOutput = forContents->outputIndex != -1;
-    List* output = set_list(&outputTv, inputListLength);
-    int nextOutputIndex = 0;
-
-    push_stack_frame(context, forContents);
-    context->callStack.append(CALLER);
-
-    // Prepare state container
-    bool useState = has_implicit_state(CALLER);
-    TaggedValue localState;
-    List* state = NULL;
-    if (useState) {
-        push_scope_state(context);
-        fetch_state_container(CALLER, get_scope_state(context, 1), &localState);
-
-        state = List::lazyCast(&localState);
-        state->resize(inputListLength);
-    }
-
-    // Preserve old for-loop context
-    ForLoopContext prevLoopContext = context->forLoopContext;
-
-    context->forLoopContext.breakCalled = false;
-
-    for (int iteration=0; iteration < inputListLength; iteration++) {
-        context->forLoopContext.continueCalled = false;
-
-        bool firstIter = iteration == 0;
-
-        // load state for this iteration
-        if (useState)
-            swap(state->get(iteration), get_scope_state(context, 0));
-
-        // copy iterator
-        copy(inputList->getIndex(iteration), get_local(context, 0, iterator));
-
-        // copy inner rebinds
-        {
-            int index = inner_rebinds_location;
-            while (forContents->get(index)->function == JOIN_FUNC) {
-                Term* rebindTerm = forContents->get(index);
-                TaggedValue* dest = get_local(context, 0, index);
-
-                if (firstIter)
-                    copy(get_input(context, rebindTerm, 0), dest);
-                else
-                    copy(get_input(context, rebindTerm, 1), dest);
-
-                //ca_assert(cast_possible(dest, declared_type(rebindTerm)));
-
-                index++;
-            }
-        }
-
-        context->forLoopContext.discard = false;
-
-        ca_assert(!evaluation_interrupted(context));
-
-        evaluate_branch_with_bytecode(context, forContents);
-
-        // Save output
-        if (saveOutput && !context->forLoopContext.discard) {
-            TaggedValue* localResult = get_local(context, 0, forContents->get(forContents->outputIndex));
-            copy(localResult, output->get(nextOutputIndex++));
-        }
-
-        // Save state
-        if (useState)
-            swap(state->get(iteration), get_scope_state(context, 0));
-
-        if (context->forLoopContext.breakCalled
-                || context->interruptSubroutine)
-            break;
-    }
-
-    // Resize output, in case some elements were discarded
-    output->resize(nextOutputIndex);
-
-    // Copy outer rebinds
-    //ca_assert(caller->numOutputs() == outerRebinds.length() + 1);
-    
-    for (int i=0; i < outerRebinds->length(); i++) {
-
-        Term* rebindTerm = outerRebinds->get(i);
-
-        TaggedValue* result = NULL;
-
-        if (inputListLength == 0) {
-            // No iterations, use the outer rebind
-            result = get_input(context, rebindTerm, 0);
-        } else {
-            // At least one iteration, use our local rebind
-            result = get_input(context, rebindTerm, 1);
-        }
-
-        int outputIndex = caller->index + 1 + i;
-        TaggedValue* dest = list_get_index(get_stack_frame(context, 1), outputIndex);
-        copy(result, dest);
-    }
-
-    // Restore loop context
-    context->forLoopContext = prevLoopContext;
-
-    if (useState) {
-        pop_scope_state(context);
-        save_and_consume_state(CALLER, get_scope_state(context, 0), &localState);
-    }
-
-    context->callStack.pop();
-    pop_stack_frame(context);
-    
-    // Copy output (need to do this after restoring stack)
-    swap(output, OUTPUT);
-}
-#endif
 
 void for_block_write_bytecode(Term* caller, BytecodeWriter* writer)
 {
@@ -348,8 +213,8 @@ void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)
 
     // Save the list result
     Term* listResult = NULL;
-    if (as_bool(get_for_loop_modify_list(caller)))
-        listResult = contents->get(get_for_loop_iterator(caller)->name);
+    if (caller->boolPropOptional("modifyList", false))
+        listResult = contents->get(for_loop_get_iterator(caller)->name);
     else
         listResult = find_last_non_comment_expression(contents);
         
