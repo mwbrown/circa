@@ -7,7 +7,6 @@
 #include "debug.h"
 #include "heap_debugging.h"
 #include "introspection.h"
-#include "interpreter.h"
 #include "kernel.h"
 #include "refactoring.h"
 #include "term.h"
@@ -25,9 +24,7 @@ Term::Term()
     function(NULL),
     owningBranch(NULL),
     index(0),
-    nestedContents(NULL),
-    instruction(0),
-    evaluateFunc(NULL)
+    nestedContents(NULL)
 {
     globalID = gNextGlobalID++;
 
@@ -65,6 +62,11 @@ int
 Term::numInputs() const
 {
     return this->inputs.size();
+}
+int
+Term::numInputInstructions() const
+{
+    return inputIsns.inputs.size();
 }
 
 void

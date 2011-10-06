@@ -4,6 +4,7 @@
 
 #include "circa.h"
 
+#include "../bytecode.h"
 #include "../importing.h"
 #include "../importing_macros.h"
 
@@ -14,12 +15,10 @@ namespace finish_minor_branch_function {
 
     CA_DEFINE_FUNCTION(finish_minor_branch_func, "finish_minor_branch()")
     {
-#if 0 // FIXME
         Branch* contents = nested_contents(CALLER);
         push_stack_frame(CONTEXT, contents);
         evaluate_branch_with_bytecode(CONTEXT, contents);
         pop_stack_frame(CONTEXT);
-#endif
     }
 
     void postCompile(Term* finishBranchTerm)

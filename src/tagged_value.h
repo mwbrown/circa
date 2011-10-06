@@ -58,7 +58,7 @@ bool cast(TaggedValue* source, Type* type, TaggedValue* dest);
 // Returns whether this value can be cast to the given type.
 bool cast_possible(TaggedValue* value, Type* type);
 
-// Copy 'source' to 'dest'. This will delete the previous value at 'dest'
+// Copy 'source' to 'dest'.
 void copy(TaggedValue* source, TaggedValue* dest);
 
 // Swap values between 'left' and 'right'. This is much cheaper than copy(),
@@ -69,10 +69,6 @@ void swap(TaggedValue* left, TaggedValue* right);
 // Convenience function, perform a swap or copy between the two values, depending
 // on the 'doCopy' flag.
 void swap_or_copy(TaggedValue* left, TaggedValue* right, bool doCopy);
-
-// Move 'source' to 'dest'. This will delete the previous value at 'dest', and
-// will set 'source' to null.
-void move(TaggedValue* source, TaggedValue* dest);
 
 void reset(TaggedValue* value);
 std::string to_string(TaggedValue* value);

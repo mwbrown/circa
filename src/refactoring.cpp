@@ -2,7 +2,7 @@
 
 #include "branch.h"
 #include "building.h"
-#include "dirtying.h"
+#include "bytecode.h"
 #include "function.h"
 #include "heap_debugging.h"
 #include "introspection.h"
@@ -25,7 +25,7 @@ void change_function(Term* term, Term* function)
     Term* previousFunction = term->function;
 
     term->function = function;
-    dirty_branch(term);
+    dirty_bytecode(term);
 
     possibly_prune_user_list(term, previousFunction);
     respecialize_type(term);
@@ -35,22 +35,6 @@ void change_function(Term* term, Term* function)
             && function != VALUE_FUNC
             && function != INPUT_PLACEHOLDER_FUNC) {
         append_user(term, function);
-    }
-
-    // Update term->instruction and evaluateFunc
-    FunctionAttrs* attrs = get_function_attrs(function);
-    if (attrs == NULL) {
-        term->instruction = ISN_SKIP;
-        term->evaluateFunc = NULL;
-    } else if (attrs->evaluateManual != NULL) {
-        term->instruction = ISN_CALL_MANUAL;
-        term->evaluateFunc = NULL;
-    } else if (attrs->evaluate == NULL) {
-        term->instruction = ISN_SKIP;
-        term->evaluateFunc = NULL;
-    } else {
-        term->instruction = ISN_CALL;
-        term->evaluateFunc = attrs->evaluate;
     }
 }
 

@@ -3,6 +3,7 @@
 #include "circa.h"
 
 #include "branch.h"
+#include "bytecode.h"
 #include "evaluation.h"
 #include "kernel.h"
 #include "testing.h"
@@ -54,7 +55,7 @@ void test_dont_crash_on_static_error()
     Branch branch;
     EvalContext context;
     branch.compile("nonexistant()");
-    evaluate_branch(&context, &branch);
+    evaluate_branch_with_bytecode(&context, &branch);
     test_assert(has_static_errors(&branch));
 }
 

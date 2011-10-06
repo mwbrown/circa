@@ -5,7 +5,6 @@
 namespace circa {
 namespace evaluation_tests {
 
-#if 0
 void test_manual_evaluate_branch()
 {
     Branch branch;
@@ -31,7 +30,6 @@ void test_manual_evaluate_branch()
     test_equals(&context.stack, "[[null, null, 3, null, 6]]");
     pop_stack_frame(&context);
 }
-#endif
 
 void test_branch_eval()
 {
@@ -168,7 +166,7 @@ void eval_context_inputs()
 
 void register_tests()
 {
-    //REGISTER_TEST_CASE(evaluation_tests::test_manual_evaluate_branch);
+    REGISTER_TEST_CASE(evaluation_tests::test_manual_evaluate_branch);
     REGISTER_TEST_CASE(evaluation_tests::test_branch_eval);
     REGISTER_TEST_CASE(evaluation_tests::test_evaluate_minimum);
     REGISTER_TEST_CASE(evaluation_tests::test_evaluate_minimum2);

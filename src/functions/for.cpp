@@ -73,16 +73,16 @@ namespace for_function {
     CA_FUNCTION(loop_prepare_output)
     {
         List* inputList = as_list(INPUT(0));
-        /*List* output =*/ set_list(OUTPUT, inputList->length());
+        List* output = set_list(OUTPUT, inputList->length());
     }
 
     CA_FUNCTION(evaluate_break)
     {
-        for_loop_break(CONTEXT);
+        CONTEXT->forLoopContext.breakCalled = true;
     }
     CA_FUNCTION(evaluate_continue)
     {
-        for_loop_continue(CONTEXT);
+        CONTEXT->forLoopContext.continueCalled = true;
     }
     CA_FUNCTION(evaluate_discard)
     {
@@ -103,12 +103,15 @@ namespace for_function {
 
     void setup(Branch* kernel)
     {
-        FOR_FUNC = import_function(kernel, NULL, "for(Indexable) -> List");
+        FOR_FUNC = import_function(kernel, evaluate_for_loop, "for(Indexable) -> List");
         get_function_attrs(FOR_FUNC)->formatSource = formatSource;
         get_function_attrs(FOR_FUNC)->getOutputCount = getOutputCount;
         get_function_attrs(FOR_FUNC)->getOutputName = getOutputName;
         get_function_attrs(FOR_FUNC)->getOutputType = getOutputType;
-        get_function_attrs(FOR_FUNC)->evaluateManual = for_loop_begin_branch;
+        //get_function_attrs(FOR_FUNC)->writeBytecode = for_block_write_bytecode;
+        //get_function_attrs(FOR_FUNC)->writeNestedBytecode = for_block_write_bytecode_contents;
+
+        LOOP_INDEX_FUNC = import_function(kernel, evaluate_loop_index, "loop_index() -> int");
 
         import_function(kernel, loop_prepare_output, "loop_prepare_output(Indexable)->List");
 

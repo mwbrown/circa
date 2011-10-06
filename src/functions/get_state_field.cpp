@@ -7,6 +7,7 @@
 #include "common_headers.h"
 
 #include "circa.h"
+#include "bytecode.h"
 #include "types/dict.h"
 
 namespace circa {
@@ -17,8 +18,19 @@ namespace get_state_field_function {
     CA_DEFINE_FUNCTION(get_state_field,
         "get_state_field(any container :optional, any default_value :optional) -> any")
     {
-#if 0 // FIXME
-        TaggedValue* value = get_state_input(_context);
+        Dict* stateContainer = NULL;
+
+        // Check if a container was passed as input0
+        if (INPUT_TERM(0) != NULL)
+            stateContainer = Dict::checkCast(INPUT(0));
+
+        if (stateContainer == NULL)
+            stateContainer = get_scope_state(CONTEXT, 0);
+
+        ca_assert(stateContainer != NULL);
+
+        const char* name = CALLER->name.c_str();
+        TaggedValue* value = stateContainer->get(name);
 
         // Try to cast 'value' to the declared type.
         if (value != NULL) {
@@ -68,7 +80,6 @@ namespace get_state_field_function {
         // Otherwise, reset to default value of type
         change_type(OUTPUT, declared_type(CALLER));
         reset(OUTPUT);
-#endif
     }
 
     void formatSource(StyledSource* source, Term* term)

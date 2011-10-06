@@ -4,7 +4,7 @@
 
 #include "building.h"
 #include "branch.h"
-#include "dirtying.h"
+#include "bytecode.h"
 #include "evaluation.h"
 #include "for_loop.h"
 #include "function.h"
@@ -46,12 +46,13 @@ TermPtr compile(Branch* branch, ParsingStep step, std::string const& input)
     if (prevLast && prevLast->function == FINISH_MINOR_BRANCH_FUNC) {
         branch->moveToEnd(branch->get(prevLastIndex));
         update_branch_finish_term(branch->get(branch->length()-1));
+        update_input_instructions(nested_contents(prevLast));
     } else {
         check_to_add_branch_finish_term(branch, prevLastIndex+1);
     }
 
     post_parse_branch(branch);
-    dirty_branch(branch);
+    dirty_bytecode(branch);
 
     ca_assert(branch_check_invariants_print_result(branch, std::cout));
 
@@ -838,8 +839,8 @@ ParseResult if_block(Branch* branch, TokenStream& tokens, ParserCxt* context)
     branch->moveToEnd(result);
 
     update_if_block_joining_branch(result);
+    update_input_instructions(nested_contents(result));
     set_source_location(result, startPosition, tokens);
-    dirty_branch(branch);
 
     return ParseResult(result);
 }

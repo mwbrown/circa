@@ -9,6 +9,7 @@ void initial_value_expr_1()
 {
     Branch branch;
     branch.compile("state s = 1");
+    update_bytecode_for_branch(&branch);
 
     EvalContext context;
     evaluate_save_locals(&context, &branch);
@@ -20,6 +21,7 @@ void initial_value_expr_2()
     Branch branch;
     branch.compile("local = add(1,1)");
     branch.compile("state s = local");
+    update_bytecode_for_branch(&branch);
     
     EvalContext context;
     evaluate_save_locals(&context, &branch);
@@ -30,6 +32,7 @@ void initial_value_expr_3()
 {
     Branch branch;
     branch.compile("state s = 1 + 1");
+    update_bytecode_for_branch(&branch);
 
     EvalContext context;
     evaluate_save_locals(&context, &branch);

@@ -3,7 +3,7 @@
 #include "common_headers.h"
 
 #include "building.h"
-#include "dirtying.h"
+#include "bytecode.h"
 #include "function.h"
 #include "heap_debugging.h"
 #include "introspection.h"
@@ -64,7 +64,8 @@ Term* apply(Branch* branch, Term* function, TermList const& inputs, std::string 
 
     update_unique_name(result);
     on_inputs_changed(result);
-    dirty_branch(branch);
+    update_input_instructions(result);
+    dirty_bytecode(branch);
 
     if (is_get_state(result) || has_implicit_state(result))
         mark_branch_as_having_inlined_state(branch);
@@ -93,6 +94,7 @@ void set_input(Term* term, int index, Term* input)
     possibly_prune_user_list(term, previousInput);
 
     mark_inputs_changed(term);
+    update_input_instructions(term);
 }
 
 void set_inputs(Term* term, TermList const& inputs)
@@ -120,6 +122,7 @@ void set_inputs(Term* term, TermList const& inputs)
         possibly_prune_user_list(term, previousInputs[i].term);
 
     mark_inputs_changed(term);
+    update_input_instructions(term);
 }
 
 void insert_input(Term* term, Term* input)
@@ -237,7 +240,7 @@ Term* create_value(Branch* branch, Type* type, std::string const& name)
     change_declared_type(term, type);
     change_type((TaggedValue*) term, type);
     update_unique_name(term);
-    dirty_branch(branch);
+    update_input_instructions(term);
 
     return term;
 }
@@ -445,7 +448,6 @@ void post_compile_term(Term* term)
 
 void finish_minor_branch(Branch* branch)
 {
-#if !NEW_INTERPRETER
     if (branch->length() > 0
             && branch->get(branch->length()-1)->function == FINISH_MINOR_BRANCH_FUNC)
         return;
@@ -465,7 +467,6 @@ void finish_minor_branch(Branch* branch)
         return;
 
     post_compile_term(apply(branch, FINISH_MINOR_BRANCH_FUNC, TermList()));
-#endif
 }
 
 void check_to_add_branch_finish_term(Branch* branch, int previousLastTerm)

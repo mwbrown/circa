@@ -492,6 +492,11 @@ Dict::cast(TaggedValue* v)
     return make_dict(v);
 }
 
+std::string Dict::toString()
+{
+    return dict_t::to_string((dict_t::DictData*) this->value_data.ptr);
+}
+
 TaggedValue* Dict::get(const char* key)
 {
     return dict_t::get_value((dict_t::DictData*) this->value_data.ptr, key);
@@ -506,7 +511,6 @@ bool Dict::contains(const char* key)
 }
 TaggedValue* Dict::insert(const char* key)
 {
-    ca_assert(is_dict(this));
     dict_t::DictData* data = (dict_t::DictData*) this->value_data.ptr;
     int newIndex = dict_t::insert(&data, key);
     this->value_data.ptr = data;

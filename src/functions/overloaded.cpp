@@ -5,85 +5,48 @@
 #include "../importing.h"
 #include "../importing_macros.h"
 
+#include "bytecode.h"
 #include "types/ref.h"
 
 namespace circa {
 namespace overloaded_function {
 
-    // update_overloaded_function_call will update the nested_contents of the
-    // given term, with an appropriate specialized call.
-    void update_overloaded_function_call(Term* term)
+    bool is_overloaded_function(Term* func);
+
+    Term* dynamically_specialize_func(List* overloadRefs, List* inputs)
     {
-        TermList inputs;
-        term->inputsToList(inputs);
+        for (int i=0; i < overloadRefs->length(); i++) {
+            Term* overload = as_ref(overloadRefs->get(i));
 
-        Branch* contents = nested_contents(term);
-        clear_branch(contents);
+            if (values_fit_function_dynamic(overload, inputs))
+                return overload;
+        }
+        return NULL;
+    }
 
-        List& overloads = get_function_attrs(term->function)->parameters;
+    Term* statically_specialize_function(Term* func, TermList const& inputs)
+    {
+        if (!is_function(func))
+            return func;
+        if (!is_overloaded_function(func))
+            return func;
 
-        ca_assert(overloads.length() > 0);
+        List& overloads = get_function_attrs(func)->parameters;
 
-        // Walk through overloads and find the first one that fits
-        Term* matchedOverload = NULL;
         for (int i=0; i < overloads.length(); i++) {
             Term* overload = as_ref(overloads[i]);
 
-            if (inputs_statically_fit_function(overload, inputs)) {
-                matchedOverload = overload;
-                break;
-            }
+            if (inputs_statically_fit_function(overload, inputs))
+                return overload;
         }
 
-        // If one was found, write a call to nested_contents
-        if (matchedOverload != NULL) {
-            Term* specialized = apply(contents, matchedOverload, inputs);
-            change_declared_type(term, specialized->type);
-            return;
-        }
-
-        // Otherwise, leave nested_contents blank, we'll do a dynamic overload.
+        // no overload found
+        return NULL;
     }
 
-    CA_FUNCTION(evaluate_overload)
-    {
-        Term* term = CALLER;
-
-        Branch* contents = nested_contents(term);
-
-        // Check if there is a specialized call.
-        if (contents->length() > 0) {
-            Term* specialized = contents->get(0);
-            get_function_attrs(specialized->function)->evaluate(CONTEXT, specialized);
-            return;
-        }
-
-        // No specialized call, perform a dynamic lookup
-        List& overloads = get_function_attrs(term->function)->parameters;
-
-#if 0
-        for (int i=0; i < overloads.length(); i++) {
-            Term* overload = as_ref(overloads[i]);
-
-            if (values_fit_function_dynamic(overload, inputs)) {
-                get_function_attrs(specialized->function)->evaluate(CONTEXT, specialized);
-                return;
-            }
-        }
-#endif
-
-        error_occurred(CONTEXT, CALLER, "No matching specialized function");
-    }
-
-#if 0
     CA_FUNCTION(evaluate_dynamic_overload)
     {
         Branch* contents = nested_contents(CALLER);
-
-        // FIXME
-        Term* call = contents->get(0);
-        call->evaluateFunc(CONTEXT, _count, _in);
-
         Term* func = CALLER->function;
         FunctionAttrs* funcAttrs = get_function_attrs(func);
 
@@ -139,12 +102,41 @@ namespace overloaded_function {
             return error_occurred(CONTEXT, CALLER, msg.str());
         }
     }
-#endif
+
+    void overload_post_input_change(Term* term)
+    {
+        Branch* contents = nested_contents(term);
+        clear_branch(contents);
+
+        TermList inputs;
+        term->inputsToList(inputs);
+        Term* specializedFunc = statically_specialize_function(term->function, inputs);
+
+        if (specializedFunc != NULL) {
+            apply(contents, specializedFunc, inputs);
+            change_declared_type(term, contents->get(0)->type);
+        }
+    }
 
     Type* overload_specialize_type(Term* term)
     {
         Branch* contents = nested_contents(term);
         return contents->get(0)->type;
+    }
+
+    void writeBytecode(Term* term, BytecodeWriter* writer)
+    {
+        Branch* contents = nested_contents(term);
+        if (contents->length() > 0)
+            bc_call(writer, contents->get(0));
+        else
+            bc_write_call_op(writer, term, evaluate_dynamic_overload);
+    }
+
+    bool is_overloaded_function(Term* func)
+    {
+        ca_assert(is_function(func));
+        return get_function_attrs(func)->evaluate == evaluate_dynamic_overload;
     }
 
     int num_overloads(Term* func)
@@ -207,9 +199,8 @@ namespace overloaded_function {
 
         FunctionAttrs* attrs = get_function_attrs(term);
         attrs->name = name;
-        attrs->evaluate = evaluate_overload;
-        attrs->postInputChange = update_overloaded_function_call;
-        attrs->createsStackFrame = false;
+        attrs->evaluate = evaluate_dynamic_overload;
+        attrs->postInputChange = overload_post_input_change;
         // attrs->specializeType = overload_specialize_type;
 
         List& parameters = get_function_attrs(term)->parameters;
@@ -239,6 +230,8 @@ namespace overloaded_function {
 
     void append_overload(Term* overloadedFunction, Term* overload)
     {
+        ca_assert(is_overloaded_function(overloadedFunction));
+
         List& parameters = get_function_attrs(overloadedFunction)->parameters;
         set_ref(parameters.append(), overload);
         update_function_signature(overloadedFunction);
@@ -247,7 +240,7 @@ namespace overloaded_function {
     CA_FUNCTION(evaluate_declaration)
     {
         // Make our output of type Function so that the type checker doesn't
-        // get mad.
+        // get mad. This value isn't used.
         change_type(OUTPUT, unbox_type(FUNCTION_TYPE));
     }
 
@@ -256,6 +249,7 @@ namespace overloaded_function {
         OVERLOADED_FUNCTION_FUNC = import_function(kernel, evaluate_declaration,
                 "overloaded_function(Function...) -> Function");
         get_function_attrs(OVERLOADED_FUNCTION_FUNC)->postCompile = overloaded_func_post_compile;
+        get_function_attrs(OVERLOADED_FUNCTION_FUNC)->writeBytecode = writeBytecode;
     }
 }
 }

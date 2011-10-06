@@ -4,6 +4,7 @@
 
 #include "branch.h"
 #include "building.h"
+#include "bytecode.h"
 #include "filesystem.h"
 #include "importing.h"
 #include "importing_macros.h"
@@ -100,6 +101,7 @@ Term* LIST_TYPE = NULL;
 Term* LIST_FUNC = NULL;
 Term* LIST_APPEND_FUNC = NULL;
 Term* LOAD_SCRIPT_FUNC = NULL;
+Term* LOOP_INDEX_FUNC = NULL;
 Term* MULT_FUNC = NULL;
 Term* NAMESPACE_FUNC = NULL;
 Term* NEG_FUNC = NULL;
@@ -202,7 +204,7 @@ void create_primitive_types()
 
 void update_bootstrapped_term(Term* term)
 {
-    // This once did stuff
+    update_input_instructions(term);
 }
 
 void bootstrap_kernel()
@@ -274,6 +276,7 @@ void initialize_primitive_types(Branch* kernel)
     create_type_value(kernel, &BRANCH_T, "Branch");
 
     initialize_function(VALUE_FUNC);
+    get_function_attrs(VALUE_FUNC)->writeBytecode = null_bytecode_writer;
 
     // ANY_TYPE was created in bootstrap_kernel
 }
@@ -285,6 +288,7 @@ void post_initialize_primitive_types(Branch* kernel)
 
     FunctionAttrs* attrs = get_function_attrs(VALUE_FUNC);
     set_type_list(&attrs->outputTypes, &ANY_T);
+    attrs->evaluate = value_function::evaluate;
 
     ca_assert(function_get_output_type(VALUE_FUNC, 0) == &ANY_T);
 }
@@ -293,6 +297,7 @@ void pre_setup_types(Branch* kernel)
 {
     // Declare input_placeholder first because it's used while compiling functions
     INPUT_PLACEHOLDER_FUNC = import_function(kernel, NULL, "input_placeholder() -> any");
+    get_function_attrs(INPUT_PLACEHOLDER_FUNC)->writeBytecode = null_bytecode_writer;
     ADDITIONAL_OUTPUT_FUNC = import_function(kernel, NULL, "additional_output() -> any");
 
     // FileSignature is used in some builtin functions

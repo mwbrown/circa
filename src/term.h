@@ -6,7 +6,7 @@
 
 #include "branch.h"
 #include "name_list.h"
-#include "interpreter.h"
+#include "input_instructions.h"
 #include "term_list.h"
 #include "tagged_value.h"
 #include "term_source_location.h"
@@ -39,6 +39,9 @@ struct Term : TaggedValue
 
     // Input terms
     InputList inputs;
+
+    // Instructions on where to find inputs during evaluation. Derived from inputs.
+    InputInstructionList inputIsns;
 
     // Our function: the thing that takes our inputs and produces a value.
     Term* function;
@@ -81,16 +84,14 @@ struct Term : TaggedValue
     // Location in textual source code.
     TermSourceLocation sourceLoc;
 
-    // Information for the interpreter
-    Instruction instruction;
-    EvaluateFunc evaluateFunc;
-
     Term();
     ~Term();
 
     Term* input(int index) const;
     Input* inputInfo(int index);
     int numInputs() const;
+
+    int numInputInstructions() const;
 
     void inputsToList(TermList& out) const;
 

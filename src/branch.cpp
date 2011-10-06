@@ -4,8 +4,8 @@
 
 #include "branch.h"
 #include "building.h"
+#include "bytecode.h"
 #include "code_iterators.h"
-#include "dirtying.h"
 #include "evaluation.h"
 #include "filesystem.h"
 #include "function.h"
@@ -36,7 +36,8 @@ Branch::Branch()
   : owningTerm(NULL),
     _refCount(0),
     outputIndex(0),
-    currentlyCascadingUpdates(false)
+    currentlyCascadingUpdates(false),
+    bytecode(NULL)
 {
     debug_register_valid_object((void*) this, BRANCH_OBJECT);
 }
@@ -458,7 +459,7 @@ void clear_branch(Branch* branch)
     set_null(&branch->staticErrors);
     mark_branch_as_possibly_not_having_inlined_state(branch);
     set_null(&branch->pendingUpdates);
-    dirty_branch(branch);
+    dirty_bytecode(branch);
 
     branch->names.clear();
 

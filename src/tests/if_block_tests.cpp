@@ -24,6 +24,7 @@ void test_if_simple_eval()
 
     branch.clear();
     branch.compile("if 1 == 1 { test_spy(3) }");
+    update_bytecode_for_branch(&branch);
     testing_clear_spy();
     evaluate_save_locals(&branch);
     test_equals(testing_get_spy_results(), "[3]");

@@ -12,7 +12,6 @@ namespace circa {
 
 struct FunctionAttrs
 {
-    typedef void (*EvaluateManualFunc)(EvalContext* context);
     typedef void (*StaticTypeQueryFunc)(StaticTypeQuery* query);
     typedef void (*PostInputChange)(Term*);
     typedef int (*GetOutputCount)(Term*);
@@ -20,6 +19,8 @@ struct FunctionAttrs
     typedef Type* (*GetOutputType)(Term*, int index);
     typedef void (*AssignRegisters)(Term*);
     typedef void (*PostCompile)(Term*);
+    typedef void (*WriteBytecode)(Term*, BytecodeWriter* writer);
+    typedef void (*WriteNestedBytecode)(Term*, BytecodeWriter* writer);
 
     Term* declaringTerm;
 
@@ -34,7 +35,6 @@ struct FunctionAttrs
 
     // Functions
     EvaluateFunc evaluate;
-    EvaluateManualFunc evaluateManual;
     SpecializeTypeFunc specializeType;
     FormatSource formatSource;
     CheckInvariants checkInvariants;
@@ -45,8 +45,8 @@ struct FunctionAttrs
     GetOutputType getOutputType;
     AssignRegisters assignRegisters;
     PostCompile postCompile;
-
-    bool createsStackFrame;
+    WriteBytecode writeBytecode;
+    WriteNestedBytecode writeNestedBytecode;
 
     List parameters;
 

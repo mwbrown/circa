@@ -1,7 +1,7 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
 #include "branch.h"
-#include "dirtying.h"
+#include "bytecode.h"
 #include "heap_debugging.h"
 #include "function.h"
 #include "locals.h"
@@ -125,6 +125,8 @@ void on_inputs_changed(Term* term)
 
     if (func)
         func(term);
+
+    update_input_instructions(term);
 }
 
 void on_repairable_link(Term* term, List& brokenLinks)

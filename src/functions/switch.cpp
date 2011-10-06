@@ -70,6 +70,7 @@ namespace switch_function {
         get_function_attrs(SWITCH_FUNC)->getOutputCount = switch_getOutputCount;
         get_function_attrs(SWITCH_FUNC)->getOutputName = switch_getOutputName;
         get_function_attrs(SWITCH_FUNC)->getOutputType = switch_getOutputType;
+        get_function_attrs(SWITCH_FUNC)->writeBytecode = switch_block_write_bytecode;
 
         CASE_FUNC = import_function(kernel, NULL, "case(any input)");
         get_function_attrs(CASE_FUNC)->formatSource = case_formatSource;

@@ -49,6 +49,7 @@ extern Term* LENGTH_FUNC;
 extern Term* LIST_FUNC;
 extern Term* LIST_APPEND_FUNC;
 extern Term* LOAD_SCRIPT_FUNC;
+extern Term* LOOP_INDEX_FUNC;
 extern Term* MAP_TYPE;
 extern Term* MULT_FUNC;
 extern Term* NAMESPACE_FUNC;
@@ -168,6 +169,7 @@ namespace overloaded_function {
     Term* create_overloaded_function(Branch* branch, std::string const& name,
         TermList const& overloads);
     void append_overload(Term* overloadedFunction, Term* overload);
+    Term* statically_specialize_function(Term* func, TermList const& inputs);
     void post_compile_setup_overloaded_function(Term* term);
 }
 

@@ -88,7 +88,6 @@ namespace if_block_function {
 
     CA_FUNCTION(if_block_unpack_state)
     {
-#if !NEW_INTERPRETER
         Term* caller = CALLER;
         EvalContext* context = CONTEXT;
 
@@ -118,12 +117,10 @@ namespace if_block_function {
 
         if (resetStateForUnusedBranches)
             set_null(stateEntry);
-#endif
     }
 
     CA_FUNCTION(if_block_pack_state)
     {
-#if !NEW_INTERPRETER
         EvalContext* context = CONTEXT;
         Term* caller = CALLER;
 
@@ -136,7 +133,6 @@ namespace if_block_function {
 
         swap(get_scope_state(context, 0), stateEntry->get(caseIndex));
         pop_scope_state(context);
-#endif
     }
 
     void setup(Branch* kernel)
@@ -146,7 +142,7 @@ namespace if_block_function {
         get_function_attrs(IF_BLOCK_FUNC)->getOutputCount = getOutputCount;
         get_function_attrs(IF_BLOCK_FUNC)->getOutputName = getOutputName;
         get_function_attrs(IF_BLOCK_FUNC)->getOutputType = getOutputType;
-        get_function_attrs(IF_BLOCK_FUNC)->evaluateManual = if_block_begin_branch;
+        get_function_attrs(IF_BLOCK_FUNC)->writeBytecode = if_block_write_bytecode;
 
         JOIN_FUNC = import_function(kernel, NULL, "join(any...) -> any");
         get_function_attrs(JOIN_FUNC)->specializeType = joinFunc_specializeType;

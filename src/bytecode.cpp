@@ -489,8 +489,6 @@ bool check_output_type(EvalContext* context, Term* term)
 
 void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
 {
-#if !NEW_INTERPRETER
-
     int pc = 0;
 
     if (bytecode == NULL || bytecode->operationCount == 0)
@@ -505,6 +503,7 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
 
         switch (op->type) {
         case OP_CALL: {
+
             // TODO: Remove this once control flow is fully bytecoded:
             bool evalWasInterrupted = evaluation_interrupted(context);
 
@@ -678,7 +677,6 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
             internal_error("in evaluate_bytecode, unrecognized op type");
         }
     }
-#endif
 }
 
 void evaluate_branch_with_bytecode(EvalContext* context, Branch* branch)

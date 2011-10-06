@@ -25,10 +25,8 @@ Term* find_enclosing_for_loop(Term* term);
 
 void for_loop_update_output_index(Term* forTerm);
 
-void for_loop_begin_branch(EvalContext* context);
-bool for_loop_finish_iteration(EvalContext* context, int flags);
-
-void for_loop_break(EvalContext* context);
-void for_loop_continue(EvalContext* context);
+CA_FUNCTION(evaluate_for_loop);
+void for_block_write_bytecode(Term* caller, BytecodeWriter* writer);
+void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer);
 
 } // namespace circa

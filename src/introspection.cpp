@@ -60,12 +60,6 @@ bool is_major_branch(Term* term)
     return is_subroutine(term);
 }
 
-bool is_overloaded_function(Term* term)
-{
-    // FIXME
-    return false;
-}
-
 bool has_an_error_listener(Term* term)
 {
     for (int i=0; i < term->users.length(); i++) {
@@ -274,6 +268,14 @@ void print_term(std::ostream& out, Term* term, RawOutputPrefs* prefs)
     for (int i=0; i < term->numInputs(); i++) {
         if (i != 0) out << " ";
         out << global_id(term->input(i));
+        
+        InputInstruction *ins = &term->inputIsns.inputs[i];
+        if (ins->type == InputInstruction::GLOBAL)
+            out << ":g";
+        else if (ins->type == InputInstruction::LOCAL)
+            out << ":l:" << ins->relativeFrame << ":" << ins->index;
+        else if (ins->type == InputInstruction::LOCAL_CONSUME)
+            out << ":l1:" << ins->relativeFrame << ":" << ins->index;
     }
     out << ")";
 

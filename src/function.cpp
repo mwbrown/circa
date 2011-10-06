@@ -1,11 +1,10 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
 
 #include "building.h"
-#include "dirtying.h"
+#include "bytecode.h"
 #include "evaluation.h"
 #include "function.h"
 #include "heap_debugging.h"
-#include "interpreter.h"
 #include "introspection.h"
 #include "kernel.h"
 #include "source_repro.h"
@@ -27,7 +26,6 @@ FunctionAttrs::FunctionAttrs()
     throws(false),
     outputCount(1),
     evaluate(NULL),
-    evaluateManual(NULL),
     specializeType(NULL),
     formatSource(NULL),
     checkInvariants(NULL),
@@ -38,7 +36,8 @@ FunctionAttrs::FunctionAttrs()
     getOutputType(NULL),
     assignRegisters(NULL),
     postCompile(NULL),
-    createsStackFrame(true)
+    writeBytecode(NULL),
+    writeNestedBytecode(NULL)
 {
     debug_register_valid_object(this, FUNCTION_ATTRS_OBJECT);
 }
@@ -445,7 +444,7 @@ void function_set_evaluate_func(Term* func, EvaluateFunc evaluateFunc)
     // Dirty bytecode for all of this function's users.
     for (int i=0; i < func->users.length(); i++) {
         Term* user = func->users[i];
-        dirty_branch(user);
+        dirty_bytecode(user);
     }
 }
 

@@ -31,11 +31,12 @@ namespace circa {
 
 struct Branch;
 struct BrokenLinkList;
+struct BytecodeData;
+struct BytecodeWriter;
 struct CastResult;
 struct Dict;
 struct EvalContext;
 struct FeedbackOperation;
-struct Frame;
 struct FunctionAttrs;
 struct List;
 struct Operation;
@@ -64,9 +65,9 @@ union VariantValue {
 // Function-related typedefs:
 
 #define CA_FUNCTION(fname) \
-    void fname(circa::EvalContext* _context, circa::Term* _caller)
+    void fname(circa::EvalContext* _context, circa::OpCall* _op)
 
-typedef void (*EvaluateFunc)(EvalContext* cxt, circa::Term* caller);
+typedef void (*EvaluateFunc)(EvalContext* cxt, OpCall* op);
 typedef Type* (*SpecializeTypeFunc)(Term* caller);
 typedef void (*FormatSource)(StyledSource* source, Term* term);
 typedef bool (*CheckInvariants)(Term* term, std::string* output);
@@ -103,6 +104,7 @@ typedef bool (*CheckInvariants)(Term* term, std::string* output);
 
 void ca_assert_function(bool result, const char* expr, int line, const char* file);
 
-#define NEW_INTERPRETER 1
+// An evaluation function which does nothing
+CA_FUNCTION(empty_evaluate_function);
 
 } // namespace circa
