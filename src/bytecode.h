@@ -174,6 +174,7 @@ void bc_local_input(BytecodeWriter* writer, int frame, int index);
 void bc_int_input(BytecodeWriter* writer, int value);
 
 void bc_write_input(BytecodeWriter* writer, Branch* frame, Term* input);
+void bc_rewrite_local_input(BytecodeWriter* writer, int loc, int newLocal);
 
 void bc_assign_local(BytecodeWriter* writer, int local);
 

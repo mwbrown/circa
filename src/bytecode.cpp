@@ -335,6 +335,12 @@ void bc_write_input(BytecodeWriter* writer, Branch* frame, Term* input)
         bc_local_input(writer, relativeFrame, input->local);
     }
 }
+void bc_rewrite_local_input(BytecodeWriter* writer, int loc, int newLocal)
+{
+    OpInputLocal* op = (OpInputLocal*) &writer->data->operations[loc];
+    ca_assert(op->type == OP_INPUT_LOCAL);
+    op->local = newLocal;
+}
 void bc_int_input(BytecodeWriter* writer, int value)
 {
     OpInputInt *iop = (OpInputInt*) bc_append_op(writer);

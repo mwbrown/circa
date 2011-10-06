@@ -17,9 +17,6 @@ void test_static_assertions()
     test_assert(sizeof(Operation) >= sizeof(OpInputGlobal));
     test_assert(sizeof(Operation) >= sizeof(OpInputInt));
     test_assert(sizeof(Operation) >= sizeof(OpJump));
-
-    //std::cout << "sizeof(Operation) = " << sizeof(Operation) << std::endl;
-    //std::cout << "sizeof(OpCall) = " << sizeof(OpCall) << std::endl;
 }
 
 void test_simple_write()
