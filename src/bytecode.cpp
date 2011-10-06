@@ -112,9 +112,6 @@ void print_bytecode_op(BytecodeData* bytecode, int loc, std::ostream& out)
         case OP_PUSH_BRANCH:
             out << "push_branch " << global_id(((OpPushBranch*) op)->term);
             break;
-        case OP_COPY:
-            out << "copy";
-            break;
         case OP_INCREMENT:
             out << "increment";
             break;
@@ -360,6 +357,11 @@ void bc_local_input(BytecodeWriter* writer, int local)
     lop->relativeFrame = 0;
     lop->local = local;
 }
+void bc_local_input(BytecodeWriter* writer, Term* term)
+{
+    ca_assert(term->local != -1);
+    bc_local_input(writer, term->local);
+}
 void bc_local_input(BytecodeWriter* writer, int frame, int local)
 {
     OpInputLocal *lop = (OpInputLocal*) bc_append_op(writer);
@@ -400,9 +402,9 @@ void bc_assign_local(BytecodeWriter* writer, int local)
     aop->type = OP_ASSIGN_LOCAL;
     aop->local = local;
 }
-void bc_copy_value(BytecodeWriter* writer)
+void bc_copy(BytecodeWriter* writer)
 {
-    bc_append_op(writer)->type = OP_COPY;
+    bc_write_call(writer, COPY_FUNC);
 }
 void bc_increment(BytecodeWriter* writer)
 {

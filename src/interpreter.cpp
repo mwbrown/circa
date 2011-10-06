@@ -430,15 +430,6 @@ void interpret(EvalContext* context, BytecodeData* bytecode)
         continue;
     }
 
-    case OP_COPY: {
-        TaggedValue* left = follow_input_instruction(context, op + 1);
-        TaggedValue* right = follow_input_instruction(context, op + 2);
-        copy(left, right);
-
-        pc += 1;
-        continue;
-    }
-
     case OP_INCREMENT: {
         TaggedValue* val = follow_input_instruction(context, op + 1);
         set_int(val, as_int(val) + 1);

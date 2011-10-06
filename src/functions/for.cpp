@@ -64,10 +64,14 @@ namespace for_function {
         return outerRebinds->get(outputIndex - 1)->type;
     }
 
-    CA_FUNCTION(evaluate_loop_index)
+    void get_index__write_bytecode(Term* term, BytecodeWriter* writer)
     {
-        // This call is evaluated once at the start of the loop.
-        set_int(OUTPUT, 0);
+        Term* enclosingLoop = find_enclosing_for_loop(term);
+        ca_assert(enclosingLoop != NULL);
+        int distance = get_frame_distance(term, enclosingLoop) - 1;
+        bc_copy(writer);
+        bc_local_input(writer, term);
+        bc_local_input(writer, distance, 0);
     }
 
     CA_FUNCTION(evaluate_break)
@@ -103,7 +107,8 @@ namespace for_function {
         get_function_attrs(FOR_FUNC)->writeNestedBytecode = for_block_write_bytecode_contents;
         get_function_attrs(FOR_FUNC)->createsStackFrame = true;
 
-        LOOP_INDEX_FUNC = import_function(kernel, evaluate_loop_index, "loop_index() -> int");
+        Term* indexFunc = import_function(kernel, NULL, "index() -> int");
+        get_function_attrs(indexFunc)->writeBytecode = get_index__write_bytecode;
 
         DISCARD_FUNC = import_function(kernel, evaluate_discard, "discard(any)");
         get_function_attrs(DISCARD_FUNC)->formatSource = discard_formatSource;

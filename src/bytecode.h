@@ -31,7 +31,6 @@ const OpType OP_INPUT_NULL = 33;
 const OpType OP_INPUT_INT = 34;
 
 const OpType OP_ASSIGN_LOCAL = 42;
-const OpType OP_COPY = 40;
 const OpType OP_INCREMENT = 41;
 
 struct Operation {
@@ -171,6 +170,7 @@ void bc_jump_to_pos(BytecodeWriter* writer, int jumpLoc, int pos);
 
 void bc_global_input(BytecodeWriter* writer, TaggedValue* value);
 void bc_local_input(BytecodeWriter* writer, int index);
+void bc_local_input(BytecodeWriter* writer, Term* term);
 void bc_local_input(BytecodeWriter* writer, int frame, int index);
 void bc_int_input(BytecodeWriter* writer, int value);
 
@@ -178,8 +178,8 @@ void bc_write_input(BytecodeWriter* writer, Branch* frame, Term* input);
 
 void bc_assign_local(BytecodeWriter* writer, int local);
 
-// Write a COPY operation. Two input instructions must follow.
-void bc_copy_value(BytecodeWriter* writer);
+// Write a copy() call. Args: (destination, source)
+void bc_copy(BytecodeWriter* writer);
 
 // Write an INCREMENT operation. One input instruction must follow.
 void bc_increment(BytecodeWriter* writer);

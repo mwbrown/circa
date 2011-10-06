@@ -45,7 +45,7 @@ void switch_block_write_bytecode(Term* caller, BytecodeWriter* writer)
 
         for (int i=0; i < joining->length(); i++) {
             Term* joinTerm = joining->get(i);
-            bc_copy_value(writer);
+            bc_copy(writer);
             bc_write_input(writer, nested_contents(caseTerm), joinTerm->input(caseIndex));
             bc_local_input(writer, 1, caller->index + 1 + i);
         }

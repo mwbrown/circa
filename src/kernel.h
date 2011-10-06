@@ -49,7 +49,6 @@ extern Term* LENGTH_FUNC;
 extern Term* LIST_FUNC;
 extern Term* LIST_APPEND_FUNC;
 extern Term* LOAD_SCRIPT_FUNC;
-extern Term* LOOP_INDEX_FUNC;
 extern Term* MAP_TYPE;
 extern Term* MULT_FUNC;
 extern Term* NAMESPACE_FUNC;
