@@ -22,8 +22,8 @@ const OpType OP_JUMP_IF_LESS_THAN = 14;
 
 const OpType OP_STOP = 20;
 
-const OpType OP_PUSH_BRANCH = 22;
-const OpType OP_POP_BRANCH = 23;
+const OpType OP_PUSH_FRAME = 22;
+const OpType OP_POP_FRAME = 23;
 
 const OpType OP_INPUT_LOCAL = 31;
 const OpType OP_INPUT_GLOBAL = 32;
@@ -184,11 +184,11 @@ void bc_copy(BytecodeWriter* writer);
 // Write an INCREMENT operation. One input instruction must follow.
 void bc_increment(BytecodeWriter* writer);
 
-// Write a PUSH_BRANCH operation.
-void bc_push_branch(BytecodeWriter* writer, Term* term);
+// Write a PUSH_FRAME operation.
+void bc_push_frame(BytecodeWriter* writer, Term* term);
 
-// Write a POP_BRANCH operation.
-void bc_pop_branch(BytecodeWriter* writer);
+// Write a POP_FRAME operation.
+void bc_pop_frame(BytecodeWriter* writer);
 
 // Mark the term's owning branch as needing to recompute bytecode.
 void dirty_bytecode(Term* term);

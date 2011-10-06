@@ -409,7 +409,7 @@ void interpret(EvalContext* context, BytecodeData* bytecode)
         continue;
     }
 #endif
-    case OP_PUSH_BRANCH: {
+    case OP_PUSH_FRAME: {
         OpPushBranch* bop = (OpPushBranch*) op;
 
         // save pc
@@ -423,7 +423,7 @@ void interpret(EvalContext* context, BytecodeData* bytecode)
         continue;
     }
 
-    case OP_POP_BRANCH: {
+    case OP_POP_FRAME: {
         pop_frame(context);
         pc = top_frame(context)->pc + 1;
         bytecode = top_frame(context)->bytecode;

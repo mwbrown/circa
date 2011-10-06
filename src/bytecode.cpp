@@ -106,11 +106,11 @@ void print_bytecode_op(BytecodeData* bytecode, int loc, std::ostream& out)
         case OP_JUMP_IF_LESS_THAN:
             out << "jump_if_less_than " << loc + ((OpJump*) op)->offset;
             break;
-        case OP_POP_BRANCH:
-            out << "pop_branch";
+        case OP_POP_FRAME:
+            out << "pop_frame";
             break;
-        case OP_PUSH_BRANCH:
-            out << "push_branch " << global_id(((OpPushBranch*) op)->term);
+        case OP_PUSH_FRAME:
+            out << "push_frame " << global_id(((OpPushBranch*) op)->term);
             break;
         case OP_INCREMENT:
             out << "increment";
@@ -164,7 +164,7 @@ void print_bytecode_and_related(BytecodeData* bytecode, std::ostream& out)
     std::set<Term*> mentionedBranches;
 
     for (int i=0; i < bytecode->operationCount; i++) {
-        if (bytecode->operations[i].type == OP_PUSH_BRANCH) {
+        if (bytecode->operations[i].type == OP_PUSH_FRAME) {
             OpPushBranch* op = (OpPushBranch*) &bytecode->operations[i];
             mentionedBranches.insert(op->term);
         }
@@ -410,15 +410,15 @@ void bc_increment(BytecodeWriter* writer)
 {
     bc_append_op(writer)->type = OP_INCREMENT;
 }
-void bc_push_branch(BytecodeWriter* writer, Term* term)
+void bc_push_frame(BytecodeWriter* writer, Term* term)
 {
     OpPushBranch *cop = (OpPushBranch*) bc_append_op(writer);
-    cop->type = OP_PUSH_BRANCH;
+    cop->type = OP_PUSH_FRAME;
     cop->term = term;
 }
-void bc_pop_branch(BytecodeWriter* writer)
+void bc_pop_frame(BytecodeWriter* writer)
 {
-    bc_append_op(writer)->type = OP_POP_BRANCH;
+    bc_append_op(writer)->type = OP_POP_FRAME;
 }
 
 void dirty_bytecode(Term* term)

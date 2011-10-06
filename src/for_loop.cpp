@@ -129,7 +129,7 @@ Term* find_enclosing_for_loop(Term* term)
 
 void for_block_write_bytecode(Term* caller, BytecodeWriter* writer)
 {
-    bc_push_branch(writer, caller);
+    bc_push_frame(writer, caller);
 }
 
 void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)
@@ -171,7 +171,7 @@ void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)
     }
 
     // Finish branch for empty list
-    bc_pop_branch(writer);
+    bc_pop_frame(writer);
 
     // Setup for first iteration. Copy inner rebinds from their outside sources.
     bc_jump_to_here(writer, jumpPastEmptyList);
@@ -241,7 +241,7 @@ void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)
     }
 
     // End
-    bc_pop_branch(writer);
+    bc_pop_frame(writer);
 }
 
 } // namespace circa
