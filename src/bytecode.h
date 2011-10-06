@@ -122,6 +122,7 @@ struct BytecodeWriter
 
 void print_bytecode_op(BytecodeData* bytecode, int loc, std::ostream& out);
 void print_bytecode(BytecodeData* bytecode, std::ostream& out);
+void print_bytecode_and_related(BytecodeData* bytecode, std::ostream& out);
 std::string get_bytecode_as_string(BytecodeData* bytecode);
 
 // Building functions

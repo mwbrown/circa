@@ -21,13 +21,29 @@ namespace vectorized_functions {
         return &LIST_T;
     }
 
-    void write_calling_bytecode(Term* term, BytecodeWriter* writer)
+    void write_bytecode(Term* term, BytecodeWriter* writer)
     {
-        bc_push_branch(writer, term);
+        Branch* contents = nested_contents(term);
+        Term* forCall = contents->get(0);
+        int loc = bc_get_write_position(writer);
+        bc_call(writer, forCall);
+        bc_rewrite_local_input(writer, loc + 1, term->local);
     }
 
-    void write_nested_bytecode(Term* term, BytecodeWriter* writer)
+    void post_input_change_vs(Term* term)
     {
+        Branch* branch = nested_contents(term);
+        clear_branch(branch);
+
+        Term* forTerm = apply(branch, FOR_FUNC, TermList(term->input(0)));
+        setup_for_loop_pre_code(forTerm);
+        Term* iterator = for_loop_get_iterator(forTerm);
+
+        Term* function = as_ref(&get_function_attrs(term->function)->parameter);
+
+        apply(nested_contents(forTerm), function, TermList(iterator, term->input(1)));
+
+        setup_for_loop_post_code(forTerm);
     }
 
     CA_FUNCTION(evaluate_vs)
@@ -70,6 +86,7 @@ namespace vectorized_functions {
 #endif
     }
 
+#if 0
     void post_input_change_vs(Term* term)
     {
         // Update generated code
@@ -95,6 +112,7 @@ namespace vectorized_functions {
 
         apply(contents, func, TermList(leftPlaceholder, rightPlaceholder));
     }
+#endif
 
     Type* specializeType_vv(Term* caller)
     {
@@ -176,8 +194,7 @@ namespace vectorized_functions {
         Term* vs = import_function(kernel, NULL, "vectorize_vs(List,any) -> List");
         get_function_attrs(vs)->specializeType = specializeType_vs;
         get_function_attrs(vs)->postInputChange = post_input_change_vs;
-        get_function_attrs(vs)->writeBytecode = write_calling_bytecode;
-        get_function_attrs(vs)->writeNestedBytecode = write_nested_bytecode;
+        get_function_attrs(vs)->writeBytecode = write_bytecode;
 
         Term* vv = import_function(kernel, NULL, "vectorize_vv(List,List) -> List");
         get_function_attrs(vv)->specializeType = specializeType_vv;

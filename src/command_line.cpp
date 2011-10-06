@@ -140,7 +140,7 @@ int run_command_line(std::vector<std::string> args)
         Branch branch;
         load_script(&branch, args[1].c_str());
         update_bytecode_for_branch(&branch);
-        print_bytecode(branch.bytecode, std::cout);
+        print_bytecode_and_related(branch.bytecode, std::cout);
         return 0;
     }
 

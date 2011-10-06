@@ -42,7 +42,7 @@ void dump(BytecodeData* bytecode)
 {
     if (bytecode == NULL)
         std::cout << "<NULL bytecode>" << std::endl;
-    print_bytecode(bytecode, std::cout);
+    print_bytecode_and_related(bytecode, std::cout);
 }
 
 void internal_error(const char* message)

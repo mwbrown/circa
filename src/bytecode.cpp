@@ -2,6 +2,8 @@
 
 #include "common_headers.h"
 
+#include <set>
+
 #include "building.h"
 #include "bytecode.h"
 #include "evaluation.h"
@@ -123,6 +125,18 @@ void print_bytecode_op(BytecodeData* bytecode, int loc, std::ostream& out)
 
 void print_bytecode(BytecodeData* bytecode, std::ostream& out)
 {
+    Term* owner = NULL;
+    if (bytecode->branch != NULL)
+        owner = bytecode->branch->owningTerm;
+
+    out << "[Bytecode ";
+    if (owner != NULL)
+        out << global_id(owner);
+    else
+        out << "<orphan @" << bytecode << ">";
+
+    out << ", localsCount = " << bytecode->localsCount << "]" << std::endl;
+
     for (int i=0; i < bytecode->operationCount; i++) {
 
         bool isInput = is_input_op_type(bytecode->operations[i].type);
@@ -140,6 +154,35 @@ void print_bytecode(BytecodeData* bytecode, std::ostream& out)
         print_bytecode_op(bytecode, i, out);
     }
     out << std::endl;
+}
+
+void print_bytecode_and_related(BytecodeData* bytecode, std::ostream& out)
+{
+    print_bytecode(bytecode, out);
+
+    // Also print out any branches that were mentioned
+    std::set<Term*> mentionedBranches;
+
+    for (int i=0; i < bytecode->operationCount; i++) {
+        if (bytecode->operations[i].type == OP_PUSH_BRANCH) {
+            OpPushBranch* op = (OpPushBranch*) &bytecode->operations[i];
+            mentionedBranches.insert(op->term);
+        }
+    }
+
+    std::set<Term*>::iterator it;
+    for (it = mentionedBranches.begin(); it != mentionedBranches.end(); ++it) {
+
+        // Evil step: update bytecode before printing. We shouldn't have side
+        // effects here.
+        update_bytecode_for_branch(nested_contents(*it));
+        
+        BytecodeData* mentionedBytecode = nested_contents(*it)->bytecode;
+        if (mentionedBytecode != NULL)
+            print_bytecode(mentionedBytecode, out);
+        else
+            std::cout << "[NULL bytecode " << global_id(*it) << "]" << std::endl;
+    }
 }
 
 std::string get_bytecode_as_string(BytecodeData* bytecode);
@@ -466,7 +509,6 @@ void write_bytecode_for_branch(Branch* branch, BytecodeWriter* writer)
             get_function_attrs(parent->function)->writeNestedBytecode;
         if (func != NULL) {
             func(parent, writer);
-            bc_finish(writer);
             return;
         }
     }
@@ -479,8 +521,7 @@ void write_bytecode_for_branch(Branch* branch, BytecodeWriter* writer)
         bc_call(writer, term);
     }
 
-    // Finish up with a final return call.
-    bc_finish(writer);
+    bc_stop(writer);
 }
 
 void evaluate_branch_with_bytecode(EvalContext* context, Branch* branch)
