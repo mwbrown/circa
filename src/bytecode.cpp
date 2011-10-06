@@ -64,11 +64,11 @@ void print_bytecode_op(BytecodeData* bytecode, int loc, std::ostream& out)
             out << "check_output " << get_unique_name(((OpCheckOutput*) op)->term);
             break;
         case OP_INPUT_NULL:
-            out << "input_null";
+            out << "null_arg";
             break;
         case OP_INPUT_GLOBAL: {
             OpInputGlobal* gop = (OpInputGlobal*) op;
-            out << "input_global ";
+            out << "global_arg ";
             if (gop->value == NULL)
                out << "<NULL>";
             else
@@ -77,7 +77,10 @@ void print_bytecode_op(BytecodeData* bytecode, int loc, std::ostream& out)
         }
         case OP_INPUT_LOCAL: {
             OpInputLocal* lop = (OpInputLocal*) op;
-            out << "input_local frame:" << lop->relativeFrame << " idx:" << lop->local;
+            out << "local_arg ";
+            if (lop->relativeFrame != 0)
+                out << "frame:" << lop->relativeFrame << " ";
+            out << "idx:" << lop->local;
             break;
         }
         case OP_INPUT_INT: {
@@ -249,7 +252,7 @@ void bc_write_call_op(BytecodeWriter* writer, Term* term, EvaluateFunc func)
     op->term = term;
     op->func = func;
 
-    // Write output instruction
+    // Write output instruction.
     bc_write_input(writer, term->owningBranch, term);
 
     // Write information for each input
@@ -374,15 +377,16 @@ void bc_write_input(BytecodeWriter* writer, Branch* frame, Term* input)
     if (is_value(input) || !writer->useLocals) {
         bc_global_input(writer, (TaggedValue*) input);
     } else {
+        // Walk both 'frame' and 'input' upward, if they are in a branch that
+        // does not create a stack frame.
+        while (!branch_creates_stack_frame(frame))
+            frame = get_parent_branch(frame);
+        while (!branch_creates_stack_frame(input->owningBranch))
+            input = get_parent_term(input);
+
         int relativeFrame = get_frame_distance(frame, input);
         bc_local_input(writer, relativeFrame, input->local);
     }
-}
-void bc_rewrite_local_input(BytecodeWriter* writer, int loc, int newLocal)
-{
-    OpInputLocal* op = (OpInputLocal*) &writer->data->operations[loc];
-    ca_assert(op->type == OP_INPUT_LOCAL);
-    op->local = newLocal;
 }
 void bc_int_input(BytecodeWriter* writer, int value)
 {

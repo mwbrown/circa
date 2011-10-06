@@ -155,7 +155,7 @@ void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)
     // Prepare output value.
     bc_write_call(writer, get_global("blank_list"));
     bc_write_input(writer, contents, caller);
-    bc_local_input(writer, indexLocal);
+    bc_local_input(writer, lengthLocal);
 
     // Check if we are already finished (ie, iterating over an empty list)
     int jumpPastEmptyList = bc_jump_if_less_than(writer);
@@ -220,7 +220,7 @@ void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)
         
     bc_write_call(writer, SET_INDEX_FUNC);
     bc_write_input(writer, contents, caller);
-    bc_write_input(writer, contents, caller->input(0));
+    bc_write_input(writer, contents, caller);
     bc_local_input(writer, indexLocal);
     bc_write_input(writer, contents, listResult);
 

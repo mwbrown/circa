@@ -51,11 +51,7 @@ namespace overloaded_function {
         if (contents->length() == 0) {
             // TODO
         } else {
-            Term* specialized = contents->get(0);
-            int loc = bc_get_write_position(writer);
-            bc_call(writer, specialized);
-
-            bc_rewrite_local_input(writer, loc + 1, term->local);
+            bc_call(writer, contents->get(0));
         }
     }
 

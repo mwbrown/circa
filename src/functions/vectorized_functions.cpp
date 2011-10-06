@@ -24,10 +24,7 @@ namespace vectorized_functions {
     void write_bytecode(Term* term, BytecodeWriter* writer)
     {
         Branch* contents = nested_contents(term);
-        Term* forCall = contents->get(0);
-        int loc = bc_get_write_position(writer);
-        bc_call(writer, forCall);
-        bc_rewrite_local_input(writer, loc + 1, term->local);
+        bc_call(writer, contents->get(0));
     }
 
     void post_input_change_vs(Term* term)
@@ -195,6 +192,7 @@ namespace vectorized_functions {
         get_function_attrs(vs)->specializeType = specializeType_vs;
         get_function_attrs(vs)->postInputChange = post_input_change_vs;
         get_function_attrs(vs)->writeBytecode = write_bytecode;
+        get_function_attrs(vs)->createsStackFrame = false;
 
         Term* vv = import_function(kernel, NULL, "vectorize_vv(List,List) -> List");
         get_function_attrs(vv)->specializeType = specializeType_vv;
