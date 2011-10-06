@@ -109,6 +109,7 @@ namespace for_function {
 
         Term* indexFunc = import_function(kernel, NULL, "index() -> int");
         get_function_attrs(indexFunc)->writeBytecode = get_index__write_bytecode;
+        register_builtin_func(INDEX_FUNC, indexFunc);
 
         DISCARD_FUNC = import_function(kernel, evaluate_discard, "discard(any)");
         get_function_attrs(DISCARD_FUNC)->formatSource = discard_formatSource;

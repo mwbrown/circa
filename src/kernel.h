@@ -120,10 +120,20 @@ extern TaggedValue UNKNOWN_SYMBOL;
 
 extern Type* FILE_SIGNATURE_T;
 
+// Builtin functions, by index. This is the new-style format, the above Term*s
+// are deprecated.
+enum BuiltinFunctionIndex {
+    INDEX_FUNC = 0,
+    NUM_BUILTIN_FUNCTIONS
+};
+
+
 extern bool STATIC_INITIALIZATION_FINISHED;
 extern bool FINISHED_BOOTSTRAP;
 extern bool SHUTTING_DOWN;
 
+Term* builtin_func(BuiltinFunctionIndex index);
+void register_builtin_func(BuiltinFunctionIndex index, Term* term);
 Branch* kernel();
 
 namespace assign_function {

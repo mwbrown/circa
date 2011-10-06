@@ -54,7 +54,10 @@ namespace vectorized_functions {
 
         Term* function = as_ref(&get_function_attrs(term->function)->parameter);
 
-        apply(nested_contents(forTerm), function, TermList(iterator, term->input(1)));
+        Term* index = apply(nested_contents(forTerm), builtin_func(INDEX_FUNC), TermList());
+        Term* rhs = apply(nested_contents(forTerm), GET_INDEX_FUNC,
+                    TermList(term->input(1), index));
+        apply(nested_contents(forTerm), function, TermList(iterator, rhs));
 
         setup_for_loop_post_code(forTerm);
     }
@@ -78,6 +81,8 @@ namespace vectorized_functions {
         Term* vv = import_function(kernel, NULL, "vectorize_vv(List,List) -> List");
         get_function_attrs(vv)->specializeType = specializeType_vv;
         get_function_attrs(vv)->postInputChange = post_input_change_vv;
+        get_function_attrs(vv)->writeBytecode = write_bytecode;
+        get_function_attrs(vv)->createsStackFrame = false;
     }
 }
 } // namespace circa

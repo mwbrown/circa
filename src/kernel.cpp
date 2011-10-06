@@ -174,6 +174,20 @@ TaggedValue UNKNOWN_SYMBOL;
 
 Type* FILE_SIGNATURE_T;
 
+Term* g_builtinFunctions[NUM_BUILTIN_FUNCTIONS] = {NULL,};
+
+Term* builtin_func(BuiltinFunctionIndex index)
+{
+    ca_assert(index < NUM_BUILTIN_FUNCTIONS);
+    return g_builtinFunctions[index];
+}
+
+void register_builtin_func(BuiltinFunctionIndex index, Term* term)
+{
+    ca_assert(index < NUM_BUILTIN_FUNCTIONS);
+    g_builtinFunctions[index] = term;
+}
+
 namespace cppbuild_function { CA_FUNCTION(build_module); }
 
 void create_primitive_types()
