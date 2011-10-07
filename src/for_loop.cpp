@@ -166,8 +166,8 @@ void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)
     // appropriately.
     for (int i=0; i < outerRebinds->length(); i++) {
         bc_copy(writer);
+        bc_write_input(writer, contents, parent->get(caller->index + 1 + i));
         bc_write_input(writer, contents, outerRebinds->get(i)->input(0));
-        bc_local_input(writer, 1, parent->get(caller->index + 1 + i)->local);
     }
 
     // Finish branch for empty list
@@ -179,8 +179,8 @@ void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)
     for (int i=inner_rebinds_location; contents->get(i)->function == JOIN_FUNC; i++) {
         Term* term = contents->get(i);
         bc_copy(writer);
-        bc_write_input(writer, contents, term->input(0));
         bc_write_input(writer, contents, term);
+        bc_write_input(writer, contents, term->input(0));
     }
 
     int jumpPast2ndIterationSetup = 0;
@@ -193,8 +193,8 @@ void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)
     for (int i=inner_rebinds_location; contents->get(i)->function == JOIN_FUNC; i++) {
         Term* term = contents->get(i);
         bc_copy(writer);
-        bc_write_input(writer, contents, term->input(1));
         bc_write_input(writer, contents, term);
+        bc_write_input(writer, contents, term->input(1));
     }
 
     if (anyOuterRebinds)
@@ -236,8 +236,8 @@ void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)
     // Finished looping, copy outer rebinds
     for (int i=0; i < outerRebinds->length(); i++) {
         bc_copy(writer);
+        bc_write_input(writer, contents, parent->get(caller->index + 1 + i));
         bc_write_input(writer, contents, outerRebinds->get(i)->input(1));
-        bc_local_input(writer, 1, parent->get(caller->index + 1 + i)->local);
     }
 
     // End

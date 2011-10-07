@@ -460,7 +460,16 @@ void interpret_single_term(EvalContext* context, Term* term)
 {
     BytecodeWriter writer;
 
-    writer.useLocals = false;
+    bc_reserve_size(&writer, 0);
+
+    writer.data->flags.useGlobals = true;
+
+    // Even though useGlobals is on, we need to create locals for things like
+    // for-loop, which creates a few temporaries.
+    if (term->owningBranch != NULL)
+        writer.data->localsCount = term->owningBranch->localsCount;
+
+    writer.data->branch = term->owningBranch;
 
     bc_call(&writer, term);
     bc_stop(&writer);

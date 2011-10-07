@@ -205,7 +205,7 @@ static void finish_bytecode_update(Branch* branch, BytecodeWriter* writer)
 
 // Guarantee that the BytecodeData has enough room for the given number
 // of operations.
-static void bc_reserve_size(BytecodeWriter* writer, int opCount)
+void bc_reserve_size(BytecodeWriter* writer, int opCount)
 {
     if (writer->listLength >= opCount && writer->data != NULL)
         return;
@@ -220,6 +220,7 @@ static void bc_reserve_size(BytecodeWriter* writer, int opCount)
         writer->data->localsCount = 0;
         writer->data->dirty = false;
         writer->data->localsCount = 0;
+        memset(&writer->data->flags, 0, sizeof(writer->data->flags));
         writer->data->branch = NULL;
     } else {
         writer->data = (BytecodeData*) realloc(writer->data,
@@ -257,7 +258,7 @@ void bc_write_call_op(BytecodeWriter* writer, Term* term, EvaluateFunc func)
         bc_write_input(writer, term->owningBranch, term->input(i));
 
     // Possibly write a CHECK_OUTPUT op.
-    if (writer->alwaysCheckOutputs || DEBUG_ALWAYS_CHECK_OUTPUT_TYPE)
+    if (writer->data->flags.alwaysCheckOutputs || DEBUG_ALWAYS_CHECK_OUTPUT_TYPE)
         bc_check_output(writer, term);
 }
 
@@ -376,7 +377,7 @@ void bc_write_input(BytecodeWriter* writer, Branch* frame, Term* input)
         return;
     }
 
-    if (is_value(input) || !writer->useLocals) {
+    if (is_value(input) || writer->data->flags.useGlobals) {
         bc_global_input(writer, (TaggedValue*) input);
     } else {
         // Walk both 'frame' and 'input' upward, if they are in a branch that
@@ -485,6 +486,11 @@ void bc_reset_writer(BytecodeWriter* writer)
     writer->writePosition = 0;
     if (writer->data != NULL)
         writer->data->operationCount = 0;
+}
+void bc_always_check_outputs(BytecodeWriter* writer)
+{
+    bc_reserve_size(writer, 0);
+    writer->data->flags.alwaysCheckOutputs = true;
 }
 
 void update_bytecode_for_branch(Branch* branch)

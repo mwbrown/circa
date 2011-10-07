@@ -88,11 +88,18 @@ struct OpJump {
     int offset;
 };
 
+struct BytecodeGenerationFlags
+{
+    bool alwaysCheckOutputs : 1;
+    bool useGlobals : 1;
+};
+
 struct BytecodeData
 {
     bool dirty;
     int operationCount;
     int localsCount;
+    BytecodeGenerationFlags flags;
 
     Branch* branch;
     Operation operations[0];
@@ -105,26 +112,22 @@ struct BytecodeWriter
     int listLength;
     BytecodeData* data;
 
-    // Configuration options
-    bool alwaysCheckOutputs;
-    bool useLocals;
-
     BytecodeWriter()
       : writePosition(0),
         listLength(0),
-        data(NULL),
-        alwaysCheckOutputs(false),
-        useLocals(true)
+        data(NULL)
     {}
     ~BytecodeWriter() { free(data); }
 };
 
+// Printing to string
 void print_bytecode_op(BytecodeData* bytecode, int loc, std::ostream& out);
 void print_bytecode(BytecodeData* bytecode, std::ostream& out);
 void print_bytecode_and_related(BytecodeData* bytecode, std::ostream& out);
 std::string get_bytecode_as_string(BytecodeData* bytecode);
 
 // Building functions
+void bc_reserve_size(BytecodeWriter* writer, int opCount);
 int bc_get_write_position(BytecodeWriter* writer);
 
 void bc_write_call_op(BytecodeWriter* writer, Term* term, EvaluateFunc func);
@@ -201,6 +204,9 @@ void bc_call(BytecodeWriter* writer, Term* term);
 void bc_finish(BytecodeWriter* writer);
 
 void bc_reset_writer(BytecodeWriter* writer);
+
+// Set flags
+void bc_always_check_outputs(BytecodeWriter* writer);
 
 // Refresh the branch's bytecode, if it's dirty.
 void update_bytecode_for_branch(Branch* branch);

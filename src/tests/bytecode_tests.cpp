@@ -93,7 +93,7 @@ void test_jump_if()
 void test_check_output_type()
 {
     BytecodeWriter writer;
-    writer.alwaysCheckOutputs = true;
+    bc_always_check_outputs(&writer);
 
     Branch branch;
     Term* f = branch.compile("def f() -> string");
