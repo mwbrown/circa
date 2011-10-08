@@ -13,7 +13,7 @@ void setup_for_loop_post_code(Term* forTerm);
 
 Term* find_enclosing_for_loop(Term* term);
 
-void for_block_write_bytecode(Term* caller, BytecodeWriter* writer);
-void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer);
+void for_block_write_bytecode(BytecodeWriter* writer, Term* caller);
+void for_block_write_bytecode_contents(BytecodeWriter* writer, Term* caller);
 
 } // namespace circa

@@ -217,6 +217,6 @@ void evaluate_branch_with_bytecode(EvalContext* context, Branch* branch);
 
 // This can be used in Function.writeBytecode, when the call should not write
 // any bytecode.
-void null_bytecode_writer(Term*, BytecodeWriter*);
+void null_bytecode_writer(BytecodeWriter*,Term*);
 
 } // namespace circa

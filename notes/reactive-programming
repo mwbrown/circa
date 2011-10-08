@@ -1,0 +1,75 @@
+
+Reactive programming
+
+The idea is that the system manages a 'stream' of flowing values. Values are
+generated, passed, filtered, projected, and consumed. Side effects can be
+attached to event processing (and is only executed when appropriate). The
+stream can be treated as a first-class object.
+
+ - Generators (generate an event based on the outside world)
+ - Filters (can cause an event to be discarded based on a condition)
+ - Projections (output values f(x) when a value x is received)
+ - Consumers (only receive values, but execute a function upon receipt)
+
+Stateful operations (as supported in C#)
+
+ - TakeUntil
+ - ...
+
+Declaration styles
+
+The stream can be declared in a few different ways:
+
+ - Events and steps are first-class objects, the stream is constructed explicitly
+   Example:
+
+     start = TickGenerator(.16)
+     step1 = Filter({ isGamePaused() })
+     step1.listenTo(start)
+     step2 = Consumer({ movePlayer() })
+     step2.listenTo(step1)
+
+ - Right-arrow style
+     tick(.16) -> filter({ isGamePaused() }) -> { movePlayer() }
+
+   Equivalent to:
+     do(filter(tick(.16), {isGamePaused()}), {movePlayer())
+
+   Or:
+     updatePlayer = tick(.16)
+     filter(@updatePlayer, { isGamePaused() })
+     do(@updatePlayer, { movePlayer() })
+
+   Or:
+     playerUpdate = tick(.16)
+     filter(@playerUpdate, { isGamePaused() })
+     movePlayer(playerUpdate)
+
+     movePlayer() :when(playerUpdate)
+     movePlayer(:when playerUpdate)
+
+     if playerUpdate
+         movePlayer()
+
+
+Reaction analysis
+
+When figuring out which terms need to be evaluated:
+ 1) Start at the top
+ 2) Values never need reeval
+ 3) For a pure function f, f(x) does not need reeval if x does not need reeval
+ 4) For an 'impure generator' function f, f(x) always needs reeval
+   (there's different kinds of impure functions, an impure generator is where
+   the output value can be different for the same inputs)
+ 5) Inputs to the system are treated as needs-reeval
+ 
+With the above algorithm, we'll have the simple constant-elimination algorithm,
+but it won't be very smart. Too many terms will be marked as needs-reeval.
+
+We can be clever around if-block terms. For example:
+
+a_0 = 1
+if (cond)
+    a_1 = 2
+
+a_1 only needs reeval if (a_0 needs reeval) and (cond).

@@ -21,7 +21,7 @@ void switch_block_post_compile(Term* term)
     update_if_block_joining_branch(term);
 }
 
-void switch_block_write_bytecode(Term* caller, BytecodeWriter* writer)
+void switch_block_write_bytecode(BytecodeWriter* writer, Term* caller)
 {
     Branch* contents = nested_contents(caller);
     Branch* parentBranch = caller->owningBranch;

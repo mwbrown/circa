@@ -792,11 +792,11 @@ ParseResult if_block(Branch* branch, TokenStream& tokens, ParserCxt* context)
             possible_whitespace(tokens);
             Term* condition = infix_expression(branch, tokens, context).term;
             ca_assert(condition != NULL);
-            currentBlock = apply(contents, IF_FUNC, TermList(condition));
+            currentBlock = apply(contents, CASE_FUNC, TermList(condition));
         } else {
             // Create an 'else' block
             encounteredElse = true;
-            currentBlock = apply(contents, BRANCH_FUNC, TermList(), "else");
+            currentBlock = apply(contents, CASE_FUNC, TermList(NULL));
         }
 
         currentBlock->setStringProp("syntax:preWhitespace", preKeywordWhitespace);
@@ -829,8 +829,8 @@ ParseResult if_block(Branch* branch, TokenStream& tokens, ParserCxt* context)
 
     // If we didn't encounter an 'else' block, then create an empty one.
     if (!encounteredElse) {
-        Branch* branch = create_branch(contents, "else");
-        hide_from_source(branch->owningTerm);
+        Term* elseTerm = apply(contents, CASE_FUNC, TermList(NULL));
+        hide_from_source(elseTerm);
     }
 
     // Move the if_block term to be after the condition terms.

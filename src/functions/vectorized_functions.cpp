@@ -21,7 +21,7 @@ namespace vectorized_functions {
         return &LIST_T;
     }
 
-    void write_bytecode(Term* term, BytecodeWriter* writer)
+    void write_bytecode(BytecodeWriter* writer, Term* term)
     {
         Branch* contents = nested_contents(term);
         bc_call(writer, contents->get(0));

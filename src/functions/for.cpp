@@ -64,7 +64,7 @@ namespace for_function {
         return outerRebinds->get(outputIndex - 1)->type;
     }
 
-    void get_index__write_bytecode(Term* term, BytecodeWriter* writer)
+    void get_index__write_bytecode(BytecodeWriter* writer, Term* term)
     {
         Term* enclosingLoop = find_enclosing_for_loop(term);
         ca_assert(enclosingLoop != NULL);

@@ -19,8 +19,8 @@ struct FunctionAttrs
     typedef Type* (*GetOutputType)(Term*, int index);
     typedef void (*AssignRegisters)(Term*);
     typedef void (*PostCompile)(Term*);
-    typedef void (*WriteBytecode)(Term*, BytecodeWriter* writer);
-    typedef void (*WriteNestedBytecode)(Term*, BytecodeWriter* writer);
+    typedef void (*WriteBytecode)(BytecodeWriter* writer, Term*);
+    typedef void (*WriteNestedBytecode)(BytecodeWriter* writer, Term*);
 
     Term* declaringTerm;
 

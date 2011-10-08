@@ -124,33 +124,34 @@ Branch* if_block_get_branch(Term* ifCall, int index)
     return ifCall->contents(index)->contents();
 }
 
-#if 0
-void if_block_write_bytecode(Term* caller, BytecodeWriter* writer)
+void if_block_write_calling_bytecode(BytecodeWriter* writer, Term* term)
 {
-    Branch* contents = nested_contents(caller);
-    Branch* parentBranch = caller->owningBranch;
+    Branch* contents = nested_contents(term);
     bool useState = has_any_inlined_state(contents);
 
     // Keep track of OP_JUMPs that jump to the end.
     std::vector<int> jumpsToFinish;
 
-    // Write each case
+    // Iterate through each condition, figure out which case to run.
     for (int caseIndex=0; caseIndex < contents->length()-1; caseIndex++) {
         Term* caseTerm = contents->get(caseIndex);
 
-        int initial_jump = 0;
-        if (caseTerm->function == IF_FUNC) {
+        int initial_jump = -1;
+        if (caseTerm->input(0) != NULL) {
             initial_jump = bc_jump_if_not(writer);
-            bc_write_input(writer, parentBranch, caseTerm->input(0));
+            bc_write_input(writer, contents, caseTerm->input(0));
         }
 
+#if 0
         if (useState) {
             bc_write_call_op_with_func(writer, caller, IF_BLOCK_UNPACK_STATE_FUNC);
             bc_write_int_input(writer, caseIndex);
         }
+#endif
 
-        bc_call_branch(writer, caseTerm);
+        bc_push_frame(writer, caseTerm);
 
+#if 0
         if (useState) {
             bc_write_call_op_with_func(writer, caller, IF_BLOCK_PACK_STATE_FUNC);
             bc_write_int_input(writer, caseIndex);
@@ -165,13 +166,11 @@ void if_block_write_bytecode(Term* caller, BytecodeWriter* writer)
             bc_write_input(writer, nested_contents(caseTerm), joinTerm->input(caseIndex));
             bc_local_input(writer, 1, caller->index + 1 + i);
         }
+#endif
+        if (caseIndex < (contents->length() - 2))
+            jumpsToFinish.push_back(bc_jump(writer));
 
-        // Finish, clean up stack and wrap up jumps.
-        bc_pop_stack(writer);
-
-        jumpsToFinish.push_back(bc_jump(writer));
-
-        if (caseTerm->function == IF_FUNC)
+        if (initial_jump != -1)
             bc_jump_to_here(writer, initial_jump);
     }
 
@@ -179,14 +178,37 @@ void if_block_write_bytecode(Term* caller, BytecodeWriter* writer)
     for (size_t i=0; i < jumpsToFinish.size(); i++)
         bc_jump_to_here(writer, jumpsToFinish[i]);
 }
-#endif
 
-void if_block_write_calling_bytecode(Term* term, BytecodeWriter* writer)
+void case_write_nested_bytecode(BytecodeWriter* writer, Term* term)
 {
-}
+    Branch* contents = nested_contents(term);
+    Branch* ifBlock = term->owningBranch;
+    Term* parent = get_parent_term(term);
+    ca_assert(parent->function == IF_BLOCK_FUNC);
+    int myIndex = term->index;
 
-void if_block_write_nested_bytecode(BytecodeWriter* writer, Term* term)
-{
+    for (int i=0; i < contents->length(); i++)
+        bc_call(writer, contents->get(i));
+
+    // Copy output
+    Term* output = find_last_non_comment_expression(contents);
+    if (output != NULL) {
+        bc_copy(writer);
+        bc_write_input(writer, contents, term);
+        bc_write_input(writer, contents, output);
+    }
+
+    // Copy rebound locals
+    Branch* joining = nested_contents(ifBlock->getFromEnd(0));
+
+    for (int i=0; i < joining->length(); i++) {
+        Term* joinTerm = joining->get(i);
+        bc_copy(writer);
+        bc_write_input(writer, contents, parent->owningBranch->get(parent->index + 1 + i));
+        bc_write_input(writer, contents, joinTerm->input(myIndex));
+    }
+
+    bc_pop_frame(writer);
 }
 
 } // namespace circa

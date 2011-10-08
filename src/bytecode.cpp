@@ -457,7 +457,7 @@ void bc_call(BytecodeWriter* writer, Term* term)
         get_function_attrs(term->function)->writeBytecode;
 
     if (writeBytecode != NULL)
-        return writeBytecode(term, writer);
+        return writeBytecode(writer, term);
 
     EvaluateFunc evaluateFunc = get_function_attrs(term->function)->evaluate;
 
@@ -520,7 +520,7 @@ void write_bytecode_for_branch(Branch* branch, BytecodeWriter* writer)
         FunctionAttrs::WriteNestedBytecode func =
             get_function_attrs(parent->function)->writeNestedBytecode;
         if (func != NULL) {
-            func(parent, writer);
+            func(writer, parent);
             return;
         }
     }
@@ -542,7 +542,7 @@ void evaluate_branch_with_bytecode(EvalContext* context, Branch* branch)
     evaluate_bytecode(context, branch->bytecode);
 }
 
-void null_bytecode_writer(Term*, BytecodeWriter*)
+void null_bytecode_writer(BytecodeWriter*,Term*)
 {
 }
 

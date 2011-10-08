@@ -127,12 +127,12 @@ Term* find_enclosing_for_loop(Term* term)
     return find_enclosing_for_loop(branch->owningTerm);
 }
 
-void for_block_write_bytecode(Term* caller, BytecodeWriter* writer)
+void for_block_write_bytecode(BytecodeWriter* writer, Term* caller)
 {
     bc_push_frame(writer, caller);
 }
 
-void for_block_write_bytecode_contents(Term* caller, BytecodeWriter* writer)
+void for_block_write_bytecode_contents(BytecodeWriter* writer, Term* caller)
 {
     Branch* contents = nested_contents(caller);
     Branch* parent = caller->owningBranch;

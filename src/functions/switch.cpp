@@ -72,8 +72,9 @@ namespace switch_function {
         get_function_attrs(SWITCH_FUNC)->getOutputType = switch_getOutputType;
         get_function_attrs(SWITCH_FUNC)->writeBytecode = switch_block_write_bytecode;
 
-        CASE_FUNC = import_function(kernel, NULL, "case(any input)");
+        CASE_FUNC = import_function(kernel, NULL, "case(any input :optional)");
         get_function_attrs(CASE_FUNC)->formatSource = case_formatSource;
+        get_function_attrs(CASE_FUNC)->writeNestedBytecode = case_write_nested_bytecode;
 
         DEFAULT_CASE_FUNC = import_function(kernel, NULL, "default_case()");
     }

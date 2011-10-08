@@ -489,7 +489,7 @@ void update_branch_finish_term(Term* term)
 
 Term* find_last_non_comment_expression(Branch* branch)
 {
-    for (int i = branch->length() - 2; i >= 0; i--) {
+    for (int i = branch->length() - 1; i >= 0; i--) {
         Term* term = branch->get(i);
         if (term != NULL && term->function != COMMENT_FUNC)
             return term;

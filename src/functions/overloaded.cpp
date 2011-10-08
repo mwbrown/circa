@@ -45,7 +45,7 @@ namespace overloaded_function {
         // Otherwise, leave nested_contents blank, we'll do a dynamic overload. 
     } 
 
-    void write_bytecode(Term* term, BytecodeWriter* writer)
+    void write_bytecode(BytecodeWriter* writer, Term* term)
     {
         Branch* contents = nested_contents(term);
         if (contents->length() == 0) {
