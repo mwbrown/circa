@@ -476,11 +476,6 @@ void bc_check_output(BytecodeWriter* writer, Term* term)
     op->term = term;
 }
 
-void bc_finish(BytecodeWriter* writer)
-{
-    bc_stop(writer);
-}
-
 void bc_reset_writer(BytecodeWriter* writer)
 {
     writer->writePosition = 0;
@@ -542,8 +537,6 @@ void evaluate_branch_with_bytecode(EvalContext* context, Branch* branch)
     evaluate_bytecode(context, branch->bytecode);
 }
 
-void null_bytecode_writer(BytecodeWriter*,Term*)
-{
-}
+void null_bytecode_writer(BytecodeWriter*,Term*) { }
 
 } // namespace circa

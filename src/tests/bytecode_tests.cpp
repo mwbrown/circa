@@ -60,7 +60,7 @@ void test_jump_if()
     // Sanity check, write bytecode to call test_spy()
     bc_imaginary_call(&writer, get_global("test_spy"), -1);
     bc_global_input(&writer, &s);
-    bc_finish(&writer);
+    bc_stop(&writer);
 
     set_string(&s, "1");
     testing_clear_spy();
@@ -76,7 +76,7 @@ void test_jump_if()
     bc_imaginary_call(&writer, get_global("test_spy"), -1);
     bc_global_input(&writer, &s);
     bc_jump_to_here(&writer, jump);
-    bc_finish(&writer);
+    bc_stop(&writer);
 
     testing_clear_spy();
     evaluate_bytecode(&context, writer.data);

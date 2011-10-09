@@ -25,10 +25,10 @@ namespace circa {
 // N = branch length
 //
 // {
-//   [0] if(cond0) : Branch
-//   [1] if(cond1) : Branch
+//   [0] case(cond_0) : Branch
+//   [1] case(cond_1) : Branch
 //   ...
-//   [N-2] branch()  (this corresponds to the 'else' block)
+//   [N-2] case(NULL)  (this corresponds to the 'else' block)
 //   [N-1] #joining = branch() 
 //
 

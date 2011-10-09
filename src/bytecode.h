@@ -201,8 +201,6 @@ void dirty_bytecode(Branch* branch);
 // like the function's custom writeBytecode handler.
 void bc_call(BytecodeWriter* writer, Term* term);
 
-void bc_finish(BytecodeWriter* writer);
-
 void bc_reset_writer(BytecodeWriter* writer);
 
 // Set flags
