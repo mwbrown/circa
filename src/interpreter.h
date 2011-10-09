@@ -23,21 +23,19 @@ TaggedValue* get_extra_output_rel(EvalContext* context, Term* term, int frameDis
 TaggedValue* get_output_safe(EvalContext* context, Term* term);
 TaggedValue* get_local(EvalContext* context, int relativeFrame, int index);
 
-void finish_branch(EvalContext* context, int flags);
+// Low-level interpreter control
+void interpreter_start(EvalContext* context, BytecodeData* bytecode);
+bool interpreter_finished(EvalContext* context);
+void interpret(EvalContext* context);
+Operation* interpreter_get_next_operation(EvalContext* context);
+Branch* interpreter_get_current_branch(EvalContext* context);
 
 // High-level interpreter control
 void interpret(EvalContext* context, BytecodeData* bytecode);
 void interpret(EvalContext* context, Branch* branch);
-//void interpret_range(EvalContext* context, Branch* branch, int start, int end);
-
-// Lower-level interpreter control
-void interpreter_start(EvalContext* context, Branch* branch, BytecodeData* bytecode);
-void interpreter_start(EvalContext* context, Branch* branch);
-void interpreter_step(EvalContext* context);
-bool interpreter_finished(EvalContext* context);
-void interpreter_halt(EvalContext* context);
 
 void interpret_range(EvalContext* context, Branch* branch, int start, int end);
+void interpret_save_locals(EvalContext* context);
 
 void copy_locals_to_terms(EvalContext* context, Branch* branch);
 TaggedValue* get_state_input(EvalContext* cxt);

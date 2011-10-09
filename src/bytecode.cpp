@@ -60,9 +60,6 @@ void print_bytecode_op(BytecodeData* bytecode, int loc, std::ostream& out)
                 out << get_unique_name(term);
             break;
         }
-        case OP_CHECK_OUTPUT:
-            out << "check_output " << get_unique_name(((OpCheckOutput*) op)->term);
-            break;
         case OP_INPUT_NULL:
             out << "null_arg";
             break;
@@ -91,6 +88,9 @@ void print_bytecode_op(BytecodeData* bytecode, int loc, std::ostream& out)
         case OP_STOP:
             out << "stop";
             break;
+        case OP_PAUSE:
+            out << "pause";
+            break;
         case OP_JUMP:
             out << "jump " << loc + ((OpJump*) op)->offset;
             break;
@@ -111,9 +111,6 @@ void print_bytecode_op(BytecodeData* bytecode, int loc, std::ostream& out)
             break;
         case OP_PUSH_FRAME:
             out << "push_frame " << global_id(((OpPushBranch*) op)->term);
-            break;
-        case OP_INCREMENT:
-            out << "increment";
             break;
         case OP_ASSIGN_LOCAL:
             out << "assign_local " << ((OpAssignLocal*) op)->local;
@@ -187,21 +184,6 @@ void print_bytecode_and_related(BytecodeData* bytecode, std::ostream& out)
 
 std::string get_bytecode_as_string(BytecodeData* bytecode);
 
-static void start_bytecode_update(Branch* branch, BytecodeWriter* writer)
-{
-    // Move BytecodeData from the Branch to the BytecodeWriter. We will give it
-    // back soon.
-    writer->data = branch->bytecode;
-    writer->writePosition = 0;
-    branch->bytecode = NULL;
-}
-
-static void finish_bytecode_update(Branch* branch, BytecodeWriter* writer)
-{
-    ca_assert(branch->bytecode == NULL);
-    branch->bytecode = writer->data;
-    writer->data = NULL;
-}
 
 // Guarantee that the BytecodeData has enough room for the given number
 // of operations.
@@ -220,7 +202,6 @@ void bc_reserve_size(BytecodeWriter* writer, int opCount)
         writer->data->localsCount = 0;
         writer->data->dirty = false;
         writer->data->localsCount = 0;
-        memset(&writer->data->flags, 0, sizeof(writer->data->flags));
         writer->data->branch = NULL;
     } else {
         writer->data = (BytecodeData*) realloc(writer->data,
@@ -229,6 +210,14 @@ void bc_reserve_size(BytecodeWriter* writer, int opCount)
 
     writer->listLength = newLength;
 }
+
+void bc_start_branch(BytecodeWriter* writer, Branch* branch)
+{
+    bc_reserve_size(writer, 0);
+    writer->data->localsCount = branch->localsCount;
+    writer->data->branch = branch;
+}
+
 int bc_get_write_position(BytecodeWriter* writer)
 {
     return writer->writePosition;
@@ -256,10 +245,6 @@ void bc_write_call_op(BytecodeWriter* writer, Term* term, EvaluateFunc func)
     // Write information for each input
     for (int i=0; i < term->numInputs(); i++)
         bc_write_input(writer, term->owningBranch, term->input(i));
-
-    // Possibly write a CHECK_OUTPUT op.
-    if (writer->data->flags.alwaysCheckOutputs || DEBUG_ALWAYS_CHECK_OUTPUT_TYPE)
-        bc_check_output(writer, term);
 }
 
 void bc_write_call_op_with_func(BytecodeWriter* writer, Term* term, Term* func)
@@ -278,6 +263,10 @@ void bc_stop(BytecodeWriter* writer)
 {
     bc_append_op(writer)->type = OP_STOP;
 }
+void bc_pause(BytecodeWriter* writer)
+{
+    bc_append_op(writer)->type = OP_PAUSE;
+}
 
 void bc_imaginary_call(BytecodeWriter* writer, EvaluateFunc func, int output)
 {
@@ -289,6 +278,7 @@ void bc_imaginary_call(BytecodeWriter* writer, EvaluateFunc func, int output)
     // Write output instruction
     bc_local_input(writer, 0, output);
 }
+
 void bc_imaginary_call(BytecodeWriter* writer, Term* func, int output)
 {
     bc_imaginary_call(writer, get_function_attrs(func)->evaluate, output);
@@ -377,19 +367,20 @@ void bc_write_input(BytecodeWriter* writer, Branch* frame, Term* input)
         return;
     }
 
-    if (is_value(input) || writer->data->flags.useGlobals) {
+    if (is_value(input)) {
         bc_global_input(writer, (TaggedValue*) input);
-    } else {
-        // Walk both 'frame' and 'input' upward, if they are in a branch that
-        // does not create a stack frame.
-        while (!branch_creates_stack_frame(frame))
-            frame = get_parent_branch(frame);
-        while (!branch_creates_stack_frame(input->owningBranch))
-            input = get_parent_term(input);
-
-        int relativeFrame = get_frame_distance(frame, input);
-        bc_local_input(writer, relativeFrame, input->local);
+        return;
     }
+
+    // Walk both 'frame' and 'input' upward, if they are in a branch that
+    // does not create a stack frame.
+    while (!branch_creates_stack_frame(frame))
+        frame = get_parent_branch(frame);
+    while (!branch_creates_stack_frame(input->owningBranch))
+        input = get_parent_term(input);
+
+    int relativeFrame = get_frame_distance(frame, input);
+    bc_local_input(writer, relativeFrame, input->local);
 }
 void bc_int_input(BytecodeWriter* writer, int value)
 {
@@ -406,10 +397,6 @@ void bc_assign_local(BytecodeWriter* writer, int local)
 void bc_copy(BytecodeWriter* writer)
 {
     bc_write_call(writer, COPY_FUNC);
-}
-void bc_increment(BytecodeWriter* writer)
-{
-    bc_append_op(writer)->type = OP_INCREMENT;
 }
 void bc_push_frame(BytecodeWriter* writer, Term* term)
 {
@@ -469,23 +456,11 @@ void bc_call(BytecodeWriter* writer, Term* term)
     bc_write_call_op(writer, term, evaluateFunc);
 }
 
-void bc_check_output(BytecodeWriter* writer, Term* term)
-{
-    OpCheckOutput* op = (OpCheckOutput*) bc_append_op(writer);
-    op->type = OP_CHECK_OUTPUT;
-    op->term = term;
-}
-
 void bc_reset_writer(BytecodeWriter* writer)
 {
     writer->writePosition = 0;
     if (writer->data != NULL)
         writer->data->operationCount = 0;
-}
-void bc_always_check_outputs(BytecodeWriter* writer)
-{
-    bc_reserve_size(writer, 0);
-    writer->data->flags.alwaysCheckOutputs = true;
 }
 
 void update_bytecode_for_branch(Branch* branch)
@@ -495,20 +470,22 @@ void update_bytecode_for_branch(Branch* branch)
         return;
 
     BytecodeWriter writer;
-    start_bytecode_update(branch, &writer);
+
+    // Borrow the BytecodeData object from Branch.
+    writer.data = branch->bytecode;
+    branch->bytecode = NULL;
 
     write_bytecode_for_branch(branch, &writer);
 
-    finish_bytecode_update(branch, &writer);
+    branch->bytecode = writer.data;
+    writer.data = NULL;
 }
 
 void write_bytecode_for_branch(Branch* branch, BytecodeWriter* writer)
 {
     Term* parent = branch->owningTerm;
 
-    bc_reserve_size(writer, 0);
-    writer->data->localsCount = branch->localsCount;
-    writer->data->branch = branch;
+    bc_start_branch(writer, branch);
 
     // Check if parent function has a writeNestedBytecode
     if (parent != NULL) {
@@ -535,6 +512,33 @@ void evaluate_branch_with_bytecode(EvalContext* context, Branch* branch)
 {
     update_bytecode_for_branch(branch);
     evaluate_bytecode(context, branch->bytecode);
+}
+
+Term* find_term_for_local_input(BytecodeData* bytecode, int pos)
+{
+    OpInputLocal *lop = (OpInputLocal*) &bytecode->operations[pos];
+    ca_assert(lop->type == OP_INPUT_LOCAL);
+    Branch* branch = get_parent_branch(bytecode->branch, lop->relativeFrame);
+    for (int i=0; i < branch->length(); i++)
+        if (branch->get(i)->local == lop->local)
+            return branch->get(i);
+    return NULL;
+}
+
+void rewrite_bytecode_to_use_only_globals(BytecodeWriter* writer)
+{
+    for (int i=0; i < writer->data->operationCount; i++) {
+        Operation* op = &writer->data->operations[i];
+
+        if (op->type == OP_INPUT_LOCAL) {
+            Term* global = find_term_for_local_input(writer->data, i);
+            if (global != NULL) {
+                OpInputGlobal* gop = (OpInputGlobal*) op;
+                gop->type = OP_INPUT_GLOBAL;
+                gop->value = global;
+            }
+        }
+    }
 }
 
 void null_bytecode_writer(BytecodeWriter*,Term*) { }

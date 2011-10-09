@@ -491,6 +491,11 @@ Term* find_last_non_comment_expression(Branch* branch)
 {
     for (int i = branch->length() - 1; i >= 0; i--) {
         Term* term = branch->get(i);
+
+        // special workaround for for-loop
+        if (term->name == "#outer_rebinds")
+            continue;
+
         if (term != NULL && term->function != COMMENT_FUNC)
             return term;
     }

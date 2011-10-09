@@ -27,6 +27,7 @@ Frame* push_frame(EvalContext* context, BytecodeData* bytecode)
     top->state.initializeNull();
     set_dict(&top->state);
     top->bytecode = bytecode;
+    top->branch = bytecode->branch;
     return top;
 }
 Frame* push_frame(EvalContext* context, Branch* branch)
@@ -155,42 +156,6 @@ void consume_input_instruction(EvalContext* context, Operation* op, TaggedValue*
     }
 }
 
-void finish_branch(EvalContext* context, int flags)
-{
-    //Frame* frame = top_frame(context);
-
-#if 0
-    // Preserve stateful terms. Good candidate for optimization...
-    {
-        Branch* branch = frame->branch;
-        for (int i=0; i < branch->length(); i++) {
-            Term* term = branch->get(i);
-            if (term->function == GET_STATE_FIELD_FUNC && term->name != "") {
-                Term* outcome = find_name(branch, term->name.c_str());
-                TaggedValue* value = get_output(context, outcome);
-                copy(value, frame->state.insert(term->name.c_str()));
-            }
-        }
-    }
-#endif
-
-#if 0
-    // Check if the calling function specifies a custom finishBranch handler
-    if (frame->finishBranch) {
-        bool continueFinish = frame->finishBranch(context, flags);
-        if (!continueFinish)
-            return;
-    }
-#endif
-
-#if 0
-    if (context->preserveLocals && frame->branch != NULL)
-        copy_locals_to_terms(context, frame->branch);
-#endif
-
-    pop_frame(context);
-}
-
 bool top_level_finish_branch(EvalContext* context, int flags)
 {
     move(&top_frame(context)->state, &context->state);
@@ -227,252 +192,216 @@ bool check_output_type(EvalContext* context, Term* term)
 
 void interpreter_start(EvalContext* context, BytecodeData* bytecode)
 {
-    Frame* firstFrame = push_frame(context, bytecode);
-    if (is_dict(&context->state))
-        copy(&context->state, &firstFrame->state);
-}
-
-void interpreter_step(EvalContext* context)
-{
+    push_frame(context, bytecode);
 }
 
 bool interpreter_finished(EvalContext* context)
 {
-    return context->numFrames <= 0;
-}
-void interpreter_halt(EvalContext* context)
-{
-    while (context->numFrames > 0)
-        finish_branch(context, 0);
+    return context->numFrames == 0;
 }
 
-void interpret(EvalContext* context, BytecodeData* bytecode)
+Operation* interpreter_get_next_operation(EvalContext* context)
 {
-    interpreter_start(context, bytecode);
+    Frame* frame = top_frame(context);
+    return &frame->bytecode->operations[frame->pc];
+}
 
-    int pc = 0;
+Branch* interpreter_get_current_branch(EvalContext* context)
+{
+    return top_frame(context)->bytecode->branch;
+}
+
+void interpret(EvalContext* context)
+{
+    Frame* frame = top_frame(context);
+    BytecodeData* bytecode = frame->bytecode;
+    int pc = frame->pc;
+    
+    TaggedValue* input_pointers[20];
 
     // Main loop
     while (true) {
 
-    Operation* op = &bytecode->operations[pc];
+        Operation* op = &bytecode->operations[pc];
 
-#if 0
-    print_bytecode_op(bytecode, pc, std::cout);
-    std::cout << std::endl;
-    //print_bytecode(bytecode, std::cout);
-#endif
+        switch (op->type) {
+        case OP_CALL: {
 
-    switch (op->type) {
-    case OP_CALL: {
+            #if CIRCA_TEST_BUILD
+                memset(input_pointers, 0xa0a0, sizeof(input_pointers));
+            #endif
 
-        TaggedValue* input_pointers[20];
-#if CIRCA_TEST_BUILD
-        memset(input_pointers, 0xa0a0, sizeof(input_pointers));
-#endif
-        OpCall* cop = (OpCall*) op;
+            OpCall* cop = (OpCall*) op;
 
-        // Fetch pointers for input instructions
-        int input = 0;
-        bool probingInputs = true;
-        while (probingInputs) {
-            Operation* inputOp = op + 1 + input;
-            switch (inputOp->type) {
-                case OP_INPUT_GLOBAL: {
-                    OpInputGlobal* gop = (OpInputGlobal*) inputOp;
-                    input_pointers[input++] = gop->value;
-                    break;
+            // Fetch pointers for input instructions
+            int input = 0;
+            bool probingInputs = true;
+            while (probingInputs) {
+                Operation* inputOp = op + 1 + input;
+                switch (inputOp->type) {
+                    case OP_INPUT_GLOBAL: {
+                        OpInputGlobal* gop = (OpInputGlobal*) inputOp;
+                        input_pointers[input++] = gop->value;
+                        break;
+                    }
+                    case OP_INPUT_LOCAL: {
+                        OpInputLocal* lop = (OpInputLocal*) inputOp;
+                        Frame* frame = get_frame(context, lop->relativeFrame);
+                        input_pointers[input++] = list_get_index(&frame->locals, lop->local);
+                        break;
+                    }
+                    case OP_INPUT_NULL:
+                        input_pointers[input++] = NULL;
+                        break;
+                    default:
+                        probingInputs = false;
                 }
-                case OP_INPUT_LOCAL: {
-                    OpInputLocal* lop = (OpInputLocal*) inputOp;
-                    Frame* frame = get_frame(context, lop->relativeFrame);
-                    input_pointers[input++] = list_get_index(&frame->locals, lop->local);
-                    break;
-                }
-                case OP_INPUT_NULL:
-                    input_pointers[input++] = NULL;
-                    break;
-                default:
-                    probingInputs = false;
             }
+            int inputCount = input;
+
+            #if CIRCA_THROW_ON_ERROR
+            try {
+            #endif
+
+            cop->func(context, inputCount, input_pointers);
+
+            #if CIRCA_THROW_ON_ERROR
+            } catch (std::exception const& e) { error_occurred(context, cop->term, e.what()); }
+            #endif
+
+            pc += inputCount + 1;
+
+            continue;
         }
-        int inputCount = input;
 
-        #if CIRCA_THROW_ON_ERROR
-        try {
-        #endif
+        case OP_INPUT_LOCAL:
+        case OP_INPUT_GLOBAL:
+        case OP_INPUT_NULL:
+        case OP_INPUT_INT:
+            pc += 1;
+            continue;
 
-        cop->func(context, inputCount, input_pointers);
-
-        #if CIRCA_THROW_ON_ERROR
-        } catch (std::exception const& e) { error_occurred(context, cop->term, e.what()); }
-        #endif
-
-        pc += inputCount + 1;
-
-        continue;
-    }
-
-    case OP_CHECK_OUTPUT: {
-        Term* term = ((OpCheckOutput*) op)->term;
-
-        // Call check_output_type, and halt interpreter if it fails.
-        if (!check_output_type(context, term))
+        case OP_STOP:
+            while (!interpreter_finished(context))
+                pop_frame(context);
             return;
 
-        pc += 1;
-        continue;
-    }
+        case OP_PAUSE:
+            top_frame(context)->pc = pc + 1;
+            return;
 
-    case OP_INPUT_LOCAL:
-    case OP_INPUT_GLOBAL:
-    case OP_INPUT_NULL:
-    case OP_INPUT_INT:
-        pc += 1;
-        continue;
-
-    case OP_STOP:
-        return;
-
-    case OP_JUMP: {
-        OpJump* jop = (OpJump*) op;
-        ca_assert(jop->offset != 0);
-        pc += jop->offset;
-        continue;
-    }
-
-    case OP_JUMP_IF: {
-        OpJump* jop = (OpJump*) op;
-        TaggedValue* input = follow_input_instruction(context, op+1);
-        ca_assert(is_bool(input));
-        if (as_bool(input)) {
+        case OP_JUMP: {
+            OpJump* jop = (OpJump*) op;
             ca_assert(jop->offset != 0);
             pc += jop->offset;
-        } else {
-            pc += 1;
+            continue;
         }
-        continue;
-    }
-    case OP_JUMP_IF_NOT: {
-        OpJump* jop = (OpJump*) op;
-        TaggedValue* input = follow_input_instruction(context, op+1);
-        ca_assert(is_bool(input));
-        if (!as_bool(input)) {
-            ca_assert(jop->offset != 0);
-            pc += jop->offset;
-        } else {
-            pc += 1;
+
+        case OP_JUMP_IF: {
+            OpJump* jop = (OpJump*) op;
+            TaggedValue* input = follow_input_instruction(context, op+1);
+            ca_assert(is_bool(input));
+            if (as_bool(input)) {
+                ca_assert(jop->offset != 0);
+                pc += jop->offset;
+            } else {
+                pc += 1;
+            }
+            continue;
         }
-        continue;
-    }
-    case OP_JUMP_IF_NOT_EQUAL: {
-        OpJump* jop = (OpJump*) op;
-        TaggedValue* left = follow_input_instruction(context, op+1);
-        TaggedValue* right = follow_input_instruction(context, op+2);
-        if (!equals(left,right)) {
-            ca_assert(jop->offset != 0);
-            pc += jop->offset;
-        } else {
-            pc += 1;
+        case OP_JUMP_IF_NOT: {
+            OpJump* jop = (OpJump*) op;
+            TaggedValue* input = follow_input_instruction(context, op+1);
+            ca_assert(is_bool(input));
+            if (!as_bool(input)) {
+                ca_assert(jop->offset != 0);
+                pc += jop->offset;
+            } else {
+                pc += 1;
+            }
+            continue;
         }
-        continue;
-    }
-    case OP_JUMP_IF_LESS_THAN: {
-        OpJump* jop = (OpJump*) op;
-        TaggedValue* left = follow_input_instruction(context, op+1);
-        TaggedValue* right = follow_input_instruction(context, op+2);
-        if (to_float(left) < to_float(right)) {
-            ca_assert(jop->offset != 0);
-            pc += jop->offset;
-        } else {
-            pc += 3;
+        case OP_JUMP_IF_NOT_EQUAL: {
+            OpJump* jop = (OpJump*) op;
+            TaggedValue* left = follow_input_instruction(context, op+1);
+            TaggedValue* right = follow_input_instruction(context, op+2);
+            if (!equals(left,right)) {
+                ca_assert(jop->offset != 0);
+                pc += jop->offset;
+            } else {
+                pc += 1;
+            }
+            continue;
         }
-        continue;
-    }
+        case OP_JUMP_IF_LESS_THAN: {
+            OpJump* jop = (OpJump*) op;
+            TaggedValue* left = follow_input_instruction(context, op+1);
+            TaggedValue* right = follow_input_instruction(context, op+2);
+            if (to_float(left) < to_float(right)) {
+                ca_assert(jop->offset != 0);
+                pc += jop->offset;
+            } else {
+                pc += 3;
+            }
+            continue;
+        }
 
-#if 0
-    case OP_CALL_BRANCH: {
+        case OP_PUSH_FRAME: {
+            OpPushBranch* bop = (OpPushBranch*) op;
 
-        // TODO: Push branch to the stack but continue in this loop
-        OpCallBranch* cop = (OpCallBranch*) op;
+            // Save pc
+            top_frame(context)->pc = pc;
 
-        Term* termForCallStack = cop->term;
-        if (get_parent_term(termForCallStack) != NULL
-            && get_parent_term(termForCallStack)->function == IF_BLOCK_FUNC)
-            termForCallStack = get_parent_term(termForCallStack);
+            Branch* branch = nested_contents(bop->term);
+            update_bytecode_for_branch(branch);
+            bytecode = branch->bytecode;
+            pc = 0;
+            push_frame(context, bytecode);
+            continue;
+        }
 
-        Branch* branch = nested_contents(cop->term);
-        push_frame(context, branch);
-        evaluate_branch_with_bytecode(context, branch);
-        pc += 1;
+        case OP_POP_FRAME: {
+            if (context->preserveLocals)
+                copy_locals_to_terms(context, top_frame(context)->branch);
+            pop_frame(context);
+            pc = top_frame(context)->pc + 1;
+            bytecode = top_frame(context)->bytecode;
+            continue;
+        }
 
-        continue;
-    }
-#endif
-    case OP_PUSH_FRAME: {
-        OpPushBranch* bop = (OpPushBranch*) op;
+        case OP_ASSIGN_LOCAL: {
+            TaggedValue* local = top_frame(context)->locals[((OpAssignLocal*) op)->local];
+            consume_input_instruction(context, op + 1, local);
+            pc += 2;
+            continue;
+        }
 
-        // save pc
-        top_frame(context)->pc = pc;
-
-        Branch* branch = nested_contents(bop->term);
-        update_bytecode_for_branch(branch);
-        bytecode = branch->bytecode;
-        push_frame(context, bytecode);
-        pc = 0;
-        continue;
-    }
-
-    case OP_POP_FRAME: {
-        pop_frame(context);
-        pc = top_frame(context)->pc + 1;
-        bytecode = top_frame(context)->bytecode;
-        continue;
-    }
-
-    case OP_INCREMENT: {
-        TaggedValue* val = follow_input_instruction(context, op + 1);
-        set_int(val, as_int(val) + 1);
-        pc += 2;
-        continue;
-    }
-
-    case OP_ASSIGN_LOCAL: {
-        TaggedValue* local = top_frame(context)->locals[((OpAssignLocal*) op)->local];
-        consume_input_instruction(context, op + 1, local);
-        pc += 1;
-        continue;
-    }
-
-    default:
-        internal_error("in evaluate_bytecode, unrecognized op type");
-    }
+        default:
+            internal_error("in evaluate_bytecode, unrecognized op type");
+        }
     }
 }
 
 void interpret(EvalContext* context, Branch* branch)
 {
     update_bytecode_for_branch(branch);
-    interpret(context, branch->bytecode);
+    interpreter_start(context, branch->bytecode);
+    interpret(context);
+}
+
+void interpret(EvalContext* context, BytecodeData* bytecode)
+{
+    interpreter_start(context, bytecode);
+    interpret(context);
 }
 
 void interpret_single_term(EvalContext* context, Term* term)
 {
     BytecodeWriter writer;
 
-    bc_reserve_size(&writer, 0);
-
-    writer.data->flags.useGlobals = true;
-
-    // Even though useGlobals is on, we need to create locals for things like
-    // for-loop, which creates a few temporaries.
-    if (term->owningBranch != NULL)
-        writer.data->localsCount = term->owningBranch->localsCount;
-
-    writer.data->branch = term->owningBranch;
-
+    bc_start_branch(&writer, term->owningBranch);
     bc_call(&writer, term);
-    bc_stop(&writer);
+    bc_pause(&writer);
 
     interpret(context, writer.data);
 }
@@ -483,13 +412,43 @@ void interpret_range(EvalContext* context, Branch* branch, int start, int end)
         interpret_single_term(context, branch->get(i));
 }
 
+void interpret_save_locals(EvalContext* context)
+{
+#if 0
+    while (!interpreter_finished(context)) {
+
+        // Check if the next instruction is a POP_BRANCH. If so, we want to interject
+        // in and save the locals back to terms.
+        Operation* op = interpreter_get_next_operation(context);
+
+        if (op->type == OP_POP_FRAME) {
+            // Iterate through each term, copy locals
+            Frame* frame = top_frame(context);
+            Branch* branch = interpreter_get_current_branch(context);
+
+            for (int i=0; i < branch->length(); i++) {
+                Term* term = branch->get(i);
+                if (term->index == -1)
+                    continue;
+                copy(frame->locals[term->index], term);
+            }
+        }
+
+        // Run next instruction
+        interpret(context, 1);
+    }
+#endif
+}
+
 void copy_locals_to_terms(EvalContext* context, Branch* branch)
 {
-    // Copy locals back to the original terms. Many tests depend on this functionality.
+    Frame* frame = top_frame(context);
+
     for (int i=0; i < branch->length(); i++) {
         Term* term = branch->get(i);
-        if (is_value(term)) continue;
-        TaggedValue* val = get_output(context, term);
+        if (is_value(term))
+            continue;
+        TaggedValue* val = frame->locals[i];
         if (val != NULL)
             copy(val, branch->get(i));
     }
@@ -535,6 +494,5 @@ void error_occurred(EvalContext* context, Term* errorTerm, std::string const& me
         context->errorTerm = errorTerm;
     }
 }
-
 
 } // namespace circa

@@ -22,6 +22,7 @@ struct Frame {
     List locals;
     Dict state;
     BytecodeData* bytecode;
+    Branch* branch;
 };
 
 struct EvalContext

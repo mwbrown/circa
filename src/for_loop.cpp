@@ -225,7 +225,8 @@ void for_block_write_bytecode_contents(BytecodeWriter* writer, Term* caller)
     bc_write_input(writer, contents, listResult);
 
     // Finish iteration, increment index.
-    bc_increment(writer);
+    bc_write_call(writer, builtin_func(INCREMENT_FUNC));
+    bc_local_input(writer, indexLocal);
     bc_local_input(writer, indexLocal);
 
     // Jump back to the start of the loop (if we haven't reached the end).

@@ -62,6 +62,7 @@ void print_debugger_state(EvalContext* context, int frameIndex, int indent)
 
 int run_text_debugger(const char* filename)
 {
+#if 0
     Branch branch;
     load_script(&branch, filename);
 
@@ -83,6 +84,7 @@ int run_text_debugger(const char* filename)
 
         interpreter_step(&context);
     }
+#endif
     return 0;
 }
 

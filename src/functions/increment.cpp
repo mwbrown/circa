@@ -23,6 +23,7 @@ namespace increment_function {
     void setup(Branch* kernel)
     {
         CA_SETUP_FUNCTIONS(kernel);
+        register_builtin_func(INCREMENT_FUNC, kernel->get("increment"));
     }
 }
-}
+} // namespace circa

@@ -123,6 +123,7 @@ extern Type* FILE_SIGNATURE_T;
 // are deprecated.
 enum BuiltinFunctionIndex {
     INDEX_FUNC = 0,
+    INCREMENT_FUNC,
     NUM_BUILTIN_FUNCTIONS
 };
 

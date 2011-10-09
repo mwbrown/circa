@@ -90,35 +90,13 @@ void test_jump_if()
     test_equals(testing_get_spy_results(), "['2']");
 }
 
-void test_check_output_type()
-{
-    BytecodeWriter writer;
-    bc_always_check_outputs(&writer);
-
-    Branch branch;
-    Term* f = branch.compile("def f() -> string");
-
-    // Hackily make f() a function that actually returns floats
-    get_function_attrs(f)->evaluate = get_function_attrs(get_global("rand_i"))->evaluate;
-
-    branch.compile("f()");
-    branch.compile("test_spy('unreachable')");
-
-    write_bytecode_for_branch(&branch, &writer);
-
-    EvalContext context;
-    evaluate_bytecode(&context, writer.data);
-
-    test_assert(context.errorOccurred);
-}
-
 void register_tests()
 {
     REGISTER_TEST_CASE(bytecode_tests::test_static_assertions);
     REGISTER_TEST_CASE(bytecode_tests::test_simple_write);
     REGISTER_TEST_CASE(bytecode_tests::test_no_instructions_for_value);
     REGISTER_TEST_CASE(bytecode_tests::test_jump_if);
-    REGISTER_TEST_CASE(bytecode_tests::test_check_output_type);
+    REGISTER_TEST_CASE(bytecode_tests::test_rewrite_bytecode_to_only_use_globals);
 }
 
 }
