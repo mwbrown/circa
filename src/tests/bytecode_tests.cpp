@@ -96,7 +96,6 @@ void register_tests()
     REGISTER_TEST_CASE(bytecode_tests::test_simple_write);
     REGISTER_TEST_CASE(bytecode_tests::test_no_instructions_for_value);
     REGISTER_TEST_CASE(bytecode_tests::test_jump_if);
-    REGISTER_TEST_CASE(bytecode_tests::test_rewrite_bytecode_to_only_use_globals);
 }
 
 }

@@ -211,16 +211,17 @@ Branch* interpreter_get_current_branch(EvalContext* context)
     return top_frame(context)->bytecode->branch;
 }
 
-void interpret(EvalContext* context)
+void interpret(EvalContext* context, int flags)
 {
     Frame* frame = top_frame(context);
     BytecodeData* bytecode = frame->bytecode;
     int pc = frame->pc;
+    bool singleStep = (flags & INTERPRET_SINGLE_STEP) > 0;
     
     TaggedValue* input_pointers[20];
 
-    // Main loop
-    while (true) {
+    // Main loop. If 'singleStep' is true then we only loop once.
+    do {
 
         Operation* op = &bytecode->operations[pc];
 
@@ -292,7 +293,6 @@ void interpret(EvalContext* context)
 
         case OP_JUMP: {
             OpJump* jop = (OpJump*) op;
-            ca_assert(jop->offset != 0);
             pc += jop->offset;
             continue;
         }
@@ -361,11 +361,14 @@ void interpret(EvalContext* context)
         }
 
         case OP_POP_FRAME: {
-            if (context->preserveLocals)
-                copy_locals_to_terms(context, top_frame(context)->branch);
             pop_frame(context);
-            pc = top_frame(context)->pc + 1;
-            bytecode = top_frame(context)->bytecode;
+
+            if (context->numFrames == 0)
+                return;
+
+            Frame* frame = top_frame(context);
+            pc = frame->pc + 1;
+            bytecode = frame->bytecode;
             continue;
         }
 
@@ -379,42 +382,53 @@ void interpret(EvalContext* context)
         default:
             internal_error("in evaluate_bytecode, unrecognized op type");
         }
-    }
+    } while (!singleStep);
+
+    if (!interpreter_finished(context))
+        top_frame(context)->pc = pc;
 }
 
 void interpret(EvalContext* context, Branch* branch)
 {
     update_bytecode_for_branch(branch);
     interpreter_start(context, branch->bytecode);
-    interpret(context);
+    interpret(context, 0);
 }
 
 void interpret(EvalContext* context, BytecodeData* bytecode)
 {
     interpreter_start(context, bytecode);
-    interpret(context);
-}
-
-void interpret_single_term(EvalContext* context, Term* term)
-{
-    BytecodeWriter writer;
-
-    bc_start_branch(&writer, term->owningBranch);
-    bc_call(&writer, term);
-    bc_pause(&writer);
-
-    interpret(context, writer.data);
+    interpret(context, 0);
 }
 
 void interpret_range(EvalContext* context, Branch* branch, int start, int end)
 {
+    BytecodeWriter writer;
+    bc_start_branch(&writer, branch);
+
     for (int i=start; i < end; i++)
-        interpret_single_term(context, branch->get(i));
+        bc_call(&writer, branch->get(i));
+
+    bc_pause(&writer);
+
+    // Create a new branch if needed, otherwise reuse the existing one.
+    if (context->numFrames == 0)
+        interpreter_start(context, writer.data);
+    else {
+        Frame* topFrame = top_frame(context);
+        topFrame->bytecode = writer.data;
+        topFrame->pc = 0;
+    }
+
+    interpret(context, 0);
+
+    top_frame(context)->bytecode = NULL;
+
+    //interpret_save_locals(context);
 }
 
 void interpret_save_locals(EvalContext* context)
 {
-#if 0
     while (!interpreter_finished(context)) {
 
         // Check if the next instruction is a POP_BRANCH. If so, we want to interject
@@ -428,16 +442,22 @@ void interpret_save_locals(EvalContext* context)
 
             for (int i=0; i < branch->length(); i++) {
                 Term* term = branch->get(i);
-                if (term->index == -1)
+                if (is_value(term))
                     continue;
-                copy(frame->locals[term->index], term);
+                if (term->local == -1)
+                    continue;
+                copy(frame->locals[term->local], term);
             }
         }
 
         // Run next instruction
-        interpret(context, 1);
+        interpret(context, INTERPRET_SINGLE_STEP);
     }
-#endif
+}
+
+void interpret_minimum(EvalContext* context, Term* term, TaggedValue* result)
+{
+    // TODO
 }
 
 void copy_locals_to_terms(EvalContext* context, Branch* branch)

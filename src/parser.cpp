@@ -9,6 +9,7 @@
 #include "for_loop.h"
 #include "function.h"
 #include "if_block.h"
+#include "interpreter.h"
 #include "introspection.h"
 #include "kernel.h"
 #include "list_shared.h"
@@ -65,7 +66,8 @@ TermPtr evaluate(Branch* branch, ParsingStep step, std::string const& input)
 
     EvalContext context;
 
-    evaluate_range(&context, branch, prevHead, branch->length());
+    interpret_range(&context, branch, prevHead, branch->length());
+    copy_locals_to_terms(&context, branch);
 
     return result;
 }
@@ -1325,7 +1327,7 @@ ParseResult infix_expression_nested(Branch* branch, TokenStream& tokens, ParserC
                 throw std::runtime_error("Left side of <- must be a function");
 
             EvalContext context;
-            evaluate_minimum(&context, leftExpr.term, NULL);
+            interpret_minimum(&context, leftExpr.term, NULL);
 
             Term* function = leftExpr.term;
 

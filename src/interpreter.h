@@ -4,6 +4,9 @@
 
 namespace circa {
 
+// Interpreter flags
+const int INTERPRET_SINGLE_STEP = 0x1;
+
 Frame* push_frame(EvalContext* context, BytecodeData* bytecode);
 Frame* push_frame(EvalContext* context, Branch* branch);
 void pop_frame(EvalContext* context);
@@ -26,7 +29,7 @@ TaggedValue* get_local(EvalContext* context, int relativeFrame, int index);
 // Low-level interpreter control
 void interpreter_start(EvalContext* context, BytecodeData* bytecode);
 bool interpreter_finished(EvalContext* context);
-void interpret(EvalContext* context);
+void interpret(EvalContext* context, bool step);
 Operation* interpreter_get_next_operation(EvalContext* context);
 Branch* interpreter_get_current_branch(EvalContext* context);
 
@@ -36,6 +39,7 @@ void interpret(EvalContext* context, Branch* branch);
 
 void interpret_range(EvalContext* context, Branch* branch, int start, int end);
 void interpret_save_locals(EvalContext* context);
+void interpret_minimum(EvalContext* context, Term* term, TaggedValue* result);
 
 void copy_locals_to_terms(EvalContext* context, Branch* branch);
 TaggedValue* get_state_input(EvalContext* cxt);
