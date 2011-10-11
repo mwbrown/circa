@@ -468,7 +468,9 @@ void copy_locals_to_terms(EvalContext* context, Branch* branch)
         Term* term = branch->get(i);
         if (is_value(term))
             continue;
-        TaggedValue* val = frame->locals[i];
+        if (term->local == -1)
+            continue;
+        TaggedValue* val = frame->locals[term->local];
         if (val != NULL)
             copy(val, branch->get(i));
     }
