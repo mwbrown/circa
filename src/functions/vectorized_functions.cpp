@@ -72,13 +72,13 @@ namespace vectorized_functions {
 
     void setup(Branch* kernel)
     {
-        Term* vs = import_function(kernel, NULL, "vectorize_vs(List,any) -> List");
+        Term* vs = import_function(kernel, NULL, "vectorize_vs(List a,any b) -> List");
         get_function_attrs(vs)->specializeType = specializeType_vs;
         get_function_attrs(vs)->postInputChange = post_input_change_vs;
         get_function_attrs(vs)->writeBytecode = write_bytecode;
         get_function_attrs(vs)->createsStackFrame = false;
 
-        Term* vv = import_function(kernel, NULL, "vectorize_vv(List,List) -> List");
+        Term* vv = import_function(kernel, NULL, "vectorize_vv(List a,List b) -> List");
         get_function_attrs(vv)->specializeType = specializeType_vv;
         get_function_attrs(vv)->postInputChange = post_input_change_vv;
         get_function_attrs(vv)->writeBytecode = write_bytecode;

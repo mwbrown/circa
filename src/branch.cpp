@@ -579,7 +579,7 @@ void load_script(Branch* branch, const char* filename)
 void evaluate_script(Branch* branch, const char* filename)
 {
     load_script(branch, filename);
-    evaluate_save_locals(branch);
+    interpret_save_locals(branch);
 }
 
 Branch* include_script(Branch* branch, const char* filename)

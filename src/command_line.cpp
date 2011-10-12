@@ -8,6 +8,7 @@
 #include "evaluation.h"
 #include "feedback.h"
 #include "introspection.h"
+#include "interpreter.h"
 #include "kernel.h"
 #include "parser.h"
 #include "source_repro.h"
@@ -112,7 +113,7 @@ int run_command_line(std::vector<std::string> args)
 
         print_branch(std::cout, &branch);
 
-        evaluate_save_locals(&branch);
+        interpret_save_locals(&branch);
         return 0;
     }
 
@@ -121,7 +122,7 @@ int run_command_line(std::vector<std::string> args)
         Branch branch;
         load_script(&branch, args[1].c_str());
 
-        evaluate_save_locals(&branch);
+        interpret_save_locals(&branch);
 
         print_branch(std::cout, &branch);
         return 0;
@@ -176,7 +177,7 @@ int run_command_line(std::vector<std::string> args)
         std::cout << "-- Before evaluation:" << std::endl;
         print_branch(std::cout, branch);
 
-        evaluate_save_locals(branch);
+        interpret_save_locals(branch);
 
         std::cout << std::endl;
         std::cout << "-- After evaluation:" << std::endl;
@@ -246,7 +247,7 @@ int run_command_line(std::vector<std::string> args)
         for (size_t i=1; i < args.size(); i++)
             set_string(context.argumentList.append(), args[i]);
 
-        evaluate_save_locals(&context, main_branch);
+        interpret_save_locals(&context, main_branch);
 
         if (context.errorOccurred) {
             std::cout << "Error occurred:\n";

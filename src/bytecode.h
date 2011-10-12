@@ -23,8 +23,8 @@ const OpType OP_STOP = 20;
 const OpType OP_PAUSE = 21;
 const OpType OP_PAUSE_IF_ERROR = 22;
 
-const OpType OP_PUSH_FRAME = 22;
-const OpType OP_POP_FRAME = 23;
+const OpType OP_PUSH_FRAME = 25;
+const OpType OP_POP_FRAME = 26;
 
 const OpType OP_INPUT_LOCAL = 31;
 const OpType OP_INPUT_GLOBAL = 32;
@@ -39,7 +39,6 @@ struct Operation {
     // padding..
     void* ptr1;
     void* ptr2;
-    int padding3;
 };
 
 struct OpCall {

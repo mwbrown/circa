@@ -211,17 +211,16 @@ Branch* interpreter_get_current_branch(EvalContext* context)
     return top_frame(context)->bytecode->branch;
 }
 
-void interpret(EvalContext* context, int flags)
+void interpret(EvalContext* context)
 {
     Frame* frame = top_frame(context);
     BytecodeData* bytecode = frame->bytecode;
     int pc = frame->pc;
-    bool singleStep = (flags & INTERPRET_SINGLE_STEP) > 0;
     
     TaggedValue* input_pointers[20];
 
-    // Main loop. If 'singleStep' is true then we only loop once.
-    do {
+    // Main loop.
+    while (true) {
 
         Operation* op = &bytecode->operations[pc];
 
@@ -390,23 +389,20 @@ void interpret(EvalContext* context, int flags)
         default:
             internal_error("in evaluate_bytecode, unrecognized op type");
         }
-    } while (!singleStep);
-
-    if (!interpreter_finished(context))
-        top_frame(context)->pc = pc;
+    }
 }
 
 void interpret(EvalContext* context, Branch* branch)
 {
     update_bytecode_for_branch(branch);
     interpreter_start(context, branch->bytecode);
-    interpret(context, 0);
+    interpret(context);
 }
 
 void interpret(EvalContext* context, BytecodeData* bytecode)
 {
     interpreter_start(context, bytecode);
-    interpret(context, 0);
+    interpret(context);
 }
 
 void interpret_range(EvalContext* context, Branch* branch, int start, int end)
@@ -428,39 +424,33 @@ void interpret_range(EvalContext* context, Branch* branch, int start, int end)
         topFrame->pc = 0;
     }
 
-    interpret(context, 0);
+    interpret(context);
 
     top_frame(context)->bytecode = NULL;
 
     //interpret_save_locals(context);
 }
 
-void interpret_save_locals(EvalContext* context)
+void interpret_save_locals(EvalContext* context, Branch* branch)
 {
-    while (!interpreter_finished(context)) {
+    BytecodeWriter writer;
+    bc_start_branch(&writer, branch);
 
-        // Check if the next instruction is a POP_BRANCH. If so, we want to interject
-        // in and save the locals back to terms.
-        Operation* op = interpreter_get_next_operation(context);
+    for (int i=0; i < branch->length(); i++)
+        bc_call(&writer, branch->get(i));
 
-        if (op->type == OP_POP_FRAME) {
-            // Iterate through each term, copy locals
-            Frame* frame = top_frame(context);
-            Branch* branch = interpreter_get_current_branch(context);
+    bc_pause(&writer);
 
-            for (int i=0; i < branch->length(); i++) {
-                Term* term = branch->get(i);
-                if (is_value(term))
-                    continue;
-                if (term->local == -1)
-                    continue;
-                copy(frame->locals[term->local], term);
-            }
-        }
+    interpreter_start(context, writer.data);
+    interpret(context);
 
-        // Run next instruction
-        interpret(context, INTERPRET_SINGLE_STEP);
-    }
+    copy_locals_to_terms(context, branch);
+}
+
+void interpret_save_locals(Branch* branch)
+{
+    EvalContext context;
+    interpret_save_locals(&context, branch);
 }
 
 void interpret_minimum(EvalContext* context, Term* term, TaggedValue* result)

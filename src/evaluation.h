@@ -67,12 +67,6 @@ void evaluate_branch_internal_with_state(EvalContext* context, Term* term,
 
 void evaluate_branch(EvalContext* context, Branch* branch);
 
-// Top-level call. Evalaute the branch and then preserve stack outputs back to terms.
-void evaluate_save_locals(EvalContext* context, Branch* branch);
-
-// Shorthand to call evaluate_save_locals with a new EvalContext:
-void evaluate_save_locals(Branch* branch);
-
 // Parse input and immediately evaluate it
 void evaluate(EvalContext* context, Branch* branch, std::string const& input);
 void evaluate(Branch* branch, Term* function, List* inputs);

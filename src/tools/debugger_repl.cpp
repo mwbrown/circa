@@ -4,6 +4,7 @@
 
 #include "branch.h"
 #include "evaluation.h"
+#include "interpreter.h"
 #include "introspection.h"
 #include "static_checking.h"
 
@@ -45,7 +46,7 @@ int run_debugger_repl(std::string const& filename)
         }
 
         if (input == "e") {
-            evaluate_save_locals(&branch);
+            interpret_save_locals(&branch);
             continue;
         }
 

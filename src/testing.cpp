@@ -314,7 +314,7 @@ void test_branch_as_assertions_list(Branch* branch, std::string const& contextSt
     }
 
     EvalContext context;
-    evaluate_save_locals(&context, branch);
+    interpret_save_locals(&context, branch);
 
     if (context.errorOccurred) {
         std::cout << "Runtime error " << contextStr << std::endl;

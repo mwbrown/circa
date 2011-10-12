@@ -96,18 +96,6 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
 {
     interpret(context, bytecode);
 }
-
-void evaluate_save_locals(EvalContext* context, Branch* branch)
-{
-    context->preserveLocals = true;
-    evaluate_branch(context, branch);
-}
-
-void evaluate_save_locals(Branch* branch)
-{
-    EvalContext context;
-    evaluate_save_locals(&context, branch);
-}
 void evaluate(EvalContext* context, Branch* branch, std::string const& input)
 {
     // FIXME
