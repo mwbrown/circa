@@ -291,6 +291,14 @@ void interpret(EvalContext* context, int flags)
             top_frame(context)->pc = pc + 1;
             return;
 
+        case OP_PAUSE_IF_ERROR:
+            if (context->errorOccurred) {
+                top_frame(context)->pc = pc + 1;
+                return;
+            }
+            pc += 1;
+            continue;
+
         case OP_JUMP: {
             OpJump* jop = (OpJump*) op;
             pc += jop->offset;

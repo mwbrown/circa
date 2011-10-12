@@ -91,6 +91,9 @@ void print_bytecode_op(BytecodeData* bytecode, int loc, std::ostream& out)
         case OP_PAUSE:
             out << "pause";
             break;
+        case OP_PAUSE_IF_ERROR:
+            out << "pause_if_error";
+            break;
         case OP_JUMP:
             out << "jump " << loc + ((OpJump*) op)->offset;
             break;
@@ -266,6 +269,10 @@ void bc_stop(BytecodeWriter* writer)
 void bc_pause(BytecodeWriter* writer)
 {
     bc_append_op(writer)->type = OP_PAUSE;
+}
+void bc_pause_if_error(BytecodeWriter* writer)
+{
+    bc_append_op(writer)->type = OP_PAUSE_IF_ERROR;
 }
 
 void bc_imaginary_call(BytecodeWriter* writer, EvaluateFunc func, int output)

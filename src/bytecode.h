@@ -21,6 +21,7 @@ const OpType OP_JUMP_IF_LESS_THAN = 14;
 
 const OpType OP_STOP = 20;
 const OpType OP_PAUSE = 21;
+const OpType OP_PAUSE_IF_ERROR = 22;
 
 const OpType OP_PUSH_FRAME = 22;
 const OpType OP_POP_FRAME = 23;

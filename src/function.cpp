@@ -38,7 +38,8 @@ FunctionAttrs::FunctionAttrs()
     postCompile(NULL),
     writeBytecode(NULL),
     writeNestedBytecode(NULL),
-    createsStackFrame(true)
+    createsStackFrame(true),
+    checkForError(false)
 {
     debug_register_valid_object(this, FUNCTION_ATTRS_OBJECT);
 }
