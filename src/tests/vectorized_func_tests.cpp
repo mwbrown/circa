@@ -21,7 +21,7 @@ void test_type_inference()
         test_assert(it->function->name != "mult_f");
     }
 
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_equals(t, "[1, 1]");
 }
 

@@ -16,7 +16,7 @@ void test_snippet(std::string const& source)
         return;
 
     EvalContext context;
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
 
     if (test_fail_on_runtime_error(context))
         return;
@@ -44,7 +44,7 @@ void test_trimmed_state(std::string const& source, std::string const& dest,
         return;
 
     EvalContext context;
-    evaluate_save_locals(&context, &sourceBranch);
+    interpret_save_locals(&context, &sourceBranch);
 
     if (test_fail_on_runtime_error(context))
         return;

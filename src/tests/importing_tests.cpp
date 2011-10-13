@@ -27,7 +27,7 @@ void test_import_c()
     test_equals(function_get_output_type(func, 0)->name, "int");
 
     Term* result = branch.compile("my_imported_func(4,5)");
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
 
     test_assert(as_int(result) == 9);
 }

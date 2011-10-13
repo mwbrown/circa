@@ -28,7 +28,7 @@
                 _circa_START_FUNCTIONS[i]->_header);\
     }
 
-#define CALLER (get_pc_term(_context))
+#define CALLER (_caller)
 #define CONTEXT (_context)
 #define NUM_INPUTS (_count-1)
 #define INPUT(index) (_in[(index)+1])

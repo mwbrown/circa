@@ -22,7 +22,7 @@ void blocked_by_error()
     branch.compile("test_spy(2)");
 
     EvalContext context;
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_assert(context.errorOccurred);
     test_assert(context.errorTerm == error);
     test_equals(internal_debug_function::spy_results(), "[1]");
@@ -35,7 +35,7 @@ void test_errored_function()
     Term* t = branch.compile("t = errored(e)");
 
     EvalContext context;
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
 
     test_assert(!context.errorOccurred);
     test_assert(as_bool(t));

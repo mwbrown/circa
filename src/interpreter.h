@@ -9,12 +9,10 @@ Frame* push_frame(EvalContext* context, Branch* branch);
 void pop_frame(EvalContext* context);
 Frame* top_frame(EvalContext* context);
 Frame* get_frame(EvalContext* context, int frame);
-Term* get_pc_term(EvalContext* context);
 
 TaggedValue* get_input(EvalContext* context, Term* term, int index);
 TaggedValue* get_input_rel(EvalContext* context, Term* term, int frameDistance, int index);
 void consume_input(EvalContext* context, Term* term, int index, TaggedValue* output);
-TaggedValue* get_current_input(EvalContext* context, int index);
 TaggedValue* get_output(EvalContext* context, Term* term);
 TaggedValue* get_output_rel(EvalContext* context, Term* term, int frameDistance);
 TaggedValue* get_current_output(EvalContext* context);
@@ -22,6 +20,8 @@ TaggedValue* get_extra_output(EvalContext* context, Term* term, int index);
 TaggedValue* get_extra_output_rel(EvalContext* context, Term* term, int frameDistance, int index);
 TaggedValue* get_output_safe(EvalContext* context, Term* term);
 TaggedValue* get_local(EvalContext* context, int relativeFrame, int index);
+
+Term* get_term_from_local(EvalContext* context, int local);
 
 // Low-level interpreter control
 void interpreter_start(EvalContext* context, BytecodeData* bytecode);

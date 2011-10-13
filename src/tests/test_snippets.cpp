@@ -150,7 +150,7 @@ void test_snippet_runtime_error(std::string const& str)
     }
 
     EvalContext result;
-    evaluate_save_locals(&result, &code);
+    interpret_save_locals(&result, &code);
 
     if (!result.errorOccurred) {
         std::cout << "No runtime error occured: " << get_current_test_name() << std::endl;

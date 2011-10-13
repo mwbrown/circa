@@ -56,7 +56,7 @@ void test_builtin_equals()
     Branch branch;
     EvalContext context;
     branch.compile("equals(5.0, 'hello')");
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
 }
 
 void test_list()
@@ -96,26 +96,6 @@ void test_vectorized_funcs()
 #endif
 }
 
-void test_vectorized_funcs_with_points()
-{
-    // This test is similar, but we define the type Point and see if
-    // vectorized functions work against that.
-    Branch branch;
-    
-    Term* point_t = branch.compile("type Point {number x, number y}");
-
-    Term* a = branch.compile("a = [1 0] -> Point");
-
-    test_assert(a->type == as_type(point_t));
-
-    Term* b = branch.compile("b = a + [0 2]");
-
-    evaluate_save_locals(&branch);
-
-    test_equals(b->getIndex(0)->toFloat(), 1);
-    test_equals(b->getIndex(1)->toFloat(), 2);
-}
-
 void test_cond_with_int_and_float()
 {
     Branch branch;
@@ -133,7 +113,7 @@ void test_get_index()
     branch.eval("l = [1 2 3]");
     TaggedValue* get = branch.compile("get_index(l, 0)");
 
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
 
     test_assert(get->value_type == unbox_type(INT_TYPE));
     test_assert(get->asInt() == 1);
@@ -150,13 +130,13 @@ void test_set_index()
     branch.eval("l = [1 2 3]");
     TaggedValue* l2 = branch.compile("set_index(@l, 1, 5)");
 
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_assert(l2->getIndex(0)->asInt() == 1);
     test_assert(l2->getIndex(1)->asInt() == 5);
     test_assert(l2->getIndex(2)->asInt() == 3);
 
     TaggedValue* l3 = branch.compile("l[2] = 9");
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_assert(l3->getIndex(0)->asInt() == 1);
     test_assert(l3->getIndex(1)->asInt() == 5);
     test_assert(l3->getIndex(2)->asInt() == 9);
@@ -176,12 +156,12 @@ void test_do_once()
     test_assert(as_int(x) == 1);
 
     // the assign() inside do_once should modify x
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_assert(as_int(x) == 2);
 
     // but if we call it again, it shouldn't do that any more
     set_int(x, 3);
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_assert(as_int(x) == 3);
 }
 
@@ -192,18 +172,18 @@ void test_changed()
     Term* x = branch.compile("x = 5");
     Term* changed = branch.compile("changed(x)");
 
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_assert(changed->asBool() == true);
 
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_assert(changed->asBool() == false);
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_assert(changed->asBool() == false);
 
     set_int(x, 6);
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_assert(changed->asBool() == true);
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_assert(changed->asBool() == false);
 }
 
@@ -215,26 +195,26 @@ void test_delta()
     Term* delta = branch.compile("delta(i)");
 
     EvalContext context;
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
 
     test_assert(is_float(delta));
     test_equals(delta->toFloat(), 0);
     
     set_int(i, 5);
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_assert(is_float(delta));
     test_equals(delta->toFloat(), 5);
 
     // do another evaluation without changing i, delta is now 0
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_equals(delta->toFloat(), 0);
 
     set_int(i, 2);
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_equals(delta->toFloat(), -3);
 
     set_int(i, 0);
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_equals(delta->toFloat(), -2);
 }
 
@@ -250,12 +230,12 @@ void test_message_passing()
     test_equals(&context.messages, "{}");
 
     // First run, inbox is still empty, but there is 1 message in transit
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_assert(inbox->numElements() == 0);
     test_equals(&context.messages, "{inbox_name: [1]}");
 
     // Second run, inbox now returns 1
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_assert(inbox->numElements() == 1);
     test_assert(inbox->getIndex(0)->asInt() == 1);
     test_equals(&context.messages, "{inbox_name: [1]}");
@@ -264,13 +244,13 @@ void test_message_passing()
     remove_term(send);
 
     // Third run, inbox still returns 1 (from previous call), message queue is empty
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_assert(inbox->numElements() == 1);
     test_assert(inbox->getIndex(0)->asInt() == 1);
     test_equals(&context.messages, "{inbox_name: []}");
 
     // Fourth run, inbox is empty again
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_assert(inbox->numElements() == 0);
     test_equals(&context.messages, "{inbox_name: []}");
 }
@@ -289,17 +269,17 @@ void test_message_passing2()
         "send_func(2)\n");
 
     EvalContext context;
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
 
     test_equals(&context.state, "{last_output: 1}");
 
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_equals(&context.state, "{last_output: 2}");
 
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_equals(&context.state, "{last_output: 2}");
 
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_equals(&context.state, "{last_output: 2}");
 }
 
@@ -313,7 +293,7 @@ void test_run_single_statement()
 
     internal_debug_function::spy_clear();
     branch.compile("run_single_statement(br, 0)");
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_equals(internal_debug_function::spy_results(), "[1]");
 
     internal_debug_function::spy_clear();
@@ -353,7 +333,6 @@ void register_tests()
     REGISTER_TEST_CASE(builtin_function_tests::test_builtin_equals);
     REGISTER_TEST_CASE(builtin_function_tests::test_list);
     REGISTER_TEST_CASE(builtin_function_tests::test_vectorized_funcs);
-    REGISTER_TEST_CASE(builtin_function_tests::test_vectorized_funcs_with_points);
     REGISTER_TEST_CASE(builtin_function_tests::test_cond_with_int_and_float);
     REGISTER_TEST_CASE(builtin_function_tests::test_get_index);
     REGISTER_TEST_CASE(builtin_function_tests::test_set_index);

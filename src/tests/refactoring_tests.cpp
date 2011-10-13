@@ -42,11 +42,11 @@ void test_change_function()
 
     // simple test
     Term* a = branch.compile("add(3,3)");
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_assert(as_int(a) == 6);
 
     change_function(a, KERNEL->get("mult_i"));
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_assert(as_int(a) == 9);
 }
 

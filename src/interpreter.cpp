@@ -56,11 +56,6 @@ Frame* get_frame(EvalContext* context, int frame)
     ca_assert(frame >= 0);
     return &context->frames[context->numFrames-1-frame];
 }
-Term* get_pc_term(EvalContext* context)
-{
-    Frame* frame = top_frame(context);
-    return frame->bytecode->branch->get(frame->pc);
-}
 TaggedValue* get_input(EvalContext* context, Term* term, int index)
 {
     return get_input_rel(context, term, 0, index);
@@ -85,11 +80,6 @@ void consume_input(EvalContext* context, Term* term, int index, TaggedValue* out
 {
     // TEMP: Don't actually consume
     copy(get_input(context, term, index), output);
-}
-TaggedValue* get_current_input(EvalContext* context, int index)
-{
-    Term* term = get_pc_term(context);
-    return get_input(context, term, index);
 }
 TaggedValue* get_output(EvalContext* context, Term* term)
 {
@@ -124,6 +114,14 @@ TaggedValue* get_output_safe(EvalContext* context, Term* term)
 TaggedValue* get_local(EvalContext* context, int relativeFrame, int index)
 {
     return get_frame(context, relativeFrame)->locals[index];
+}
+Term* get_term_from_local(EvalContext* context, int local)
+{
+    Branch* branch = top_frame(context)->branch;
+    for (int i=0; i < branch->length(); i++)
+        if (branch->get(i)->local == local)
+            return branch->get(i);
+    return NULL;
 }
 
 TaggedValue* follow_input_instruction(EvalContext* context, Operation* op)
@@ -263,7 +261,7 @@ void interpret(EvalContext* context)
             try {
             #endif
 
-            cop->func(context, inputCount, input_pointers);
+            cop->func(context, cop->term, inputCount, input_pointers);
 
             #if CIRCA_THROW_ON_ERROR
             } catch (std::exception const& e) { error_occurred(context, cop->term, e.what()); }
@@ -476,9 +474,14 @@ void copy_locals_to_terms(EvalContext* context, Branch* branch)
 
 TaggedValue* get_state_input(EvalContext* cxt)
 {
+    internal_error("get_state_input broken");
+    return NULL;
+
+#if 0
     Term* term = get_pc_term(cxt);
     Dict* currentScopeState = &get_frame(cxt, 0)->state;
     return currentScopeState->insert(get_unique_name(term));
+#endif
 }
 
 void error_occurred(EvalContext* context, Term* errorTerm, std::string const& message)

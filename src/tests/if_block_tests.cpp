@@ -12,26 +12,26 @@ void test_if_simple_eval()
     branch.compile("if true { test_spy(1) }");
     testing_clear_spy();
 
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_equals(testing_get_spy_results(), "[1]");
 
     branch.clear();
     branch.compile("if false { test_spy(1) }");
     testing_clear_spy();
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_equals(testing_get_spy_results(), "[]");
 
     branch.clear();
     branch.compile("if 1 == 1 { test_spy(3) }");
     update_bytecode_for_branch(&branch);
     testing_clear_spy();
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_equals(testing_get_spy_results(), "[3]");
 
     branch.clear();
     branch.compile("if false { test_spy(3) } else { test_spy(4) } ");
     testing_clear_spy();
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_equals(testing_get_spy_results(), "[4]");
 }
 
@@ -90,7 +90,7 @@ void test_if_joining()
     branch.clear();
     branch.compile("a = 1; if true { a += 1 }; a = a");
 
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_equals(branch["a"], "2");
 }
 
@@ -105,7 +105,7 @@ void test_if_joining_on_bool()
 
     branch.eval("if false { hey = false }");
 
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
 
     test_assert(branch["hey"]->asBool() == true);
 }
@@ -115,14 +115,14 @@ void test_if_elif_else()
     Branch branch;
 
     branch.compile("if true { a = 1 } elif true { a = 2 } else { a = 3 } a=a");
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
 
     test_assert(branch.contains("a"));
     test_equals(branch["a"]->asInt(), 1);
 
     branch.compile(
         "if false { b = 'apple' } elif false { b = 'orange' } else { b = 'pineapple' } b=b");
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_assert(branch.contains("b"));
     test_assert(branch["b"]->asString() == "pineapple");
 
@@ -130,7 +130,7 @@ void test_if_elif_else()
     branch.clear();
     branch.compile("c = 0");
     branch.compile("if false { c = 7 } elif true { c = 8 }; c=c");
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_assert(branch.contains("c"));
     test_assert(branch["c"]->asInt() == 8);
 
@@ -139,7 +139,7 @@ void test_if_elif_else()
     branch.compile("x = 5");
     branch.compile("if x > 6 { compare = 1 } elif x < 6 { compare = -1 } else { compare = 0}");
     branch.compile("compare=compare");
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
 
     test_assert(branch.contains("compare"));
     test_assert(branch["compare"]->asInt() == -1);
@@ -149,7 +149,7 @@ void test_dont_always_rebind_inner_names()
 {
     Branch branch;
     branch.compile("if false { b = 1 } elif false { c = 1 } elif false { d = 1 } else { e = 1 }");
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_assert(!branch.contains("b"));
     test_assert(!branch.contains("c"));
     test_assert(!branch.contains("d"));
@@ -167,7 +167,7 @@ void test_execution()
     branch.compile("if false { test_spy('Fail') }");
     branch.compile("if (1 + 2) > 1 { test_spy('Success 2') }");
     branch.compile("if (1 + 2) < 1 { test_spy('Fail') }");
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_assert(branch);
     test_equals(testing_get_spy_results(), "['Success 1', 'Success 2']");
     
@@ -180,7 +180,7 @@ void test_execution()
                 "else { test_spy('Fail') }");
     branch.compile("if false { test_spy('Fail') test_spy('Fail 2') } "
                 "else { test_spy('Success 4-1') test_spy('Success 4-2') test_spy('Success 4-3') }");
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_assert(branch);
     test_equals(testing_get_spy_results(),
             "['Success 1', 'Success 2', 'Success 3-1', 'Success 3-2', 'Success 3-3', "
@@ -192,7 +192,7 @@ void test_execution()
     testing_clear_spy();
     branch.compile("if true { if false { test_spy('Error!') } else { test_spy('Nested 1') } } "
                 "else { test_spy('Error!') }");
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_assert(branch);
     test_equals(testing_get_spy_results(), "['Nested 1']");
 
@@ -200,7 +200,7 @@ void test_execution()
     testing_clear_spy();
     branch.compile("if false { test_spy('Error!') } else { if false { test_spy('Error!') } "
                 "else { test_spy('Nested 2') } }");
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_assert(branch);
     test_equals(testing_get_spy_results(), "['Nested 2']");
     
@@ -208,7 +208,7 @@ void test_execution()
     testing_clear_spy();
     branch.compile("if false { test_spy('Error!') }"
                 "else { if true { test_spy('Nested 3') } else { test_spy('Error!') } }");
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_assert(branch);
     test_equals(testing_get_spy_results(), "['Nested 3']");
 
@@ -216,7 +216,7 @@ void test_execution()
     testing_clear_spy();
     branch.compile("if true { if false { test_spy('Error!') } else { test_spy('Nested 4') } } "
                 "else { test_spy('Error!') }");
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_assert(branch);
     test_equals(testing_get_spy_results(), "['Nested 4']");
 
@@ -239,7 +239,7 @@ void test_execution()
     "           test_spy('Error!')\n"
     "           test_spy('Error!')\n"
             );
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_assert(branch);
     test_equals(testing_get_spy_results(), "['Nested 5']");
 }
@@ -256,7 +256,7 @@ void test_execution_with_elif()
                 "else { test_spy('Fail') }");
 
     testing_clear_spy();
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_assert(branch);
     test_equals(testing_get_spy_results(), "['Success']");
 }
@@ -268,19 +268,19 @@ void test_parse_with_no_line_endings()
     branch.compile("a = 4");
     branch.compile("if a < 5 { a = 5 }");
     branch.compile("a=a");
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_assert(branch);
     test_assert(branch["a"]->asInt() == 5);
 
     branch.compile("if a > 7 { a = 5 } else { a = 3 }");
     branch.compile("a=a");
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_assert(branch);
     test_assert(branch["a"]->asInt() == 3);
 
     branch.compile("if a == 2 { a = 1 } elif a == 3 { a = 9 } else { a = 2 }");
     branch.compile("a=a");
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_assert(branch);
     test_assert(branch["a"]->asInt() == 9);
 }
@@ -292,28 +292,28 @@ void test_state_simple()
 
     // Simple test, condition never changes
     Term* block = branch.compile("if true { state i = 0; i += 1 }");
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
 
     TaggedValue *i = context.state.getField("_if_block")->getIndex(0)->getField("i");
     test_assert(i != NULL);
     test_assert(as_int(i) == 1);
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     i = context.state.getField("_if_block")->getIndex(0)->getField("i");
     test_assert(as_int(i) == 2);
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     i = context.state.getField("_if_block")->getIndex(0)->getField("i");
     test_assert(as_int(i) == 3);
 
     // Same test with elif
     branch.clear();
     block = branch.compile("if false {} elif true { state i = 0; i += 1 }");
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     i = context.state.getField("_if_block")->getIndex(1)->getField("i");
     test_assert(as_int(i) == 1);
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     i = context.state.getField("_if_block")->getIndex(1)->getField("i");
     test_assert(as_int(i) == 2);
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     i = context.state.getField("_if_block")->getIndex(1)->getField("i");
     test_assert(as_int(i) == 3);
 
@@ -321,13 +321,13 @@ void test_state_simple()
     branch.clear();
     context = EvalContext();
     block = branch.compile("if false {} else { state i = 0; i += 1 }");
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     i = context.state.getField("_if_block")->getIndex(1)->getField("i");
     test_assert(as_int(i) == 1);
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     i = context.state.getField("_if_block")->getIndex(1)->getField("i");
     test_assert(as_int(i) == 2);
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     i = context.state.getField("_if_block")->getIndex(1)->getField("i");
     test_assert(as_int(i) == 3);
 }
@@ -346,13 +346,13 @@ void test_state_in_function()
 
     Term* call1 = branch.compile("my_func()");
 
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_assert(as_int(call1) == 1);
 
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_equals(as_int(call1), 2);
 
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_equals(as_int(call1), 3);
     test_assert(context);
 }
@@ -365,26 +365,26 @@ void test_state_is_reset_when_if_fails()
     Term* c = branch.compile("c = true");
     branch.compile("if c { state i = 0; i += 1 } else { 'hi' }");
 
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     //test_equals(&context.state, "{_if_block: [{i: 1}, null]}");
     test_equals(&context.state, "{_if_block: [{i: 1}]}");
 
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     //test_equals(&context.state, "{_if_block: [{i: 2}, null]}");
     test_equals(&context.state, "{_if_block: [{i: 2}]}");
 
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     //test_equals(&context.state, "{_if_block: [{i: 3}, null]}");
     test_equals(&context.state, "{_if_block: [{i: 3}]}");
 
     set_bool(c, false);
 
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_equals(&context.state, "{_if_block: [null, {}]}");
 
     set_bool(c, true);
 
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     //test_equals(&context.state, "{_if_block: [{i: 1}, null]}");
     test_equals(&context.state, "{_if_block: [{i: 1}]}");
 }
@@ -406,20 +406,20 @@ void test_state_is_reset_when_if_fails2()
     internal_debug_function::oracle_send(3);
 
     EvalContext context;
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     //test_equals(&context.state, "{_if_block: [{s: 1}, null]}");
     test_equals(&context.state, "{_if_block: [{s: 1}]}");
 
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     //test_equals(&context.state, "{_if_block: [{s: 1}, null]}");
     test_equals(&context.state, "{_if_block: [{s: 1}]}");
 
     set_bool(a, false);
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_equals(&context.state, "{_if_block: [null, {}]}");
 
     set_bool(a, true);
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     //test_equals(&context.state, "{_if_block: [{s: 2}, null]}");
     test_equals(&context.state, "{_if_block: [{s: 2}]}");
 }
@@ -432,13 +432,13 @@ void test_nested_state()
     branch.compile("t = false; if true { t = toggle(true) }");
     TaggedValue* t = branch["t"];
 
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_assert(as_bool(t) == true);
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_assert(as_bool(t) == false);
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_assert(as_bool(t) == true);
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_assert(as_bool(t) == false);
 }
 

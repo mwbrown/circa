@@ -19,7 +19,7 @@ void test_input(std::string const& in)
     }
 
     EvalContext context;
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
 
     if (!context.errorOccurred) {
         std::cout << "No runtime error: " << in << std::endl;

@@ -15,14 +15,14 @@ void train_addition1()
     Term* a = branch.compile("a = 1.0");
     branch.compile("b = add(a, 2.0)");
     branch.compile("b <- 4");
-    evaluate_save_locals(branch);
+    interpret_save_locals(branch);
 
     set_trainable(a, true);
 
     test_equals(as_float(a), 1.0);
 
     refresh_training_branch(branch);
-    evaluate_save_locals(branch);
+    interpret_save_locals(branch);
 
     test_equals(as_float(a), 2.0);
 }
@@ -34,13 +34,13 @@ void train_addition2()
     Term* a = branch.compile("a = 1.0");
     Term* b = branch.compile("b = 2.0");
     branch.compile("add(a, b) <- 4");
-    evaluate_save_locals(branch);
+    interpret_save_locals(branch);
 
     set_trainable(a, true);
     set_trainable(b, true);
 
     refresh_training_branch(branch);
-    evaluate_save_locals(branch);
+    interpret_save_locals(branch);
 
     test_equals(to_float(a), 1.5);
     test_equals(to_float(b), 2.5);
@@ -52,12 +52,12 @@ void train_mult()
     Term* a = branch.compile("a = 1.0");
     branch.compile("b = 3");
     branch.compile("mult(a, b) <- 6");
-    evaluate_save_locals(branch);
+    interpret_save_locals(branch);
 
     set_trainable(a, true);
 
     refresh_training_branch(branch);
-    evaluate_save_locals(branch);
+    interpret_save_locals(branch);
 
     test_equals(to_float(a), 2.0);
 }
@@ -69,14 +69,14 @@ void train_cond()
     branch.compile("b = 1");
     Term* cond = branch.compile("c = true");
     branch.compile("cond(c, a, b) <- 5");
-    evaluate_save_locals(branch);
+    interpret_save_locals(branch);
 
     set_trainable(a, true);
 
     refresh_training_branch(branch);
 
     EvalContext context;
-    evaluate_save_locals(&context, branch);
+    interpret_save_locals(&context, branch);
     test_assert(context);
 
     test_equals(a->asInt(), 5);
@@ -85,7 +85,7 @@ void train_cond()
     set_int(a, 1);
     set_bool(cond, false);
 
-    evaluate_save_locals(branch);
+    interpret_save_locals(branch);
 
     test_assert(a->asInt() == 1);
 }
@@ -95,12 +95,12 @@ void train_sin()
     Branch branch;
     Term* a = branch.compile("a = 0.0");
     branch.compile("sin(a) <- 1");
-    evaluate_save_locals(branch);
+    interpret_save_locals(branch);
 
     set_trainable(a, true);
 
     refresh_training_branch(branch);
-    evaluate_save_locals(branch);
+    interpret_save_locals(branch);
 
     // angles are in a range of 0..1. Otherwise this result would be PI/2
     test_equals(as_float(a), 0.25);
@@ -115,7 +115,7 @@ void train_cos()
     set_trainable(a, true);
 
     refresh_training_branch(branch);
-    evaluate_save_locals(branch);
+    interpret_save_locals(branch);
 
     test_equals(as_float(a), 0);
 }
@@ -127,7 +127,7 @@ void feedback_across_function()
     branch.compile("def inv(float f) : float\nreturn 0 - f\nend");
     branch.compile("b = inv(a)");
     branch.compile("b <- -2.0");
-    evaluate_save_locals(branch);
+    interpret_save_locals(branch);
 
     set_trainable(a, true);
     refresh_training_branch(branch);
@@ -139,7 +139,7 @@ void feedback_operation()
     Branch branch;
     Term* a = branch.compile("1");
     Term* b = branch.compile("2");
-    evaluate_save_locals(branch);
+    interpret_save_locals(branch);
 
     TermList list = operation.getFeedback(a, DESIRED_VALUE_FEEDBACK);
 
@@ -174,7 +174,7 @@ void test_feedback_on_subroutine_input()
     branch.compile("def f(int i) { feedback(i, 2) }");
     branch.compile("f(a)");
 
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_equals(a, "2");
 
     branch.clear();
@@ -182,7 +182,7 @@ void test_feedback_on_subroutine_input()
     branch.compile("def f(int i) { feedback(i, 3) }");
     branch.compile("def g(int i) { f(i) }");
     branch.compile("g(a)");
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_equals(a, "3");
 }
 

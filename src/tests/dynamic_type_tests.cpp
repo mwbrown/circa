@@ -39,12 +39,12 @@ void test_field_access()
     Term* r = branch.compile("r = f()");
 
     test_assert(branch);
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
 
     Term* four = f->get(1);
     test_assert(as_int(four) == 4);
 
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_assert(context);
 
     branch.eval("r.a");
@@ -69,7 +69,7 @@ void test_subroutine_input_and_output()
     branch.compile("def f(Point p) { p.x }");
     branch.compile("f([1 2])");
 
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_assert(branch);
 
     branch.compile("def f() -> any { return([1 1] -> Point) }");
@@ -77,7 +77,7 @@ void test_subroutine_input_and_output()
     branch.compile("a.x");
     branch.compile("f().y");
 
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_assert(branch);
 }
 
@@ -101,14 +101,14 @@ void test_dynamic_overload()
     test_assert(inputs_fit_function_dynamic(add_i, inputs));
     test_assert(!inputs_statically_fit_function(add_i, inputs));
 
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
     test_assert(context);
     test_assert(result->asInt() == 8);
 
     set_float(b, 3.0);
     test_assert(!inputs_fit_function_dynamic(add_i, inputs));
 
-    evaluate_save_locals(&context, &branch);
+    interpret_save_locals(&context, &branch);
 
     test_assert(context);
     test_assert(result->asFloat() == 8.0);

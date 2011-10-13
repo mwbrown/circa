@@ -364,12 +364,12 @@ void test_semicolon_as_line_ending()
     branch.compile("a=a");
 
     test_assert(!has_static_errors(&branch));
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_assert(branch.contains("a"));
     test_assert(branch["a"]->asInt() == 1);
     test_assert(branch.contains("cond"));
     set_bool(branch["cond"], false);
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_assert(branch["a"]->asInt() == 2);
 }
 
@@ -416,7 +416,7 @@ void test_array_index_access()
     Branch branch;
     branch.compile("a = [1 2 3]");
     Term* b = branch.compile("a[0]");
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
 
     test_assert(b);
     test_assert(b->function == GET_INDEX_FUNC);
@@ -427,7 +427,7 @@ void test_float_division()
 {
     Branch branch;
     Term* a = branch.compile("5 / 3");
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
 
     test_equals(a->type->name, "number");
     test_equals(a->function->name, "div");
@@ -439,7 +439,7 @@ void test_integer_division()
 {
     Branch branch;
     Term* a = branch.compile("5 // 3");
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
 
     test_equals(a->type->name, "int");
     test_equals(a->function->name, "div_i");
@@ -450,7 +450,7 @@ void test_namespace()
 {
     Branch branch;
     Term* ns = branch.compile("namespace ns { a = 1; b = 2 }");
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
 
     test_assert(branch);
     test_assert(ns->function == NAMESPACE_FUNC);
@@ -463,7 +463,7 @@ void test_namespace()
     branch.clear();
     ns = branch.compile("namespace ns { def myfunc(int a) -> int { return(a+1) } }");
     Term* c = branch.compile("c = ns:myfunc(4)");
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_assert(branch);
     test_assert(c->asInt() == 5);
 }
@@ -473,7 +473,7 @@ void test_method_calls()
     Branch branch;
     branch.compile("x = [1 2 3]");
     Term* count = branch.compile("x.count()");
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_equals(count, "3");
 
     // call a method inside a namespace
@@ -483,7 +483,7 @@ void test_method_calls()
     Term* v = branch.compile("v.method()");
 
     test_assert(!has_static_errors(&branch));
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_equals(v, "hello");
 }
 
@@ -713,7 +713,7 @@ void test_sig_indent_bug_with_for_loop_expression()
             "x = for i in 0..1\n"
             "  i + 5\n");
 
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_equals(branch["x"], "[5]");
 }
 
@@ -776,7 +776,7 @@ void test_bug_with_nested_ifs()
                    "a = a");
 
     test_assert(branch);
-    evaluate_save_locals(&branch);
+    interpret_save_locals(&branch);
     test_equals(branch["a"], "correct");
 }
 
