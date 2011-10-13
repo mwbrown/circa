@@ -51,7 +51,6 @@ struct TermList;
 struct TermMap;
 struct Type;
 
-typedef Term* TermPtr;
 typedef bool (*TermVisitor)(Term* term, TaggedValue* context);
 
 // Variant value used in many places, including in TaggedValue:

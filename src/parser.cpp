@@ -31,7 +31,7 @@ namespace parser {
 
 using namespace circa::token;
 
-TermPtr compile(Branch* branch, ParsingStep step, std::string const& input)
+Term* compile(Branch* branch, ParsingStep step, std::string const& input)
 {
     int prevLastIndex = branch->length() - 1;
 
@@ -58,7 +58,7 @@ TermPtr compile(Branch* branch, ParsingStep step, std::string const& input)
     return result;
 }
 
-TermPtr evaluate(Branch* branch, ParsingStep step, std::string const& input)
+Term* evaluate(Branch* branch, ParsingStep step, std::string const& input)
 {
     int prevHead = branch->length();
 
