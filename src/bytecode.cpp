@@ -12,6 +12,7 @@
 #include "list_shared.h"
 #include "kernel.h"
 #include "refactoring.h"
+#include "subroutine.h"
 #include "term.h"
 #include "type.h"
 
@@ -446,6 +447,10 @@ void bc_call(BytecodeWriter* writer, Term* term)
             || term->name == "#outer_rebinds")
         return;
 
+    // Check for a subroutine
+    if (is_subroutine(term->function))
+        return subroutine_write_calling_bytecode(writer, term);
+
     // Check if the function has a special writer function
     FunctionAttrs::WriteBytecode writeBytecode =
         get_function_attrs(term->function)->writeBytecode;
@@ -496,8 +501,13 @@ void write_bytecode_for_branch(Branch* branch, BytecodeWriter* writer)
 
     // Check if parent function has a writeNestedBytecode
     if (parent != NULL) {
-        FunctionAttrs::WriteNestedBytecode func =
-            get_function_attrs(parent->function)->writeNestedBytecode;
+        FunctionAttrs::WriteNestedBytecode func;
+        
+        if (is_subroutine(parent))
+            func = subroutine_write_nested_bytecode;
+        else
+            func = get_function_attrs(parent->function)->writeNestedBytecode;
+
         if (func != NULL) {
             func(writer, parent);
             return;

@@ -233,28 +233,27 @@ void interpret(EvalContext* context)
 
             // Fetch pointers for input instructions
             int input = 0;
-            bool probingInputs = true;
-            while (probingInputs) {
+            while (true) {
                 Operation* inputOp = op + 1 + input;
                 switch (inputOp->type) {
                     case OP_INPUT_GLOBAL: {
                         OpInputGlobal* gop = (OpInputGlobal*) inputOp;
                         input_pointers[input++] = gop->value;
-                        break;
+                        continue;
                     }
                     case OP_INPUT_LOCAL: {
                         OpInputLocal* lop = (OpInputLocal*) inputOp;
                         Frame* frame = get_frame(context, lop->relativeFrame);
                         input_pointers[input++] = list_get_index(&frame->locals, lop->local);
-                        break;
+                        continue;
                     }
                     case OP_INPUT_NULL:
                         input_pointers[input++] = NULL;
-                        break;
-                    default:
-                        probingInputs = false;
+                        continue;
                 }
+                break;
             }
+            
             int inputCount = input;
 
             #if CIRCA_THROW_ON_ERROR
@@ -362,6 +361,36 @@ void interpret(EvalContext* context)
             bytecode = branch->bytecode;
             pc = 0;
             push_frame(context, bytecode);
+
+            Frame* frame = top_frame(context);
+
+            // Push inputs to the new frame
+            int input = 0;
+            while (true) {
+                Operation* inputOp = op + 1 + input;
+                switch (inputOp->type) {
+                    case OP_INPUT_GLOBAL: {
+                        OpInputGlobal* gop = (OpInputGlobal*) inputOp;
+                        copy(gop->value, frame->locals[input]);
+                        input++;
+                        continue;
+                    }
+                    case OP_INPUT_LOCAL: {
+                        OpInputLocal* lop = (OpInputLocal*) inputOp;
+                        // Add 1 to relativeFrame because we just pushed a new frame
+                        Frame* inputFrame = get_frame(context, lop->relativeFrame + 1);
+                        copy(inputFrame->locals[lop->local], frame->locals[input]);
+                        input++;
+                        continue;
+                    }
+                    case OP_INPUT_NULL:
+                        set_null(frame->locals[input]);
+                        input++;
+                        continue;
+                }
+                break;
+            }
+
             continue;
         }
 

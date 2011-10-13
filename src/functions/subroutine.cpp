@@ -1,5 +1,5 @@
 // Copyright (c) Paul Hodge. See LICENSE file for license terms.
-// Copyright (c) 2007-2010 Paul Hodge. All rights reserved
+
 #include "../common_headers.h"
 
 #include "../importing.h"

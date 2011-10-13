@@ -10,6 +10,9 @@ namespace subroutine_f {
 
 CA_FUNCTION(evaluate_subroutine);
 
+void subroutine_write_calling_bytecode(BytecodeWriter* writer, Term* term);
+void subroutine_write_nested_bytecode(BytecodeWriter* writer, Term* term);
+
 bool is_subroutine(Term* term);
 Term* find_enclosing_subroutine(Term* term);
 int get_input_index_of_placeholder(Term* inputPlaceholder);

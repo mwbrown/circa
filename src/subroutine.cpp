@@ -155,6 +155,28 @@ CA_FUNCTION(evaluate_subroutine)
 #endif
 }
 
+void subroutine_write_calling_bytecode(BytecodeWriter* writer, Term* term)
+{
+    bc_push_frame(writer, term->function);
+
+    for (int i=0; i < term->numInputs(); i++)
+        bc_write_input(writer, term->owningBranch, term->input(i));
+}
+
+void subroutine_write_nested_bytecode(BytecodeWriter* writer, Term* function)
+{
+    ca_assert(is_subroutine(function));
+    Branch* contents = nested_contents(function);
+
+    for (int i=0; i < contents->length(); i++) {
+        if (contents->get(i)->name == "#attributes")
+            continue;
+        bc_call(writer, contents->get(i));
+    }
+
+    bc_pop_frame(writer);
+}
+
 bool is_subroutine(Term* term)
 {
     if (term->type != &FUNCTION_T)

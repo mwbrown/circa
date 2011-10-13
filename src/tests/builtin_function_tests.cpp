@@ -123,29 +123,6 @@ void test_get_index()
     test_assert(context.errorOccurred);
 }
 
-void test_do_once()
-{
-    Branch branch;
-    EvalContext context;
-
-    Term* x = branch.compile("x = 1");
-    Term* t = branch.compile("do_once()");
-    nested_contents(t)->compile("unsafe_assign(x,2)");
-
-    test_assert(branch);
-
-    test_assert(as_int(x) == 1);
-
-    // the assign() inside do_once should modify x
-    interpret_save_locals(&context, &branch);
-    test_assert(as_int(x) == 2);
-
-    // but if we call it again, it shouldn't do that any more
-    set_int(x, 3);
-    interpret_save_locals(&context, &branch);
-    test_assert(as_int(x) == 3);
-}
-
 void test_changed()
 {
     Branch branch;
@@ -316,7 +293,6 @@ void register_tests()
     REGISTER_TEST_CASE(builtin_function_tests::test_vectorized_funcs);
     REGISTER_TEST_CASE(builtin_function_tests::test_cond_with_int_and_float);
     REGISTER_TEST_CASE(builtin_function_tests::test_get_index);
-    //TEST_DISABLED REGISTER_TEST_CASE(builtin_function_tests::test_do_once);
     REGISTER_TEST_CASE(builtin_function_tests::test_changed);
     REGISTER_TEST_CASE(builtin_function_tests::test_delta);
     REGISTER_TEST_CASE(builtin_function_tests::test_message_passing);

@@ -1,0 +1,20 @@
+
+def sub1()
+   print('called sub1')
+
+sub1()
+
+def return_value() -> string
+    return 'return_value'
+
+print(return_value())
+
+def with_args(string a, string b)
+    print(a b)
+
+with_args('with ', 'args')
+
+def with_args2(string a, string b) -> string
+    return concat(b, a)
+
+print(with_args2('args2', 'with '))
