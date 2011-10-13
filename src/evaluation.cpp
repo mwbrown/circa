@@ -98,8 +98,14 @@ void evaluate_bytecode(EvalContext* context, BytecodeData* bytecode)
 }
 void evaluate(EvalContext* context, Branch* branch, std::string const& input)
 {
-    // FIXME
+    int prevHead = branch->length();
+
+    parser::compile(branch, parser::statement_list, input);
+
+    interpret_range(context, branch, prevHead, branch->length());
+    copy_locals_to_terms(context, branch);
 }
+
 void evaluate(Branch* branch, Term* function, List* inputs)
 {
     // FIXME

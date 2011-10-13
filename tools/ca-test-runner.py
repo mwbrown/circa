@@ -67,7 +67,7 @@ def test_file(filename):
 
     return failures
 
-EnabledTests = ['cast.ca', 'if.ca', 'for.ca', 'vectorized_func.ca']
+EnabledTests = ['cast.ca', 'if.ca', 'for.ca', 'set_index.ca', 'vectorized_func.ca']
 
 def run_all_tests():
     if 'CIRCA_HOME' in os.environ:

@@ -123,25 +123,6 @@ void test_get_index()
     test_assert(context.errorOccurred);
 }
 
-void test_set_index()
-{
-    Branch branch;
-
-    branch.eval("l = [1 2 3]");
-    TaggedValue* l2 = branch.compile("set_index(@l, 1, 5)");
-
-    interpret_save_locals(&branch);
-    test_assert(l2->getIndex(0)->asInt() == 1);
-    test_assert(l2->getIndex(1)->asInt() == 5);
-    test_assert(l2->getIndex(2)->asInt() == 3);
-
-    TaggedValue* l3 = branch.compile("l[2] = 9");
-    interpret_save_locals(&branch);
-    test_assert(l3->getIndex(0)->asInt() == 1);
-    test_assert(l3->getIndex(1)->asInt() == 5);
-    test_assert(l3->getIndex(2)->asInt() == 9);
-}
-
 void test_do_once()
 {
     Branch branch;
@@ -335,7 +316,6 @@ void register_tests()
     REGISTER_TEST_CASE(builtin_function_tests::test_vectorized_funcs);
     REGISTER_TEST_CASE(builtin_function_tests::test_cond_with_int_and_float);
     REGISTER_TEST_CASE(builtin_function_tests::test_get_index);
-    REGISTER_TEST_CASE(builtin_function_tests::test_set_index);
     //TEST_DISABLED REGISTER_TEST_CASE(builtin_function_tests::test_do_once);
     REGISTER_TEST_CASE(builtin_function_tests::test_changed);
     REGISTER_TEST_CASE(builtin_function_tests::test_delta);

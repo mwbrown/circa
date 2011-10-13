@@ -120,12 +120,20 @@ namespace assign_function {
         respecialize_type(term);
     }
 
+    void write_bytecode(BytecodeWriter* writer, Term* term)
+    {
+        Branch* contents = nested_contents(term);
+        bc_call(writer, contents->get(0));
+    }
+
     void setup(Branch* kernel)
     {
-        ASSIGN_FUNC = import_function(kernel, assign, "assign(any, any) -> any");
+        ASSIGN_FUNC = import_function(kernel, NULL, "assign(any, any) -> any");
         get_function_attrs(ASSIGN_FUNC)->specializeType = specializeType;
         get_function_attrs(ASSIGN_FUNC)->formatSource = formatSource;
         get_function_attrs(ASSIGN_FUNC)->postInputChange = postInputChange;
+        get_function_attrs(ASSIGN_FUNC)->writeBytecode = write_bytecode;
+        get_function_attrs(ASSIGN_FUNC)->createsStackFrame = false;
     }
 }
 }
