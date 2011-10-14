@@ -27,6 +27,7 @@ static bool is_input_op_type(OpType type)
         case OP_INPUT_GLOBAL:
         case OP_INPUT_NULL:
         case OP_INPUT_INT:
+        case OP_OUTPUT_LOCAL:
             return true;
         default:
             return false;
@@ -74,8 +75,8 @@ void print_bytecode_op(BytecodeData* bytecode, int loc, std::ostream& out)
             break;
         }
         case OP_INPUT_LOCAL: {
-            OpInputLocal* lop = (OpInputLocal*) op;
-            out << "local_arg ";
+            OpLocal* lop = (OpLocal*) op;
+            out << "input_local ";
             if (lop->relativeFrame != 0)
                 out << "frame:" << lop->relativeFrame << " ";
             out << "idx:" << lop->local;
@@ -84,6 +85,13 @@ void print_bytecode_op(BytecodeData* bytecode, int loc, std::ostream& out)
         case OP_INPUT_INT: {
             OpInputInt* iop = (OpInputInt*) op;
             out << "input_int " << iop->value;
+            break;
+        }
+        case OP_OUTPUT_LOCAL: {
+            OpLocal* lop = (OpLocal*) op;
+            if (lop->relativeFrame != 0)
+                out << "frame:" << lop->relativeFrame << " ";
+            out << "idx:" << lop->local;
             break;
         }
         case OP_STOP:
@@ -351,7 +359,7 @@ void bc_global_input(BytecodeWriter* writer, TaggedValue* value)
 }
 void bc_local_input(BytecodeWriter* writer, int local)
 {
-    OpInputLocal *lop = (OpInputLocal*) bc_append_op(writer);
+    OpLocal *lop = (OpLocal*) bc_append_op(writer);
     lop->type = OP_INPUT_LOCAL;
     lop->relativeFrame = 0;
     lop->local = local;
@@ -363,8 +371,15 @@ void bc_local_input(BytecodeWriter* writer, Term* term)
 }
 void bc_local_input(BytecodeWriter* writer, int frame, int local)
 {
-    OpInputLocal *lop = (OpInputLocal*) bc_append_op(writer);
+    OpLocal *lop = (OpLocal*) bc_append_op(writer);
     lop->type = OP_INPUT_LOCAL;
+    lop->relativeFrame = frame;
+    lop->local = local;
+}
+void bc_local_output(BytecodeWriter* writer, int frame, int local)
+{
+    OpLocal *lop = (OpLocal*) bc_append_op(writer);
+    lop->type = OP_OUTPUT_LOCAL;
     lop->relativeFrame = frame;
     lop->local = local;
 }
@@ -533,7 +548,7 @@ void evaluate_branch_with_bytecode(EvalContext* context, Branch* branch)
 
 Term* find_term_for_local_input(BytecodeData* bytecode, int pos)
 {
-    OpInputLocal *lop = (OpInputLocal*) &bytecode->operations[pos];
+    OpLocal *lop = (OpLocal*) &bytecode->operations[pos];
     ca_assert(lop->type == OP_INPUT_LOCAL);
     Branch* branch = get_parent_branch(bytecode->branch, lop->relativeFrame);
     for (int i=0; i < branch->length(); i++)

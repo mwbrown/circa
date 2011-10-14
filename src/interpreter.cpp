@@ -132,7 +132,7 @@ TaggedValue* follow_input_instruction(EvalContext* context, Operation* op)
             return gop->value;
         }
         case OP_INPUT_LOCAL: {
-            OpInputLocal* lop = (OpInputLocal*) op;
+            OpLocal* lop = (OpLocal*) op;
             Frame* frame = get_frame(context, lop->relativeFrame);
             return list_get_index(&frame->locals, lop->local);
         }
@@ -241,8 +241,9 @@ void interpret(EvalContext* context)
                         input_pointers[input++] = gop->value;
                         continue;
                     }
-                    case OP_INPUT_LOCAL: {
-                        OpInputLocal* lop = (OpInputLocal*) inputOp;
+                    case OP_INPUT_LOCAL:
+                    case OP_OUTPUT_LOCAL: {
+                        OpLocal* lop = (OpLocal*) inputOp;
                         Frame* frame = get_frame(context, lop->relativeFrame);
                         input_pointers[input++] = list_get_index(&frame->locals, lop->local);
                         continue;
@@ -365,27 +366,30 @@ void interpret(EvalContext* context)
             Frame* frame = top_frame(context);
 
             // Push inputs to the new frame
-            int input = 0;
+            int lookahead = 0;
             while (true) {
-                Operation* inputOp = op + 1 + input;
+                Operation* inputOp = op + 1 + lookahead;
                 switch (inputOp->type) {
                     case OP_INPUT_GLOBAL: {
                         OpInputGlobal* gop = (OpInputGlobal*) inputOp;
-                        copy(gop->value, frame->locals[input]);
-                        input++;
+                        copy(gop->value, frame->locals[lookahead]);
+                        lookahead++;
                         continue;
                     }
                     case OP_INPUT_LOCAL: {
-                        OpInputLocal* lop = (OpInputLocal*) inputOp;
+                        OpLocal* lop = (OpLocal*) inputOp;
                         // Add 1 to relativeFrame because we just pushed a new frame
                         Frame* inputFrame = get_frame(context, lop->relativeFrame + 1);
-                        copy(inputFrame->locals[lop->local], frame->locals[input]);
-                        input++;
+                        copy(inputFrame->locals[lop->local], frame->locals[lookahead]);
+                        lookahead++;
                         continue;
                     }
                     case OP_INPUT_NULL:
-                        set_null(frame->locals[input]);
-                        input++;
+                        set_null(frame->locals[lookahead]);
+                        lookahead++;
+                        continue;
+                    case OP_OUTPUT_LOCAL:
+                        lookahead++;
                         continue;
                 }
                 break;

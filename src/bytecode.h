@@ -30,6 +30,7 @@ const OpType OP_INPUT_LOCAL = 31;
 const OpType OP_INPUT_GLOBAL = 32;
 const OpType OP_INPUT_NULL = 33;
 const OpType OP_INPUT_INT = 34;
+const OpType OP_OUTPUT_LOCAL = 35;
 
 const OpType OP_ASSIGN_LOCAL = 42;
 
@@ -61,7 +62,7 @@ struct OpStackSize {
     int size;
 };
 
-struct OpInputLocal {
+struct OpLocal {
     OpType type;
     short relativeFrame;
     short local;
@@ -168,6 +169,7 @@ void bc_global_input(BytecodeWriter* writer, TaggedValue* value);
 void bc_local_input(BytecodeWriter* writer, int index);
 void bc_local_input(BytecodeWriter* writer, Term* term);
 void bc_local_input(BytecodeWriter* writer, int frame, int index);
+void bc_local_output(BytecodeWriter* writer, int frame, int index);
 void bc_int_input(BytecodeWriter* writer, int value);
 
 void bc_write_input(BytecodeWriter* writer, Branch* frame, Term* input);
