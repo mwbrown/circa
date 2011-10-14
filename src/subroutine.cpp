@@ -161,6 +161,8 @@ void subroutine_write_calling_bytecode(BytecodeWriter* writer, Term* term)
 
     for (int i=0; i < term->numInputs(); i++)
         bc_write_input(writer, term->owningBranch, term->input(i));
+
+    bc_write_output(writer, term);
 }
 
 void subroutine_write_nested_bytecode(BytecodeWriter* writer, Term* function)

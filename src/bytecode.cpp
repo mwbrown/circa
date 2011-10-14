@@ -411,6 +411,13 @@ void bc_int_input(BytecodeWriter* writer, int value)
     iop->type = OP_INPUT_INT;
     iop->value = value;
 }
+void bc_write_output(BytecodeWriter* writer, Term* term)
+{
+    OpLocal *op = (OpLocal*) bc_append_op(writer);
+    op->type = OP_OUTPUT_LOCAL;
+    op->relativeFrame = 0;
+    op->local = term->local;
+}
 void bc_assign_local(BytecodeWriter* writer, int local)
 {
     OpAssignLocal *aop = (OpAssignLocal*) bc_append_op(writer);

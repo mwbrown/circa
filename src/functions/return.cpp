@@ -24,6 +24,7 @@ namespace return_function {
 #endif
     }
 
+#if 0
     void returnPostCompile(Term* returnCall)
     {
         Branch* contents = nested_contents(returnCall);
@@ -79,6 +80,14 @@ namespace return_function {
                 apply(contents, SUBROUTINE_OUTPUT_FUNC, inputs);
         }
     }
+#endif
+
+    void write_bytecode(BytecodeWriter* writer, Term* term)
+    {
+        bc_pop_frame(writer);
+        if (term->numInputs() > 0)
+            bc_write_input(writer, term->owningBranch, term->input(0));
+    }
 
     void formatSource(StyledSource* source, Term* term)
     {
@@ -103,7 +112,7 @@ namespace return_function {
 
         CA_SETUP_FUNCTIONS(kernel);
         RETURN_FUNC = kernel->get("return");
-        get_function_attrs(RETURN_FUNC)->postCompile = returnPostCompile;
+        get_function_attrs(RETURN_FUNC)->writeBytecode = write_bytecode;
         get_function_attrs(RETURN_FUNC)->formatSource = formatSource;
     }
 }

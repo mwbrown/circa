@@ -232,30 +232,30 @@ void interpret(EvalContext* context)
             OpCall* cop = (OpCall*) op;
 
             // Fetch pointers for input instructions
-            int input = 0;
-            while (true) {
-                Operation* inputOp = op + 1 + input;
+            int lookahead;
+            for (lookahead=0; ; lookahead++) {
+                Operation* inputOp = op + 1 + lookahead;
                 switch (inputOp->type) {
                     case OP_INPUT_GLOBAL: {
                         OpInputGlobal* gop = (OpInputGlobal*) inputOp;
-                        input_pointers[input++] = gop->value;
+                        input_pointers[lookahead] = gop->value;
                         continue;
                     }
                     case OP_INPUT_LOCAL:
                     case OP_OUTPUT_LOCAL: {
                         OpLocal* lop = (OpLocal*) inputOp;
                         Frame* frame = get_frame(context, lop->relativeFrame);
-                        input_pointers[input++] = list_get_index(&frame->locals, lop->local);
+                        input_pointers[lookahead] = list_get_index(&frame->locals, lop->local);
                         continue;
                     }
                     case OP_INPUT_NULL:
-                        input_pointers[input++] = NULL;
+                        input_pointers[lookahead] = NULL;
                         continue;
                 }
                 break;
             }
             
-            int inputCount = input;
+            int inputCount = lookahead;
 
             #if CIRCA_THROW_ON_ERROR
             try {
@@ -267,7 +267,7 @@ void interpret(EvalContext* context)
             } catch (std::exception const& e) { error_occurred(context, cop->term, e.what()); }
             #endif
 
-            pc += inputCount + 1;
+            pc += 1 + lookahead;
 
             continue;
         }
@@ -276,6 +276,7 @@ void interpret(EvalContext* context)
         case OP_INPUT_GLOBAL:
         case OP_INPUT_NULL:
         case OP_INPUT_INT:
+        case OP_OUTPUT_LOCAL:
             pc += 1;
             continue;
 
@@ -366,30 +367,26 @@ void interpret(EvalContext* context)
             Frame* frame = top_frame(context);
 
             // Push inputs to the new frame
-            int lookahead = 0;
-            while (true) {
+            for (int lookahead = 0; ; lookahead++) {
                 Operation* inputOp = op + 1 + lookahead;
                 switch (inputOp->type) {
                     case OP_INPUT_GLOBAL: {
                         OpInputGlobal* gop = (OpInputGlobal*) inputOp;
                         copy(gop->value, frame->locals[lookahead]);
-                        lookahead++;
                         continue;
                     }
                     case OP_INPUT_LOCAL: {
                         OpLocal* lop = (OpLocal*) inputOp;
+
                         // Add 1 to relativeFrame because we just pushed a new frame
                         Frame* inputFrame = get_frame(context, lop->relativeFrame + 1);
                         copy(inputFrame->locals[lop->local], frame->locals[lookahead]);
-                        lookahead++;
                         continue;
                     }
                     case OP_INPUT_NULL:
                         set_null(frame->locals[lookahead]);
-                        lookahead++;
                         continue;
                     case OP_OUTPUT_LOCAL:
-                        lookahead++;
                         continue;
                 }
                 break;
@@ -399,13 +396,60 @@ void interpret(EvalContext* context)
         }
 
         case OP_POP_FRAME: {
+
+            Frame* parent = get_frame(context, 1);
+
+            // In the parent frame, find the start of the output instructions.
+            int parentPc = parent->pc + 1;
+            for (; ; parentPc++) {
+                switch (parent->bytecode->operations[parentPc].type) {
+                    case OP_INPUT_GLOBAL:
+                    case OP_INPUT_LOCAL:
+                    case OP_INPUT_NULL:
+                        continue;
+                }
+                break;
+            }
+
+            // Iterate through input instructions, and copy outputs to the
+            // upper frame.
+            int lookahead;
+            for (lookahead=0; ; lookahead++) {
+                Operation* inputOp = op + 1 + lookahead;
+
+                Operation* outputOp = &parent->bytecode->operations[parentPc + lookahead];
+
+                if (outputOp->type != OP_OUTPUT_LOCAL)
+                    break;
+
+                TaggedValue* dest = parent->locals[((OpLocal*)outputOp)->local];
+
+                switch (inputOp->type) {
+                    case OP_INPUT_GLOBAL: {
+                        OpInputGlobal* gop = (OpInputGlobal*) inputOp;
+                        copy(gop->value, dest);
+                        continue;
+                    }
+                    case OP_INPUT_LOCAL: {
+                        OpLocal* lop = (OpLocal*) inputOp;
+                        Frame* inputFrame = get_frame(context, lop->relativeFrame);
+                        copy(inputFrame->locals[lop->local], dest);
+                        continue;
+                    }
+                    case OP_INPUT_NULL:
+                        set_null(dest);
+                        continue;
+                }
+                break;
+            }
+
             pop_frame(context);
 
             if (context->numFrames == 0)
                 return;
 
             Frame* frame = top_frame(context);
-            pc = frame->pc + 1;
+            pc = frame->pc + 1 + lookahead;
             bytecode = frame->bytecode;
             continue;
         }

@@ -4,10 +4,14 @@ def sub1()
 
 sub1()
 
-def return_value() -> string
-    return 'return_value'
+def return_value() -> int
+    return 3
 
-print(return_value())
+print('should be 3: ' return_value())
+
+def return_expr() -> int
+    return 1 + 2 + 3
+print('should be 6: ' return_expr())
 
 def with_args(string a, string b)
     print(a b)
