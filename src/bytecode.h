@@ -114,6 +114,8 @@ struct BytecodeWriter
     ~BytecodeWriter() { free(data); }
 };
 
+bool is_arg_op_type(OpType type);
+
 // Printing to string
 void print_bytecode_op(BytecodeData* bytecode, int loc, std::ostream& out);
 void print_bytecode(BytecodeData* bytecode, std::ostream& out);

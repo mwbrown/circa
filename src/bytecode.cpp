@@ -20,7 +20,7 @@ namespace circa {
 
 const int NEW_BYTECODE_DEFAULT_LENGTH = 6;
 
-static bool is_arg_op_type(OpType type)
+bool is_arg_op_type(OpType type)
 {
     switch (type) {
         case OP_INPUT_LOCAL:

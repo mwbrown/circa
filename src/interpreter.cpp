@@ -233,37 +233,21 @@ void interpret(EvalContext* context)
         case OP_CALL: {
 
             #if CIRCA_TEST_BUILD
-                memset(input_pointers, 0xa0a0, sizeof(input_pointers));
+            memset(input_pointers, 0xa0a0, sizeof(input_pointers));
             #endif
 
             OpCall* cop = (OpCall*) op;
 
             // Fetch pointers for input instructions
-            int lookahead;
-            for (lookahead=0; ; lookahead++) {
-                Operation* inputOp = op + 1 + lookahead;
-                switch (inputOp->type) {
-                    case OP_INPUT_GLOBAL: {
-                        OpInputGlobal* gop = (OpInputGlobal*) inputOp;
-                        input_pointers[lookahead] = gop->value;
-                        continue;
-                    }
-                    case OP_INPUT_LOCAL:
-                    case OP_OUTPUT_LOCAL: {
-                        OpLocal* lop = (OpLocal*) inputOp;
-                        Frame* frame = get_frame(context, lop->relativeFrame);
-                        input_pointers[lookahead] = list_get_index(&frame->locals, lop->local);
-                        continue;
-                    }
-                    case OP_INPUT_NULL:
-                        input_pointers[lookahead] = NULL;
-                        continue;
-                }
-                break;
+            int inputCount;
+            for (inputCount=0; ; inputCount++) {
+                Operation* inputOp = op + 1 + inputCount;
+                if (!is_arg_op_type(inputOp->type))
+                    break;
+
+                input_pointers[inputCount] = follow_input_instruction(context, inputOp);
             }
             
-            int inputCount = lookahead;
-
             #if CIRCA_THROW_ON_ERROR
             try {
             #endif
@@ -274,7 +258,7 @@ void interpret(EvalContext* context)
             } catch (std::exception const& e) { error_occurred(context, cop->term, e.what()); }
             #endif
 
-            pc += 1 + lookahead;
+            pc += 1 + inputCount;
 
             continue;
         }
