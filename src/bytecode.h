@@ -30,7 +30,8 @@ const OpType OP_INPUT_LOCAL = 31;
 const OpType OP_INPUT_GLOBAL = 32;
 const OpType OP_INPUT_NULL = 33;
 const OpType OP_INPUT_INT = 34;
-const OpType OP_OUTPUT_LOCAL = 35;
+const OpType OP_STATE_ARG = 35;
+const OpType OP_OUTPUT_LOCAL = 36;
 
 const OpType OP_ASSIGN_LOCAL = 42;
 
@@ -172,8 +173,8 @@ void bc_local_input(BytecodeWriter* writer, int frame, int index);
 void bc_int_input(BytecodeWriter* writer, int value);
 void bc_local_output(BytecodeWriter* writer, int frame, int index);
 void bc_write_output(BytecodeWriter* writer, Term* term);
-
 void bc_write_input(BytecodeWriter* writer, Branch* frame, Term* input);
+void bc_write_state_arg(BytecodeWriter* writer);
 
 void bc_assign_local(BytecodeWriter* writer, int local);
 

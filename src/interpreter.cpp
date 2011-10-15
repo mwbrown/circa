@@ -22,10 +22,16 @@ Frame* push_frame(EvalContext* context, BytecodeData* bytecode)
     context->frames = (Frame*) realloc(context->frames, sizeof(Frame) * context->numFrames);
     Frame* top = &context->frames[context->numFrames-1];
     top->pc = 0;
+
     top->locals.initializeNull();
     set_list(&top->locals, bytecode->localsCount);
+
+    top->temporaries.initializeNull();
+    set_list(&top->temporaries, 0);
+    
     top->state.initializeNull();
     set_dict(&top->state);
+
     top->bytecode = bytecode;
     top->branch = bytecode->branch;
     return top;
@@ -41,6 +47,7 @@ void pop_frame(EvalContext* context)
 
     Frame* top = top_frame(context);
     set_null(&top->locals);
+    set_null(&top->temporaries);
     set_null(&top->state);
     context->numFrames--;
 }
@@ -277,6 +284,7 @@ void interpret(EvalContext* context)
         case OP_INPUT_NULL:
         case OP_INPUT_INT:
         case OP_OUTPUT_LOCAL:
+        case OP_STATE_ARG:
             pc += 1;
             continue;
 
@@ -386,6 +394,9 @@ void interpret(EvalContext* context)
                     case OP_INPUT_NULL:
                         set_null(frame->locals[lookahead]);
                         continue;
+                    case OP_STATE_ARG: {
+                        continue;
+                    }
                     case OP_OUTPUT_LOCAL:
                         continue;
                 }

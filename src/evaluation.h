@@ -19,8 +19,11 @@ namespace circa {
 
 struct Frame {
     int pc;
+
     List locals;
+    List temporaries;
     Dict state;
+
     BytecodeData* bytecode;
     Branch* branch;
 };

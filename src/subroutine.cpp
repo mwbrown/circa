@@ -162,16 +162,12 @@ void subroutine_write_calling_bytecode(BytecodeWriter* writer, Term* term)
     bool hasState = function_has_inlined_state(term->function);
 
     // Implicit state input
-    if (hasState) {
-    }
+    if (hasState)
+        bc_write_state_arg(writer);
 
     // Regular inputs
     for (int i=0; i < term->numInputs(); i++)
         bc_write_input(writer, term->owningBranch, term->input(i));
-
-    // Outputs
-    if (hasState) {
-    }
 
     bc_write_output(writer, term);
 }

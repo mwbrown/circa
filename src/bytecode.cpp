@@ -20,7 +20,7 @@ namespace circa {
 
 const int NEW_BYTECODE_DEFAULT_LENGTH = 6;
 
-static bool is_input_op_type(OpType type)
+static bool is_arg_op_type(OpType type)
 {
     switch (type) {
         case OP_INPUT_LOCAL:
@@ -94,6 +94,9 @@ void print_bytecode_op(BytecodeData* bytecode, int loc, std::ostream& out)
             out << "idx:" << lop->local;
             break;
         }
+        case OP_STATE_ARG:
+            out << "arg_state";
+            break;
         case OP_STOP:
             out << "stop";
             break;
@@ -148,7 +151,7 @@ void print_bytecode(BytecodeData* bytecode, std::ostream& out)
 
     for (int i=0; i < bytecode->operationCount; i++) {
 
-        bool isInput = is_input_op_type(bytecode->operations[i].type);
+        bool isInput = is_arg_op_type(bytecode->operations[i].type);
 
         if (i != 0) {
             if (isInput)
@@ -404,6 +407,10 @@ void bc_write_input(BytecodeWriter* writer, Branch* frame, Term* input)
 
     int relativeFrame = get_frame_distance(frame, input);
     bc_local_input(writer, relativeFrame, input->local);
+}
+void bc_write_state_arg(BytecodeWriter* writer)
+{
+    bc_append_op(writer)->type = OP_STATE_ARG;
 }
 void bc_int_input(BytecodeWriter* writer, int value)
 {
