@@ -20,22 +20,16 @@ bool is_get_state(Term* term)
 
 bool has_implicit_state(Term* term)
 {
-    if (is_function_stateful(term->function))
-        return true;
     if (has_nested_contents(term) && has_any_inlined_state(nested_contents(term)))
         return true;
     return false;
 }
 
-bool is_function_stateful(Term* func)
+bool function_has_inlined_state(Term* func)
 {
     if (!is_function(func))
         return false;
-    FunctionAttrs* attrs = get_function_attrs(func);
-    if (attrs == NULL)
-        return false;
-    Term* stateType = attrs->implicitStateType;
-    return (stateType != NULL && stateType != VOID_TYPE);
+    return has_any_inlined_state(nested_contents(func));
 }
 
 bool has_any_inlined_state(Branch* branch)
@@ -114,7 +108,7 @@ void get_state_description(Term* term, TaggedValue* output)
         }
     } else if (is_get_state(term)) {
         set_string(output, declared_type(term)->name);
-    } else if (is_function_stateful(term->function)) {
+    } else if (function_has_inlined_state(term->function)) {
         describe_state_shape(nested_contents(term->function), output);
     } else if (has_any_inlined_state(nested_contents(term))) {
         describe_state_shape(nested_contents(term), output);

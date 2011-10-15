@@ -159,8 +159,19 @@ void subroutine_write_calling_bytecode(BytecodeWriter* writer, Term* term)
 {
     bc_push_frame(writer, term->function);
 
+    bool hasState = function_has_inlined_state(term->function);
+
+    // Implicit state input
+    if (hasState) {
+    }
+
+    // Regular inputs
     for (int i=0; i < term->numInputs(); i++)
         bc_write_input(writer, term->owningBranch, term->input(i));
+
+    // Outputs
+    if (hasState) {
+    }
 
     bc_write_output(writer, term);
 }
@@ -216,32 +227,8 @@ void initialize_subroutine(Term* sub)
 
 void finish_building_subroutine(Term* sub, Term* outputType)
 {
-    subroutine_update_state_type_from_contents(sub);
     subroutine_check_to_append_implicit_return(sub);
     finish_update_cascade(nested_contents(sub));
-}
-
-void subroutine_update_state_type_from_contents(Term* func)
-{
-    // Check if a stateful argument was declared
-    Term* firstInput = function_get_input_placeholder(get_function_attrs(func), 0);
-    if (firstInput != NULL && firstInput->boolPropOptional("state", false)) {
-        // already updated state
-        return;
-    }
-
-    if (has_implicit_state(func))
-        subroutine_change_state_type(func, LIST_TYPE);
-}
-
-void subroutine_change_state_type(Term* func, Term* newType)
-{
-    FunctionAttrs* attrs = get_function_attrs(func);
-    Term* previousType = attrs->implicitStateType;
-    if (previousType == newType)
-        return;
-
-    attrs->implicitStateType = newType;
 }
 
 void subroutine_check_to_append_implicit_return(Term* sub)
