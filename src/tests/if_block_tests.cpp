@@ -342,7 +342,7 @@ void test_state_in_function()
     Term* my_func = branch.compile("def my_func() -> int {"
            " if true { state i = 0; i += 1; return(i) } else { return(0) } }");
 
-    test_assert(is_function_stateful(my_func));
+    test_assert(function_has_inlined_state(my_func));
 
     Term* call1 = branch.compile("my_func()");
 

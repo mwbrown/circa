@@ -20,7 +20,6 @@ namespace circa {
 
 FunctionAttrs::FunctionAttrs()
   : declaringTerm(NULL),
-    implicitStateType(NULL),
     variableArgs(false),
     feedbackFunc(NULL),
     throws(false),

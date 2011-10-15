@@ -26,9 +26,6 @@ struct Branch
 
     int _refCount;
 
-    // Deprecated:
-    int outputIndex;
-
     // Number of local values.
     int localsCount;
 

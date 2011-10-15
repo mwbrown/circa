@@ -115,14 +115,6 @@ void test_documentation_string()
     test_assert(function_get_documentation_string(get_function_attrs(f3)) == "");
 }
 
-void test_bug_with_declaring_state_argument()
-{
-    Branch branch;
-    Term* f = branch.eval("def f(state int);");
-
-    test_assert(get_function_attrs(f)->implicitStateType == INT_TYPE);
-}
-
 void test_calling_manual_overloaded_function()
 {
     Branch branch;
@@ -202,7 +194,6 @@ void register_tests()
     REGISTER_TEST_CASE(function_tests::overloaded_function_in_script);
     REGISTER_TEST_CASE(function_tests::test_is_native_function);
     REGISTER_TEST_CASE(function_tests::test_documentation_string);
-    REGISTER_TEST_CASE(function_tests::test_bug_with_declaring_state_argument);
     REGISTER_TEST_CASE(function_tests::test_calling_manual_overloaded_function);
     REGISTER_TEST_CASE(function_tests::test_bug_where_a_mysterious_copy_term_was_added);
     REGISTER_TEST_CASE(function_tests::test_func_with_multiple_outputs::simple);

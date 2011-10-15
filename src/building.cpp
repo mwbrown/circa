@@ -45,16 +45,6 @@ Term* apply(Branch* branch, Term* function, TermList const& inputs, std::string 
 
     TermList _inputs = inputs;
 
-    // If the function takes a state input, and there aren't enough inputs, then prepend
-    // a NULL input for state.
-    if (is_function_stateful(function)
-            && _inputs.length() == function_num_inputs(get_function_attrs(function)) - 1) {
-        // TODO: This case should be deleted, once the last of the old-style stateful
-        // functions are removed.
-        //std::cout << "prepending null input: " << function->name << std::endl;
-        _inputs.prepend(NULL);
-    }
-
     for (int i=0; i < _inputs.length(); i++)
         set_input(result, i, _inputs[i]);
 

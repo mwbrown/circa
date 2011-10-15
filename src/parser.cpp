@@ -503,7 +503,6 @@ ParseResult function_decl(Branch* branch, TokenStream& tokens, ParserCxt* contex
     initialize_subroutine(result);
 
     FunctionAttrs* attrs = get_function_attrs(result);
-    attrs->implicitStateType = VOID_TYPE;
     set_starting_source_location(result, startPosition, tokens);
     attrs->name = functionName;
 
@@ -577,7 +576,6 @@ ParseResult function_decl(Branch* branch, TokenStream& tokens, ParserCxt* contex
 
         if (isHiddenStateArgument) {
             input->setBoolProp("state", true);
-            attrs->implicitStateType = typeTerm;
         }
 
         // Variable args when ... is appended
