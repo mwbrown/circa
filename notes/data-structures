@@ -1,0 +1,148 @@
+10/16/2011
+
+There are a few structures and layers for storing code.
+
+High-level form
+---------------
+
+Data structures:
+  Branch
+  Term
+
+Code is stored in a Branch, which contains a list of Terms. Each Term may have a "nested" Branch
+attached to it.
+
+Each Term is an application of one Function to some "input" Terms.
+
+Code is evaluated by iterating through each Term in sequence, and applying the Function to
+its inputs.
+
+A Term only has one output (?)
+
+The order of Terms is sometimes important, as a Function is allowed to have side effects.
+
+Important aspects of high-level form:
+ - Intensional. The code represents just what the user typed (if the code comes from source
+   text). Any implicit aspects are kept out of this format, if possible. This means that
+   hidden calls, or auto-generated code, is discouraged.
+
+ - Introspectable. The structure can be poked, prodded, traced and examined in order to
+   statically understand it.
+
+   Specifically, here are some actions we can do:
+    - Value tracing. Any output value can be traced upwards, so that we can show exactly how
+      that value was computed.
+    - Value usage. For a given output value, we can trace exactly how that value is used.
+
+ - Presentable. The data can be shown to the user as textual code, or as a visual graph.
+
+ - Editable. The structure can be modified with various operations. If the code is currently
+   being evaluated, the state of the evaluator must remain intact across the edit.
+
+Executable form
+---------------
+
+Data structures:
+  Bytecode
+  Operation
+
+This form is directly concerned with efficient execution. A Bytecode object is created from
+a Branch object. It contains a series of instructions for executing the code inside the
+Branch, with much of the interpreter overhead already completed.
+
+The smallest unit of the evaluator is a C function call, so when constructing the Bytecode
+format, we do as much pre-preparation for the C call as possible. This includes assigning
+Terms to positions on a stack, and writing the instructions necessary for the C call to
+find its stack variables.
+
+Important aspects of bytecode form:
+ - Efficient
+
+ - Introspectable enough. This format doesn't provide as much introspection ability as
+   the high-level format, but it does have enough information to associate an evaluation
+   state with the appropriate Terms.
+
+
+Strategies we can take, around high-level code and bytecode:
+------------------------------------------------------------
+
+Register allocation
+ - Register allocation is done when building the Branch
+   - Functions which create nested contents may reserve extra locals at code gen time
+ - Register allocation is done when building the Bytecode
+ - Register allocation is just the Term's index in the Branch
+   - No reserving extra registers (without something more complex)
+
+Execution
+ - Execute the Bytecode data, PC is an index into that data
+ - Execute the Branch, PC is an index in the Branch
+   - Easier to introspect
+   - Less efficient
+ - Some hybrid of the above
+
+Generating executable code
+ - Could be a function that goes Branch -> Branch. As input we take intensional code, and
+   we output operational code (with extra instructions added).
+    - I think it's a bad idea using the same data structure for operational code. This also
+      can lead to exponential rewriting, if there are too many of these Branch -> Branch steps.
+    - Instead we can use Bytecode for operational form.
+
+Functions that modify the frame above them (if-block and for-loop)
+ * End the free ride and make these functions act more like subroutines. Must list inputs
+   & outputs in push_frame and pop_frame.
+   - Nice clean solution
+
+Terms having multiple outputs
+ - Necessary for if-block, for-loop, subroutine
+ - Implemenation methods
+   - Extra placeholder terms that immediately follow the call
+     - Follows policy of one-register-per-term
+   - Extra-output terms that are created as needed
+ - I think if we don't create a Term for every extra output, then the road leads to
+   insanity. Referring to one Term for multiple outputs will lead to challenges with
+   dataflow tracing.
+
+Implicit state
+ - Should it be implemented in the high-level form? (probably no)
+   - If no, we should at least support a translation of Branch -> Branch where implicit
+     state is made explicit.
+ - Can be implemented during Bytecode generation
+   - This requires a few Bytecode features, such as reserve-locals-in-bytecode
+ - Subroutine will need to handle state as a separate input & output
+   - Can be done during Bytecode writing
+
+Example:
+
+"""
+def f()
+  state s
+
+f()
+"""
+
+When calling f:
+
+unpacked_state = unpack_state(f_call)
+call f; consume_local_input(unpacked_state); ...; consume_output(state_result)
+pack_state(state_result)
+
+
+How can we make the call atomic?
+ - Could make state output (and input) an input instruction
+   - Downside: we are making input instructions too complicated
+ - Do we need to? No matter what we have a problem where a call might not be atomic,
+   if it involves several instructions. Atomicity must be solved in a different way.
+
+Immediate TODO
+
+Change C api to accept a list of instructions
+ * This allows for consume() instructions to work
+ - Probably more efficient (bad reason)
+ - Less of a pure API (oh well)
+ - interpret loop is simpler. Easier to add more input instructions
+ - Is this a necessary change right now?
+
+Allow for Bytecode to dictate the number of locals. A local can be added at bytecode time.
+ - Also allow for names (and other metadata) on temporaries inside Bytecode?
+
+

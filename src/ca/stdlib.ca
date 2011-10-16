@@ -3,9 +3,6 @@
 
 def input(int index) -> any
 
-def length(List) -> int
-    "Return the number of items in the given list"
-
 def type(any :meta) -> Type
     "Returns the type of the given term"
 def typename(any :meta) -> string

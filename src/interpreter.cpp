@@ -220,14 +220,13 @@ void interpret(EvalContext* context)
 {
     Frame* frame = top_frame(context);
     BytecodeData* bytecode = frame->bytecode;
-    int pc = frame->pc;
     
     TaggedValue* input_pointers[20];
 
     // Main loop.
     while (true) {
 
-        Operation* op = &bytecode->operations[pc];
+        Operation* op = &bytecode->operations[frame->pc];
 
         switch (op->type) {
         case OP_CALL: {
@@ -258,7 +257,7 @@ void interpret(EvalContext* context)
             } catch (std::exception const& e) { error_occurred(context, cop->term, e.what()); }
             #endif
 
-            pc += 1 + inputCount;
+            frame->pc += 1 + inputCount;
 
             continue;
         }
@@ -269,7 +268,7 @@ void interpret(EvalContext* context)
         case OP_INPUT_INT:
         case OP_OUTPUT_LOCAL:
         case OP_STATE_ARG:
-            pc += 1;
+            frame->pc += 1;
             continue;
 
         case OP_STOP:
@@ -278,20 +277,18 @@ void interpret(EvalContext* context)
             return;
 
         case OP_PAUSE:
-            top_frame(context)->pc = pc + 1;
+            frame->pc += 1;
             return;
 
         case OP_PAUSE_IF_ERROR:
-            if (context->errorOccurred) {
-                top_frame(context)->pc = pc + 1;
+            frame->pc += 1;
+            if (context->errorOccurred)
                 return;
-            }
-            pc += 1;
             continue;
 
         case OP_JUMP: {
             OpJump* jop = (OpJump*) op;
-            pc += jop->offset;
+            frame->pc += jop->offset;
             continue;
         }
 
@@ -301,9 +298,9 @@ void interpret(EvalContext* context)
             ca_assert(is_bool(input));
             if (as_bool(input)) {
                 ca_assert(jop->offset != 0);
-                pc += jop->offset;
+                frame->pc += jop->offset;
             } else {
-                pc += 1;
+                frame->pc += 1;
             }
             continue;
         }
@@ -313,9 +310,9 @@ void interpret(EvalContext* context)
             ca_assert(is_bool(input));
             if (!as_bool(input)) {
                 ca_assert(jop->offset != 0);
-                pc += jop->offset;
+                frame->pc += jop->offset;
             } else {
-                pc += 1;
+                frame->pc += 1;
             }
             continue;
         }
@@ -325,9 +322,9 @@ void interpret(EvalContext* context)
             TaggedValue* right = follow_input_instruction(context, op+2);
             if (!equals(left,right)) {
                 ca_assert(jop->offset != 0);
-                pc += jop->offset;
+                frame->pc += jop->offset;
             } else {
-                pc += 1;
+                frame->pc += 1;
             }
             continue;
         }
@@ -337,9 +334,9 @@ void interpret(EvalContext* context)
             TaggedValue* right = follow_input_instruction(context, op+2);
             if (to_float(left) < to_float(right)) {
                 ca_assert(jop->offset != 0);
-                pc += jop->offset;
+                frame->pc += jop->offset;
             } else {
-                pc += 3;
+                frame->pc += 3;
             }
             continue;
         }
@@ -347,16 +344,13 @@ void interpret(EvalContext* context)
         case OP_PUSH_FRAME: {
             OpPushBranch* bop = (OpPushBranch*) op;
 
-            // Save pc
-            top_frame(context)->pc = pc;
-
             Branch* branch = nested_contents(bop->term);
             update_bytecode_for_branch(branch);
             bytecode = branch->bytecode;
-            pc = 0;
             push_frame(context, bytecode);
 
             Frame* frame = top_frame(context);
+            frame->pc = 0;
 
             // Push inputs to the new frame
             for (int lookahead = 0; ; lookahead++) {
@@ -444,7 +438,7 @@ void interpret(EvalContext* context)
                 return;
 
             Frame* frame = top_frame(context);
-            pc = frame->pc + 1 + lookahead;
+            frame->pc += 1 + lookahead;
             bytecode = frame->bytecode;
             continue;
         }
@@ -452,7 +446,7 @@ void interpret(EvalContext* context)
         case OP_ASSIGN_LOCAL: {
             TaggedValue* local = top_frame(context)->locals[((OpAssignLocal*) op)->local];
             consume_input_instruction(context, op + 1, local);
-            pc += 2;
+            frame->pc += 2;
             continue;
         }
 

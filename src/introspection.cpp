@@ -298,6 +298,8 @@ void print_term(std::ostream& out, Term* term, RawOutputPrefs* prefs)
     if (is_value(term))
         out << " val:" << to_string((TaggedValue*) term);
 
+    out << " localIndex:" << term->local;
+
     if (!is_value(term) && !is_null((TaggedValue*) term)) {
         out << " local:";
         out << ((TaggedValue*) term)->toString();

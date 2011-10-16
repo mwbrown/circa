@@ -421,11 +421,6 @@ CA_FUNCTION(reflect__this_branch)
     set_branch(OUTPUT, CALLER->owningBranch);
 }
 
-CA_FUNCTION(length)
-{
-    set_int(OUTPUT, num_elements(INPUT(0)));
-}
-
 CA_FUNCTION(type_func)
 {
     set_type(OUTPUT, declared_type(INPUT_TERM(0)));
@@ -444,7 +439,6 @@ void install_standard_library(Branch* kernel)
     // Install each function
     install_function(kernel->get("file:modified_time"), file__modified_time);
     install_function(kernel->get("input"), input_func);
-    install_function(kernel->get("length"), length);
     install_function(kernel->get("type"), type_func);
     install_function(kernel->get("typename"), typename_func);
     install_function(kernel->get("refactor:rename"), refactor__rename);
@@ -453,7 +447,6 @@ void install_standard_library(Branch* kernel)
 
     install_function(kernel->get("cppbuild:build_module"), cppbuild_function::build_module);
 
-    LENGTH_FUNC = kernel->get("length");
     TYPE_FUNC = kernel->get("type");
 }
 
