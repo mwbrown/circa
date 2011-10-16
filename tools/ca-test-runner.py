@@ -10,13 +10,22 @@ class OutputDifference(object):
         self.lineNumber = lineNumber
 
 class TestFailure(object):
-    def __init__(self, description):
+    def __init__(self, description, filename):
         self.description = description
+        self.filename = filename
 
 def read_text_file(filename):
     f = open(filename)
     contents = f.read()
     return contents
+
+def read_text_file_as_lines(filename):
+    f = open(filename)
+    while True:
+        line = f.readline()
+        if not line:
+            return
+        yield line[:-1]
 
 def diff_command_against_file(command, filename):
     """
@@ -55,7 +64,7 @@ def test_file(filename):
         desc = ['Script output differed on line '+str(diff.lineNumber)]
         desc.append('  Expected: '+diff.fromFile)
         desc.append('  Observed: '+diff.fromCommand)
-        failures.append(TestFailure(desc))
+        failures.append(TestFailure(desc, filename))
 
     # Source repro test
     diff = diff_command_against_file("circa_t -s "+filename, filename)
@@ -63,17 +72,23 @@ def test_file(filename):
         desc = ['Source repro failed on line '+str(diff.lineNumber)]
         desc.append(' Expected: '+diff.fromFile)
         desc.append(' Observed: '+diff.fromCommand)
-        failures.append(TestFailure(desc))
+        failures.append(TestFailure(desc, filename))
 
     return failures
 
-EnabledTests = ['cast.ca', 'if.ca', 'for.ca', 'set_index.ca', 'subroutine.ca', 'vectorized_func.ca']
+
+def get_list_of_enabled_tests():
+    for line in read_text_file_as_lines('src/ca/tests/_enabled_tests'):
+        if line:
+            yield line
+
+
 
 def run_all_tests():
     if 'CIRCA_HOME' in os.environ:
         os.chdir(os.environ['CIRCA_HOME'])
 
-    for file in ['src/ca/tests/'+f for f in EnabledTests]:
+    for file in ['src/ca/tests/'+f for f in get_list_of_enabled_tests()]:
         print "Testing "+file
         failures = test_file(file)
         if failures:
