@@ -126,6 +126,7 @@ std::string get_bytecode_as_string(BytecodeData* bytecode);
 void bc_reserve_size(BytecodeWriter* writer, int opCount);
 void bc_start_branch(BytecodeWriter* writer, Branch* branch);
 int bc_get_write_position(BytecodeWriter* writer);
+int bc_reserve_local(BytecodeWriter* writer);
 
 void bc_write_call_op(BytecodeWriter* writer, Term* term, EvaluateFunc func);
 void bc_write_call_op_with_func(BytecodeWriter* writer, Term* term, Term* func);

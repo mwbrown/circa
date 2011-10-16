@@ -237,6 +237,11 @@ int bc_get_write_position(BytecodeWriter* writer)
 {
     return writer->writePosition;
 }
+int bc_reserve_local(BytecodeWriter* writer)
+{
+    bc_reserve_size(writer, 0);
+    return writer->data->localsCount++;
+}
 
 // Appends a slot for an operation, returns the operation's index.
 Operation* bc_append_op(BytecodeWriter* writer)

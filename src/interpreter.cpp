@@ -218,13 +218,13 @@ Branch* interpreter_get_current_branch(EvalContext* context)
 
 void interpret(EvalContext* context)
 {
-    Frame* frame = top_frame(context);
-    BytecodeData* bytecode = frame->bytecode;
-    
     TaggedValue* input_pointers[20];
 
     // Main loop.
     while (true) {
+
+        Frame* frame = top_frame(context);
+        BytecodeData* bytecode = frame->bytecode;
 
         Operation* op = &bytecode->operations[frame->pc];
 

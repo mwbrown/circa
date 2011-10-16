@@ -126,7 +126,6 @@ unpacked_state = unpack_state(f_call)
 call f; consume_local_input(unpacked_state); ...; consume_output(state_result)
 pack_state(state_result)
 
-
 How can we make the call atomic?
  - Could make state output (and input) an input instruction
    - Downside: we are making input instructions too complicated

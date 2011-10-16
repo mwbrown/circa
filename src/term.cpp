@@ -12,8 +12,6 @@
 #include "term.h"
 #include "type.h"
 
-#include "term.h"
-
 namespace circa {
 
 static unsigned int gNextGlobalID = 1;

@@ -29,8 +29,7 @@ namespace circa {
 */
 
 static const int iterator_location = 0;
-static const int list_length_location = 1;
-static const int inner_rebinds_location = 2;
+static const int inner_rebinds_location = 1;
 
 Term* for_loop_get_iterator(Term* forTerm)
 {
@@ -51,11 +50,6 @@ void setup_for_loop_pre_code(Term* forTerm)
     change_declared_type(iterator, iteratorType);
     hide_from_source(iterator);
     ca_assert(iterator->index == iterator_location);
-
-    // Create length() term
-    Term* length = apply(nested_contents(forTerm), LENGTH_FUNC, TermList(forTerm->input(0)));
-    hide_from_source(length);
-    ca_assert(length->index == list_length_location);
 }
 
 void for_loop_rename_iterator(Term* forTerm, const char* name)
@@ -140,8 +134,8 @@ void for_block_write_bytecode_contents(BytecodeWriter* writer, Term* caller)
     Branch* outerRebinds = get_for_loop_outer_rebinds(caller);
     bool anyOuterRebinds = outerRebinds->length() > 0;
 
-    const int indexLocal = 0;
-    const int lengthLocal = 1;
+    const int indexLocal = bc_reserve_local(writer);
+    const int lengthLocal = bc_reserve_local(writer);
 
     // Start index with 0
     bc_assign_local(writer, indexLocal);
