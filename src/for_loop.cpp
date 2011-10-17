@@ -138,16 +138,17 @@ void for_block_write_bytecode_contents(BytecodeWriter* writer, Term* caller)
     const int lengthLocal = bc_reserve_local(writer);
 
     // Start index with 0
-    bc_assign_local(writer, indexLocal);
+    bc_copy(writer);
+    bc_local_output(writer, 0, indexLocal);
     bc_int_input(writer, 0);
 
     // Fetch list length
-    bc_write_call(writer, get_global("length"));
+    bc_call_without_term(writer, get_global("length"));
     bc_local_output(writer, 0, lengthLocal);
     bc_write_input(writer, contents, caller->input(0));
 
     // Prepare output value.
-    bc_write_call(writer, get_global("blank_list"));
+    bc_call_without_term(writer, get_global("blank_list"));
     bc_write_input(writer, contents, caller);
     bc_local_input(writer, lengthLocal);
 
@@ -196,7 +197,7 @@ void for_block_write_bytecode_contents(BytecodeWriter* writer, Term* caller)
 
     // Fetch iterator value.
     Term* iterator = contents->get(iterator_location);
-    bc_write_call(writer, get_global("get_index"));
+    bc_call_without_term(writer, get_global("get_index"));
     bc_write_input(writer, contents, iterator);
     bc_write_input(writer, contents, caller->input(0));
     bc_local_input(writer, indexLocal);
@@ -212,14 +213,14 @@ void for_block_write_bytecode_contents(BytecodeWriter* writer, Term* caller)
     else
         listResult = find_last_non_comment_expression(contents);
         
-    bc_write_call(writer, SET_INDEX_FUNC);
+    bc_call_without_term(writer, SET_INDEX_FUNC);
     bc_write_input(writer, contents, caller);
     bc_write_input(writer, contents, caller);
     bc_local_input(writer, indexLocal);
     bc_write_input(writer, contents, listResult);
 
     // Finish iteration, increment index.
-    bc_write_call(writer, builtin_func(INCREMENT_FUNC));
+    bc_call_without_term(writer, builtin_func(INCREMENT_FUNC));
     bc_local_input(writer, indexLocal);
     bc_local_input(writer, indexLocal);
 

@@ -24,6 +24,7 @@ TaggedValue* get_local(EvalContext* context, int relativeFrame, int index);
 
 Term* get_caller(OpCall* call);
 TaggedValue* get_arg(EvalContext* context, OpCall* call, int index);
+void consume_arg(EvalContext* context, OpCall* call, int index, TaggedValue* dest);
 int count_args(OpCall* call);
 
 Term* get_term_from_local(EvalContext* context, int local);

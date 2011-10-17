@@ -46,7 +46,7 @@ struct Operation {
 struct OpCall {
     OpType type;
     Term* term;
-    EvaluateFunc func;
+    Term* func;
 
     // An OpCall is typically followed by args, this field allows for convenient access.
     Operation args[0];
@@ -131,18 +131,8 @@ void bc_start_branch(BytecodeWriter* writer, Branch* branch);
 int bc_get_write_position(BytecodeWriter* writer);
 int bc_reserve_local(BytecodeWriter* writer);
 
-void bc_write_call_op(BytecodeWriter* writer, Term* term, EvaluateFunc func);
-void bc_write_call_op_with_func(BytecodeWriter* writer, Term* term, Term* func);
-void bc_write_call(BytecodeWriter* writer, Term* function);
-
 void bc_stop(BytecodeWriter* writer);
 void bc_pause(BytecodeWriter* writer);
-
-// Write a CALL instruction with no Term*, just an EvaluateFunc. Input
-// instructions must be appended by the caller. Some functions don't work
-// with a NULL caller.
-void bc_imaginary_call(BytecodeWriter* writer, EvaluateFunc func, int output);
-void bc_imaginary_call(BytecodeWriter* writer, Term* func, int output);
 
 // Write a JUMP instruction. The jump is initialized without an offset,
 // caller should use bc_jump_to_here() to set one.
@@ -197,9 +187,15 @@ void bc_pop_frame(BytecodeWriter* writer);
 void dirty_bytecode(Term* term);
 void dirty_bytecode(Branch* branch);
 
-// Write bytecode to call the given term. This will use any custom behavior,
+// Write bytecode to call the given term. This will use any override behavior,
 // like the function's custom writeBytecode handler.
 void bc_call(BytecodeWriter* writer, Term* term);
+
+void bc_call_manual(BytecodeWriter* writer, Term* term, Term* function);
+
+// Write a CALL instruction with no Term*, just a function. Input instructions
+// must be appended by the caller. Some functions don't work with a NULL caller.
+void bc_call_without_term(BytecodeWriter* writer, Term* func);
 
 void bc_reset_writer(BytecodeWriter* writer);
 

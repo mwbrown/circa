@@ -74,7 +74,7 @@ namespace for_function {
 
         // Perform some magic to find where for-loop puts the index temporary.
         // Hackiness rating: fairly
-        bc_local_input(writer, distance, enclosingLoop->owningBranch->localsCount);
+        bc_local_input(writer, distance, nested_contents(enclosingLoop)->localsCount);
     }
 
     CA_FUNCTION(evaluate_break)

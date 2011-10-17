@@ -33,6 +33,7 @@
 #define NUM_INPUTS (count_args(_op)-1)
 #define INPUT(index) (get_arg(_context, _op, (index)+1))
 #define OUTPUT (get_arg(_context, _op, 0))
+#define CONSUME_INPUT(index, dest) (consume_arg(_context, _op, (index)+1, (dest)));
 #define FLOAT_INPUT(index) (circa::to_float(INPUT(index)))
 #define BOOL_INPUT(index) (circa::as_bool(INPUT(index)))
 #define STRING_INPUT(index) (circa::as_string(INPUT(index)).c_str())

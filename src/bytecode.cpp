@@ -56,10 +56,9 @@ void print_bytecode_op(BytecodeData* bytecode, int loc, std::ostream& out)
         case OP_CALL: {
             out << "call ";
             Term* term = ((OpCall*) op)->term;
-            if (term == NULL)
-                out << "NULL";
-            else
-                out << get_unique_name(term);
+            if (term != NULL)
+                out << global_id(term) << " ";
+            out << ((OpCall*) op)->func->name;
             break;
         }
         case OP_INPUT_NULL:
@@ -253,35 +252,6 @@ Operation* bc_append_op(BytecodeWriter* writer)
     return &writer->data->operations[pos];
 }
 
-void bc_write_call_op(BytecodeWriter* writer, Term* term, EvaluateFunc func)
-{
-    OpCall* op = (OpCall*) bc_append_op(writer);
-    op->type = OP_CALL;
-    op->term = term;
-    op->func = func;
-
-    // Write output instruction.
-    Term* termForOutput = term;
-    while (!branch_creates_stack_frame(termForOutput->owningBranch))
-        termForOutput = get_parent_term(termForOutput);
-    bc_local_output(writer, 0, termForOutput->local);
-
-    // Write information for each input
-    for (int i=0; i < term->numInputs(); i++)
-        bc_write_input(writer, term->owningBranch, term->input(i));
-}
-
-void bc_write_call_op_with_func(BytecodeWriter* writer, Term* term, Term* func)
-{
-    bc_write_call_op(writer, term, get_function_attrs(func)->evaluate);
-}
-void bc_write_call(BytecodeWriter* writer, Term* function)
-{
-    OpCall* op = (OpCall*) bc_append_op(writer);
-    op->type = OP_CALL;
-    op->term = function;
-    op->func = get_function_attrs(function)->evaluate;
-}
 
 void bc_stop(BytecodeWriter* writer)
 {
@@ -296,21 +266,6 @@ void bc_pause_if_error(BytecodeWriter* writer)
     bc_append_op(writer)->type = OP_PAUSE_IF_ERROR;
 }
 
-void bc_imaginary_call(BytecodeWriter* writer, EvaluateFunc func, int output)
-{
-    OpCall* op = (OpCall*) bc_append_op(writer);
-    op->type = OP_CALL;
-    op->term = NULL;
-    op->func = func;
-
-    // Write output instruction
-    bc_local_output(writer, 0, output);
-}
-
-void bc_imaginary_call(BytecodeWriter* writer, Term* func, int output)
-{
-    bc_imaginary_call(writer, get_function_attrs(func)->evaluate, output);
-}
 
 int bc_jump(BytecodeWriter* writer)
 {
@@ -441,10 +396,12 @@ void bc_assign_local(BytecodeWriter* writer, int local)
     aop->type = OP_ASSIGN_LOCAL;
     aop->local = local;
 }
+
 void bc_copy(BytecodeWriter* writer)
 {
-    bc_write_call(writer, COPY_FUNC);
+    bc_call_without_term(writer, COPY_FUNC);
 }
+
 void bc_push_frame(BytecodeWriter* writer, Term* term)
 {
     OpPushBranch *cop = (OpPushBranch*) bc_append_op(writer);
@@ -497,14 +454,40 @@ void bc_call(BytecodeWriter* writer, Term* term)
     if (writeBytecode != NULL)
         return writeBytecode(writer, term);
 
-    EvaluateFunc evaluateFunc = get_function_attrs(term->function)->evaluate;
-
     // NULL evaluateFunc: no bytecode
-    if (evaluateFunc == NULL)
+    if (get_function_attrs(term->function)->evaluate == NULL)
         return;
 
     // Default: Add an OP_CALL
-    bc_write_call_op(writer, term, evaluateFunc);
+    bc_call_manual(writer, term, term->function);
+}
+
+void bc_call_without_term(BytecodeWriter* writer, Term* func)
+{
+    ca_assert(is_function(func));
+
+    OpCall* op = (OpCall*) bc_append_op(writer);
+    op->type = OP_CALL;
+    op->term = NULL;
+    op->func = func;
+}
+
+void bc_call_manual(BytecodeWriter* writer, Term* term, Term* function)
+{
+    OpCall* op = (OpCall*) bc_append_op(writer);
+    op->type = OP_CALL;
+    op->term = term;
+    op->func = function;
+
+    // Write output instruction.
+    Term* termForOutput = term;
+    while (!branch_creates_stack_frame(termForOutput->owningBranch))
+        termForOutput = get_parent_term(termForOutput);
+    bc_local_output(writer, 0, termForOutput->local);
+
+    // Write information for each input
+    for (int i=0; i < term->numInputs(); i++)
+        bc_write_input(writer, term->owningBranch, term->input(i));
 }
 
 void bc_reset_writer(BytecodeWriter* writer)

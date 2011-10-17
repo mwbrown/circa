@@ -146,8 +146,25 @@ TaggedValue* get_arg(EvalContext* context, OpCall* call, int index)
 
         case OP_INPUT_NULL:
             return NULL;
+
+        case OP_INPUT_INT:
+            internal_error("can't read int_input using get_arg");
+            break;
     }
     return NULL;
+}
+
+void consume_arg(EvalContext* context, OpCall* call, int index, TaggedValue* dest)
+{
+    Operation* op = &call->args[index];
+    switch (op->type) {
+        case OP_INPUT_INT:
+            set_int(dest, ((OpInputInt*) op)->value);
+            break;
+        default:
+            // TODO: actually consume
+            copy(get_arg(context, call, index), dest);
+    }
 }
 
 int count_args(OpCall* call)
@@ -267,14 +284,13 @@ void interpret(EvalContext* context)
 
             OpCall* cop = (OpCall*) op;
 
-            std::cout << "calling: ";
-            dump_call(context, cop);
+            //std::cout << "calling: "; dump_call(context, cop);
             
             #if CIRCA_THROW_ON_ERROR
             try {
             #endif
 
-            cop->func(context, cop);
+            get_function_attrs(cop->func)->evaluate(context, cop);
             frame->pc += 1;
 
             #if CIRCA_THROW_ON_ERROR
@@ -610,14 +626,35 @@ void error_occurred(EvalContext* context, Term* errorTerm, std::string const& me
 void dump_call(EvalContext* context, OpCall* op)
 {
     if (op->term != NULL)
-        std::cout << op->term->name << " ";
+        std::cout << global_id(op->term) << " ";
+
+    std::cout << op->func->name << " ";
 
     int count = count_args(op);
     for (int i=0; i < count; i++) {
         if (i > 0)
             std::cout << ", ";
-        TaggedValue* value = get_arg(context, op, i);
-        std::cout << value->toString();
+
+        switch (op->args[i].type) {
+        case OP_INPUT_GLOBAL:
+            std::cout << "global(" << get_arg(context, op, i)->toString() << ")";
+            break;
+        case OP_INPUT_LOCAL: {
+            OpLocal* lop = (OpLocal*) &op->args[i].type;
+            std::cout << "local(" << lop->relativeFrame << ":" << lop->local << ")";
+            std::cout << "(" << get_arg(context, op, i)->toString() << ")";
+            break;
+        }
+        case OP_INPUT_NULL:
+            std::cout << "null(" << get_arg(context, op, i)->toString() << ")";
+            break;
+        case OP_OUTPUT_LOCAL:
+            std::cout << "output(" << get_arg(context, op, i)->toString() << ")";
+            break;
+        case OP_INPUT_INT:
+            std::cout << "int(" << ((OpInputInt*) &op->args[i])->value << ")";
+            break;
+        }
     }
     std::cout << std::endl;
 }

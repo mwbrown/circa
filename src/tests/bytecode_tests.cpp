@@ -39,8 +39,8 @@ void test_simple_write()
     Term* b = branch.compile("mult(3,4)");
     BytecodeWriter writer;
 
-    bc_write_call_op(&writer, a, NULL);
-    bc_write_call_op(&writer, b, NULL);
+    bc_call(&writer, a);
+    bc_call(&writer, b);
 
     test_assert(writer.data->operationCount == 8);
     test_assert(writer.data->operations[0].type == OP_CALL);
@@ -71,7 +71,8 @@ void test_jump_if()
     TaggedValue b;
 
     // Sanity check, write bytecode to call test_spy()
-    bc_imaginary_call(&writer, get_global("test_spy"), -1);
+    bc_call_without_term(&writer, get_global("test_spy"));
+    bc_local_output(&writer, 0, -1);
     bc_global_input(&writer, &s);
     bc_stop(&writer);
 
@@ -86,7 +87,8 @@ void test_jump_if()
     bc_global_input(&writer, &b);
     set_bool(&b, true);
 
-    bc_imaginary_call(&writer, get_global("test_spy"), -1);
+    bc_call_without_term(&writer, get_global("test_spy"));
+    bc_local_output(&writer, 0, -1);
     bc_global_input(&writer, &s);
     bc_jump_to_here(&writer, jump);
     bc_stop(&writer);
