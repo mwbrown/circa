@@ -49,7 +49,7 @@ def diff_command_against_file(command, filename):
         stdout_line = stdout_line[:-1] # remove trailing newline
 
         if line != stdout_line:
-            return OutputDifference(stdout_line, line, numLines)
+            return OutputDifference(stdout_line, line, numLines+1)
 
         numLines += 1
 
@@ -81,8 +81,6 @@ def get_list_of_enabled_tests():
     for line in read_text_file_as_lines('src/ca/tests/_enabled_tests'):
         if line:
             yield line
-
-
 
 def run_all_tests():
     if 'CIRCA_HOME' in os.environ:

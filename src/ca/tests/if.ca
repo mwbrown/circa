@@ -28,6 +28,7 @@ else
     print('error4.2')
 
 if false
+    print('error5')
 else
     print('check5')
 
