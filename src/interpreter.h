@@ -49,4 +49,6 @@ TaggedValue* get_state_input(EvalContext* cxt);
 
 void error_occurred(EvalContext* context, Term* errorTerm, std::string const& message);
 
+void dump_call(EvalContext* context, OpCall* op);
+
 } // namespace circa

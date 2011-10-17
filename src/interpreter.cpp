@@ -266,6 +266,9 @@ void interpret(EvalContext* context)
         case OP_CALL: {
 
             OpCall* cop = (OpCall*) op;
+
+            std::cout << "calling: ";
+            dump_call(context, cop);
             
             #if CIRCA_THROW_ON_ERROR
             try {
@@ -606,6 +609,17 @@ void error_occurred(EvalContext* context, Term* errorTerm, std::string const& me
 
 void dump_call(EvalContext* context, OpCall* op)
 {
+    if (op->term != NULL)
+        std::cout << op->term->name << " ";
+
+    int count = count_args(op);
+    for (int i=0; i < count; i++) {
+        if (i > 0)
+            std::cout << ", ";
+        TaggedValue* value = get_arg(context, op, i);
+        std::cout << value->toString();
+    }
+    std::cout << std::endl;
 }
 
 } // namespace circa
