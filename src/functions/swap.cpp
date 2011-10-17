@@ -12,8 +12,9 @@ namespace swap_function {
 
     CA_DEFINE_FUNCTION(swap_func, "swap(any :out, any :out)")
     {
-        copy(INPUT(0), EXTRA_OUTPUT(1));
-        copy(INPUT(1), EXTRA_OUTPUT(0));
+        //FIXME
+        //copy(INPUT(0), EXTRA_OUTPUT(1));
+        //copy(INPUT(1), EXTRA_OUTPUT(0));
     }
 
     void setup(Branch* kernel)

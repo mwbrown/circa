@@ -71,7 +71,10 @@ namespace for_function {
         int distance = get_frame_distance(term, enclosingLoop) - 1;
         bc_copy(writer);
         bc_local_input(writer, term);
-        bc_local_input(writer, distance, 0);
+
+        // Perform some magic to find where for-loop puts the index temporary.
+        // Hackiness rating: fairly
+        bc_local_input(writer, distance, enclosingLoop->owningBranch->localsCount);
     }
 
     CA_FUNCTION(evaluate_break)

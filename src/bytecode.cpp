@@ -260,7 +260,10 @@ void bc_write_call_op(BytecodeWriter* writer, Term* term, EvaluateFunc func)
     op->func = func;
 
     // Write output instruction.
-    bc_write_input(writer, term->owningBranch, term);
+    Term* termForOutput = term;
+    while (!branch_creates_stack_frame(termForOutput->owningBranch))
+        termForOutput = get_parent_term(termForOutput);
+    bc_local_output(writer, 0, termForOutput->local);
 
     // Write information for each input
     for (int i=0; i < term->numInputs(); i++)

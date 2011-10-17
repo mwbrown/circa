@@ -122,6 +122,42 @@ TaggedValue* get_local(EvalContext* context, int relativeFrame, int index)
 {
     return get_frame(context, relativeFrame)->locals[index];
 }
+
+Term* get_caller(OpCall* call)
+{
+    return call->term;
+}
+
+TaggedValue* get_arg(EvalContext* context, OpCall* call, int index)
+{
+    Operation* op = &call->args[index];
+    switch (op->type) {
+        case OP_INPUT_GLOBAL: {
+            OpInputGlobal* gop = (OpInputGlobal*) op;
+            return gop->value;
+        }
+
+        case OP_OUTPUT_LOCAL:
+        case OP_INPUT_LOCAL: {
+            OpLocal* lop = (OpLocal*) op;
+            Frame* frame = get_frame(context, lop->relativeFrame);
+            return list_get_index(&frame->locals, lop->local);
+        }
+
+        case OP_INPUT_NULL:
+            return NULL;
+    }
+    return NULL;
+}
+
+int count_args(OpCall* call)
+{
+    int count = 0;
+    while (is_arg_op_type(call->args[count].type))
+        count++;
+    return count;
+}
+
 Term* get_term_from_local(EvalContext* context, int local)
 {
     Branch* branch = top_frame(context)->branch;
@@ -218,8 +254,6 @@ Branch* interpreter_get_current_branch(EvalContext* context)
 
 void interpret(EvalContext* context)
 {
-    TaggedValue* input_pointers[20];
-
     // Main loop.
     while (true) {
 
@@ -231,33 +265,18 @@ void interpret(EvalContext* context)
         switch (op->type) {
         case OP_CALL: {
 
-            #if CIRCA_TEST_BUILD
-            memset(input_pointers, 0xa0a0, sizeof(input_pointers));
-            #endif
-
             OpCall* cop = (OpCall*) op;
-
-            // Fetch pointers for input instructions
-            int inputCount;
-            for (inputCount=0; ; inputCount++) {
-                Operation* inputOp = op + 1 + inputCount;
-                if (!is_arg_op_type(inputOp->type))
-                    break;
-
-                input_pointers[inputCount] = follow_input_instruction(context, inputOp);
-            }
             
             #if CIRCA_THROW_ON_ERROR
             try {
             #endif
 
-            cop->func(context, cop->term, inputCount, input_pointers);
+            frame->pc += 1;
+            cop->func(context, cop);
 
             #if CIRCA_THROW_ON_ERROR
             } catch (std::exception const& e) { error_occurred(context, cop->term, e.what()); }
             #endif
-
-            frame->pc += 1 + inputCount;
 
             continue;
         }
@@ -268,6 +287,7 @@ void interpret(EvalContext* context)
         case OP_INPUT_INT:
         case OP_OUTPUT_LOCAL:
         case OP_STATE_ARG:
+            // ignore these ops
             frame->pc += 1;
             continue;
 
@@ -294,7 +314,7 @@ void interpret(EvalContext* context)
 
         case OP_JUMP_IF: {
             OpJump* jop = (OpJump*) op;
-            TaggedValue* input = follow_input_instruction(context, op+1);
+            TaggedValue* input = get_arg(context, (OpCall*) op, 0);
             ca_assert(is_bool(input));
             if (as_bool(input)) {
                 ca_assert(jop->offset != 0);
@@ -306,7 +326,7 @@ void interpret(EvalContext* context)
         }
         case OP_JUMP_IF_NOT: {
             OpJump* jop = (OpJump*) op;
-            TaggedValue* input = follow_input_instruction(context, op+1);
+            TaggedValue* input = get_arg(context, (OpCall*) op, 0);
             ca_assert(is_bool(input));
             if (!as_bool(input)) {
                 ca_assert(jop->offset != 0);
@@ -318,8 +338,8 @@ void interpret(EvalContext* context)
         }
         case OP_JUMP_IF_NOT_EQUAL: {
             OpJump* jop = (OpJump*) op;
-            TaggedValue* left = follow_input_instruction(context, op+1);
-            TaggedValue* right = follow_input_instruction(context, op+2);
+            TaggedValue* left = get_arg(context, (OpCall*) op, 0);
+            TaggedValue* right = get_arg(context, (OpCall*) op, 1);
             if (!equals(left,right)) {
                 ca_assert(jop->offset != 0);
                 frame->pc += jop->offset;
@@ -330,8 +350,8 @@ void interpret(EvalContext* context)
         }
         case OP_JUMP_IF_LESS_THAN: {
             OpJump* jop = (OpJump*) op;
-            TaggedValue* left = follow_input_instruction(context, op+1);
-            TaggedValue* right = follow_input_instruction(context, op+2);
+            TaggedValue* left = get_arg(context, (OpCall*) op, 0);
+            TaggedValue* right = get_arg(context, (OpCall*) op, 1);
             if (to_float(left) < to_float(right)) {
                 ca_assert(jop->offset != 0);
                 frame->pc += jop->offset;

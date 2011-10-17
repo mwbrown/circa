@@ -4,6 +4,7 @@
 
 namespace circa {
 
+
 Frame* push_frame(EvalContext* context, BytecodeData* bytecode);
 Frame* push_frame(EvalContext* context, Branch* branch);
 void pop_frame(EvalContext* context);
@@ -20,6 +21,10 @@ TaggedValue* get_extra_output(EvalContext* context, Term* term, int index);
 TaggedValue* get_extra_output_rel(EvalContext* context, Term* term, int frameDistance, int index);
 TaggedValue* get_output_safe(EvalContext* context, Term* term);
 TaggedValue* get_local(EvalContext* context, int relativeFrame, int index);
+
+Term* get_caller(OpCall* call);
+TaggedValue* get_arg(EvalContext* context, OpCall* call, int index);
+int count_args(OpCall* call);
 
 Term* get_term_from_local(EvalContext* context, int local);
 

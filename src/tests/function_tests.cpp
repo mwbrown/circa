@@ -142,6 +142,7 @@ void test_bug_where_a_mysterious_copy_term_was_added()
         test_assert(it->function->name != "copy");
 }
 
+#if 0 // TEST_DISABLED
 namespace test_func_with_multiple_outputs {
     CA_FUNCTION(f_eval) {
         set_int(EXTRA_OUTPUT(0), INT_INPUT(0) + 1);
@@ -166,6 +167,7 @@ namespace test_func_with_multiple_outputs {
         test_equals(branch["c"], "4");
     }
 }
+#endif
 
 void multiple_output_static_typing()
 {
@@ -196,7 +198,7 @@ void register_tests()
     REGISTER_TEST_CASE(function_tests::test_documentation_string);
     REGISTER_TEST_CASE(function_tests::test_calling_manual_overloaded_function);
     REGISTER_TEST_CASE(function_tests::test_bug_where_a_mysterious_copy_term_was_added);
-    REGISTER_TEST_CASE(function_tests::test_func_with_multiple_outputs::simple);
+    //REGISTER_TEST_CASE(function_tests::test_func_with_multiple_outputs::simple);
     REGISTER_TEST_CASE(function_tests::multiple_output_static_typing);
 }
 
