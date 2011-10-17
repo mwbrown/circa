@@ -89,6 +89,7 @@ void print_bytecode_op(BytecodeData* bytecode, int loc, std::ostream& out)
         }
         case OP_OUTPUT_LOCAL: {
             OpLocal* lop = (OpLocal*) op;
+            out << "output ";
             if (lop->relativeFrame != 0)
                 out << "frame:" << lop->relativeFrame << " ";
             out << "idx:" << lop->local;
@@ -303,13 +304,14 @@ void bc_imaginary_call(BytecodeWriter* writer, EvaluateFunc func, int output)
     op->func = func;
 
     // Write output instruction
-    bc_local_input(writer, 0, output);
+    bc_local_output(writer, 0, output);
 }
 
 void bc_imaginary_call(BytecodeWriter* writer, Term* func, int output)
 {
     bc_imaginary_call(writer, get_function_attrs(func)->evaluate, output);
 }
+
 int bc_jump(BytecodeWriter* writer)
 {
     int pos = writer->writePosition;

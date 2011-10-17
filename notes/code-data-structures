@@ -134,14 +134,14 @@ How can we make the call atomic?
 
 Immediate TODO
 
-Change C api to accept a list of instructions
+X Change C api to accept a list of instructions
  * This allows for consume() instructions to work
  - Probably more efficient (bad reason)
  - Less of a pure API (oh well)
  - interpret loop is simpler. Easier to add more input instructions
  - Is this a necessary change right now?
 
-Allow for Bytecode to dictate the number of locals. A local can be added at bytecode time.
- - Also allow for names (and other metadata) on temporaries inside Bytecode?
+X Allow for Bytecode to dictate the number of locals. A local can be added at bytecode time.
+   - Also allow for names (and other metadata) on temporaries inside Bytecode?
 
 

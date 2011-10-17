@@ -271,8 +271,8 @@ void interpret(EvalContext* context)
             try {
             #endif
 
-            frame->pc += 1;
             cop->func(context, cop);
+            frame->pc += 1;
 
             #if CIRCA_THROW_ON_ERROR
             } catch (std::exception const& e) { error_occurred(context, cop->term, e.what()); }
@@ -602,6 +602,10 @@ void error_occurred(EvalContext* context, Term* errorTerm, std::string const& me
         context->errorOccurred = true;
         context->errorTerm = errorTerm;
     }
+}
+
+void dump_call(EvalContext* context, OpCall* op)
+{
 }
 
 } // namespace circa

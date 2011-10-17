@@ -143,7 +143,7 @@ void for_block_write_bytecode_contents(BytecodeWriter* writer, Term* caller)
 
     // Fetch list length
     bc_write_call(writer, get_global("length"));
-    bc_local_input(writer, lengthLocal);
+    bc_local_output(writer, 0, lengthLocal);
     bc_write_input(writer, contents, caller->input(0));
 
     // Prepare output value.
