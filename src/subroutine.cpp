@@ -157,9 +157,9 @@ CA_FUNCTION(evaluate_subroutine)
 
 void subroutine_write_calling_bytecode(BytecodeWriter* writer, Term* term)
 {
-    bc_push_frame(writer, term->function);
-
     bool hasState = function_has_inlined_state(term->function);
+
+    bc_push_frame(writer, term->function);
 
     // Implicit state input
     if (hasState)

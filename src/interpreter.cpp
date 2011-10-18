@@ -161,8 +161,10 @@ void consume_arg(EvalContext* context, OpCall* call, int index, TaggedValue* des
         case OP_INPUT_INT:
             set_int(dest, ((OpInputInt*) op)->value);
             break;
+        case OP_INPUT_NULL:
+            set_null(dest);
+            break;
         default:
-            // TODO: actually consume
             copy(get_arg(context, call, index), dest);
     }
 }
@@ -291,7 +293,7 @@ void interpret(EvalContext* context)
             #endif
 
             get_function_attrs(cop->func)->evaluate(context, cop);
-            frame->pc += 1;
+            frame->pc = frame->pc + 1;
 
             #if CIRCA_THROW_ON_ERROR
             } catch (std::exception const& e) { error_occurred(context, cop->term, e.what()); }
@@ -386,40 +388,20 @@ void interpret(EvalContext* context)
             Branch* branch = nested_contents(bop->term);
             update_bytecode_for_branch(branch);
             bytecode = branch->bytecode;
+
+            List locals;
+            locals.resize(bytecode->localsCount);
+
+            int count = count_args((OpCall*) bop);
+
+            for (int arg=0; arg < count; arg++)
+                consume_arg(context, (OpCall*) bop, arg, locals[arg]);
+
             push_frame(context, bytecode);
-
             Frame* frame = top_frame(context);
+
+            swap(&frame->locals, &locals);
             frame->pc = 0;
-
-            // Push inputs to the new frame
-            for (int lookahead = 0; ; lookahead++) {
-                Operation* inputOp = op + 1 + lookahead;
-                switch (inputOp->type) {
-                    case OP_INPUT_GLOBAL: {
-                        OpInputGlobal* gop = (OpInputGlobal*) inputOp;
-                        copy(gop->value, frame->locals[lookahead]);
-                        continue;
-                    }
-                    case OP_INPUT_LOCAL: {
-                        OpLocal* lop = (OpLocal*) inputOp;
-
-                        // Add 1 to relativeFrame because we just pushed a new frame
-                        Frame* inputFrame = get_frame(context, lop->relativeFrame + 1);
-                        copy(inputFrame->locals[lop->local], frame->locals[lookahead]);
-                        continue;
-                    }
-                    case OP_INPUT_NULL:
-                        set_null(frame->locals[lookahead]);
-                        continue;
-                    case OP_STATE_ARG: {
-                        continue;
-                    }
-                    case OP_OUTPUT_LOCAL:
-                        continue;
-                }
-                break;
-            }
-
             continue;
         }
 

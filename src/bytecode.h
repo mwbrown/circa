@@ -38,9 +38,8 @@ const OpType OP_ASSIGN_LOCAL = 42;
 struct Operation {
     OpType type;
 
-    // padding..
-    void* ptr1;
-    void* ptr2;
+    void* padding1;
+    void* padding2;
 };
 
 struct OpCall {
@@ -60,6 +59,10 @@ struct OpCheckOutput {
 struct OpPushBranch {
     OpType type;
     Term* term;
+
+    void* padding;
+
+    Operation args[0];
 };
 struct OpStackSize {
     OpType type;

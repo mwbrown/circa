@@ -28,6 +28,7 @@ bool is_arg_op_type(OpType type)
         case OP_INPUT_NULL:
         case OP_INPUT_INT:
         case OP_OUTPUT_LOCAL:
+        case OP_STATE_ARG:
             return true;
         default:
             return false;
