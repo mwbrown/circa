@@ -162,8 +162,6 @@ void subroutine_write_calling_bytecode(BytecodeWriter* writer, Term* term)
     bc_push_frame(writer, term->function);
 
     // Implicit state input
-    if (hasState)
-        bc_write_state_arg(writer);
 
     // Regular inputs
     for (int i=0; i < term->numInputs(); i++)

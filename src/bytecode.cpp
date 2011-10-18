@@ -28,7 +28,6 @@ bool is_arg_op_type(OpType type)
         case OP_INPUT_NULL:
         case OP_INPUT_INT:
         case OP_OUTPUT_LOCAL:
-        case OP_STATE_ARG:
             return true;
         default:
             return false;
@@ -95,9 +94,6 @@ void print_bytecode_op(BytecodeData* bytecode, int loc, std::ostream& out)
             out << "idx:" << lop->local;
             break;
         }
-        case OP_STATE_ARG:
-            out << "arg_state";
-            break;
         case OP_STOP:
             out << "stop";
             break;
@@ -373,10 +369,6 @@ void bc_write_input(BytecodeWriter* writer, Branch* frame, Term* input)
 
     int relativeFrame = get_frame_distance(frame, input);
     bc_local_input(writer, relativeFrame, input->local);
-}
-void bc_write_state_arg(BytecodeWriter* writer)
-{
-    bc_append_op(writer)->type = OP_STATE_ARG;
 }
 void bc_int_input(BytecodeWriter* writer, int value)
 {

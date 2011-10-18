@@ -307,7 +307,6 @@ void interpret(EvalContext* context)
         case OP_INPUT_NULL:
         case OP_INPUT_INT:
         case OP_OUTPUT_LOCAL:
-        case OP_STATE_ARG:
             // ignore these ops
             frame->pc += 1;
             continue;

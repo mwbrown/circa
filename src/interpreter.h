@@ -4,7 +4,6 @@
 
 namespace circa {
 
-
 Frame* push_frame(EvalContext* context, BytecodeData* bytecode);
 Frame* push_frame(EvalContext* context, Branch* branch);
 void pop_frame(EvalContext* context);
