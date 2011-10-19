@@ -126,6 +126,7 @@ Branch* if_block_get_branch(Term* ifCall, int index)
 
 void if_block_write_calling_bytecode(BytecodeWriter* writer, Term* term)
 {
+#if 0
     Branch* contents = nested_contents(term);
     bool useState = has_any_inlined_state(contents);
 
@@ -142,16 +143,13 @@ void if_block_write_calling_bytecode(BytecodeWriter* writer, Term* term)
             bc_write_input(writer, contents, caseTerm->input(0));
         }
 
-#if 0
         if (useState) {
             bc_write_call_op_with_func(writer, caller, IF_BLOCK_UNPACK_STATE_FUNC);
             bc_write_int_input(writer, caseIndex);
         }
-#endif
 
         bc_push_frame(writer, caseTerm);
 
-#if 0
         if (useState) {
             bc_write_call_op_with_func(writer, caller, IF_BLOCK_PACK_STATE_FUNC);
             bc_write_int_input(writer, caseIndex);
@@ -166,7 +164,7 @@ void if_block_write_calling_bytecode(BytecodeWriter* writer, Term* term)
             bc_write_input(writer, nested_contents(caseTerm), joinTerm->input(caseIndex));
             bc_local_input(writer, 1, caller->index + 1 + i);
         }
-#endif
+
         if (caseIndex < (contents->length() - 2))
             jumpsToFinish.push_back(bc_jump(writer));
 
@@ -177,6 +175,7 @@ void if_block_write_calling_bytecode(BytecodeWriter* writer, Term* term)
     // Finish
     for (size_t i=0; i < jumpsToFinish.size(); i++)
         bc_jump_to_here(writer, jumpsToFinish[i]);
+#endif
 }
 
 void case_write_nested_bytecode(BytecodeWriter* writer, Term* term)

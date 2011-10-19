@@ -38,12 +38,10 @@ struct Operation {
     OpType type;
 
     void* padding1;
-    void* padding2;
 };
 
 struct OpCall {
     OpType type;
-    Term* term;
     Term* func;
 
     // An OpCall is typically followed by args, this field allows for convenient access.
@@ -62,10 +60,6 @@ struct OpPushBranch {
     void* padding;
 
     Operation args[0];
-};
-struct OpStackSize {
-    OpType type;
-    int size;
 };
 
 struct OpLocal {
@@ -194,11 +188,7 @@ void dirty_bytecode(Branch* branch);
 // like the function's custom writeBytecode handler.
 void bc_call(BytecodeWriter* writer, Term* term);
 
-void bc_call_manual(BytecodeWriter* writer, Term* term, Term* function);
-
-// Write a CALL instruction with no Term*, just a function. Input instructions
-// must be appended by the caller. Some functions don't work with a NULL caller.
-void bc_call_without_term(BytecodeWriter* writer, Term* func);
+void bc_call_manual(BytecodeWriter* writer, Term* function);
 
 void bc_reset_writer(BytecodeWriter* writer);
 

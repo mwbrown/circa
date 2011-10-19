@@ -413,22 +413,26 @@ CA_FUNCTION(refactor__rename)
 
 CA_FUNCTION(refactor__change_function)
 {
-    change_function(as_ref(INPUT_TERM(0)), INPUT_TERM(1));
+    //FIXME
+    //change_function(as_ref(INPUT_TERM(0)), INPUT_TERM(1));
 }
 
 CA_FUNCTION(reflect__this_branch)
 {
-    set_branch(OUTPUT, CALLER->owningBranch);
+    //FIXME
+    //set_branch(OUTPUT, CALLER->owningBranch);
 }
 
 CA_FUNCTION(type_func)
 {
-    set_type(OUTPUT, declared_type(INPUT_TERM(0)));
+    //FIXME
+    //set_type(OUTPUT, declared_type(INPUT_TERM(0)));
 }
 
 CA_FUNCTION(typename_func)
 {
-    set_string(OUTPUT, declared_type(INPUT_TERM(0))->name);
+    //FIXME
+    //set_string(OUTPUT, declared_type(INPUT_TERM(0))->name);
 }
 
 void install_standard_library(Branch* kernel)

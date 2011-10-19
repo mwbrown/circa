@@ -7,6 +7,18 @@
 namespace circa {
 namespace interpreter_tests {
 
+void test_apply()
+{
+    List inputs;
+    inputs.resize(3);
+    set_int(inputs[0], 1);
+    set_int(inputs[1], 2);
+
+    apply(get_global("add_i"), &inputs);
+
+    test_equals(inputs[2], "3");
+}
+
 void test_simple()
 {
     Branch branch;
@@ -79,6 +91,8 @@ void test_interpret_range_simple()
 
 void register_tests()
 {
+    REGISTER_TEST_CASE(interpreter_tests::test_apply);
+    return;
     REGISTER_TEST_CASE(interpreter_tests::test_simple);
     REGISTER_TEST_CASE(interpreter_tests::test_if_simple);
     REGISTER_TEST_CASE(interpreter_tests::test_for_loop_simple);

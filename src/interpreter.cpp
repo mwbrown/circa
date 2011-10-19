@@ -123,11 +123,7 @@ TaggedValue* get_local(EvalContext* context, int relativeFrame, int index)
     return get_frame(context, relativeFrame)->locals[index];
 }
 
-Term* get_caller(OpCall* call)
-{
-    return call->term;
-}
-
+#if 0
 TaggedValue* get_arg(EvalContext* context, OpCall* call, int index)
 {
     Operation* op = &call->args[index];
@@ -153,29 +149,7 @@ TaggedValue* get_arg(EvalContext* context, OpCall* call, int index)
     }
     return NULL;
 }
-
-void consume_arg(EvalContext* context, OpCall* call, int index, TaggedValue* dest)
-{
-    Operation* op = &call->args[index];
-    switch (op->type) {
-        case OP_INPUT_INT:
-            set_int(dest, ((OpInputInt*) op)->value);
-            break;
-        case OP_INPUT_NULL:
-            set_null(dest);
-            break;
-        default:
-            copy(get_arg(context, call, index), dest);
-    }
-}
-
-int count_args(OpCall* call)
-{
-    int count = 0;
-    while (is_arg_op_type(call->args[count].type))
-        count++;
-    return count;
-}
+#endif
 
 Term* get_term_from_local(EvalContext* context, int local)
 {
@@ -284,6 +258,8 @@ void interpret(EvalContext* context)
         switch (op->type) {
         case OP_CALL: {
 
+#if 0
+
             OpCall* cop = (OpCall*) op;
 
             //std::cout << "calling: "; dump_call(context, cop);
@@ -299,6 +275,7 @@ void interpret(EvalContext* context)
             } catch (std::exception const& e) { error_occurred(context, cop->term, e.what()); }
             #endif
 
+#endif
             continue;
         }
 
@@ -332,6 +309,7 @@ void interpret(EvalContext* context)
             continue;
         }
 
+#if 0 // FIXME
         case OP_JUMP_IF: {
             OpJump* jop = (OpJump*) op;
             TaggedValue* input = get_arg(context, (OpCall*) op, 0);
@@ -469,6 +447,7 @@ void interpret(EvalContext* context)
             frame->pc += 2;
             continue;
         }
+#endif
 
         default:
             internal_error("in evaluate_bytecode, unrecognized op type");
@@ -606,6 +585,7 @@ void error_occurred(EvalContext* context, Term* errorTerm, std::string const& me
 
 void dump_call(EvalContext* context, OpCall* op)
 {
+#if 0 // FIXME
     if (op->term != NULL)
         std::cout << global_id(op->term) << " ";
 
@@ -638,6 +618,23 @@ void dump_call(EvalContext* context, OpCall* op)
         }
     }
     std::cout << std::endl;
+#endif
+}
+
+void apply(Term* function, List* args)
+{
+    const int MAX_INPUTS = 20;
+
+    EvalContext context;
+
+    int count = args->length();
+    ca_assert(count < MAX_INPUTS);
+    TaggedValue* value_pointers[MAX_INPUTS];
+
+    for (int i=0; i < count; i++)
+        value_pointers[i] = args->get(i);
+    
+    get_function_attrs(function)->evaluate(&context, count, value_pointers);
 }
 
 } // namespace circa

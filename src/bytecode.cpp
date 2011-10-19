@@ -55,9 +55,6 @@ void print_bytecode_op(BytecodeData* bytecode, int loc, std::ostream& out)
     switch (op->type) {
         case OP_CALL: {
             out << "call ";
-            Term* term = ((OpCall*) op)->term;
-            if (term != NULL)
-                out << global_id(term) << " ";
             out << ((OpCall*) op)->func->name;
             break;
         }
@@ -393,7 +390,7 @@ void bc_assign_local(BytecodeWriter* writer, int local)
 
 void bc_copy(BytecodeWriter* writer)
 {
-    bc_call_without_term(writer, COPY_FUNC);
+    bc_call_manual(writer, COPY_FUNC);
 }
 
 void bc_push_frame(BytecodeWriter* writer, Term* term)
@@ -453,26 +450,9 @@ void bc_call(BytecodeWriter* writer, Term* term)
         return;
 
     // Default: Add an OP_CALL
-    bc_call_manual(writer, term, term->function);
-}
+    bc_call_manual(writer, term->function);
 
-void bc_call_without_term(BytecodeWriter* writer, Term* func)
-{
-    ca_assert(is_function(func));
-
-    OpCall* op = (OpCall*) bc_append_op(writer);
-    op->type = OP_CALL;
-    op->term = NULL;
-    op->func = func;
-}
-
-void bc_call_manual(BytecodeWriter* writer, Term* term, Term* function)
-{
-    OpCall* op = (OpCall*) bc_append_op(writer);
-    op->type = OP_CALL;
-    op->term = term;
-    op->func = function;
-
+#if 0 // FIXME
     // Write output instruction.
     Term* termForOutput = term;
     while (!branch_creates_stack_frame(termForOutput->owningBranch))
@@ -482,6 +462,14 @@ void bc_call_manual(BytecodeWriter* writer, Term* term, Term* function)
     // Write information for each input
     for (int i=0; i < term->numInputs(); i++)
         bc_write_input(writer, term->owningBranch, term->input(i));
+#endif
+}
+
+void bc_call_manual(BytecodeWriter* writer, Term* function)
+{
+    OpCall* op = (OpCall*) bc_append_op(writer);
+    op->type = OP_CALL;
+    op->func = function;
 }
 
 void bc_reset_writer(BytecodeWriter* writer)

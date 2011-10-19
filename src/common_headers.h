@@ -65,9 +65,9 @@ union VariantValue {
 // Function-related typedefs:
 
 #define CA_FUNCTION(fname) \
-    void fname(circa::EvalContext* _context, circa::OpCall* _op)
+    void fname(circa::EvalContext* _context, int _nargs, circa::TaggedValue** _args)
 
-typedef void (*EvaluateFunc)(EvalContext* cxt, OpCall* call);
+typedef void (*EvaluateFunc)(EvalContext* cxt, int nargs, TaggedValue** args);
 typedef Type* (*SpecializeTypeFunc)(Term* caller);
 typedef void (*FormatSource)(StyledSource* source, Term* term);
 typedef bool (*CheckInvariants)(Term* term, std::string* output);

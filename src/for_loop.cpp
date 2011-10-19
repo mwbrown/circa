@@ -128,6 +128,7 @@ void for_block_write_bytecode(BytecodeWriter* writer, Term* caller)
 
 void for_block_write_bytecode_contents(BytecodeWriter* writer, Term* caller)
 {
+#if 0 // FIXME
     Branch* contents = nested_contents(caller);
     Branch* parent = caller->owningBranch;
     // bool useState = has_any_inlined_state(contents);
@@ -238,6 +239,7 @@ void for_block_write_bytecode_contents(BytecodeWriter* writer, Term* caller)
 
     // End
     bc_pop_frame(writer);
+#endif
 }
 
 } // namespace circa

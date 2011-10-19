@@ -21,11 +21,6 @@ TaggedValue* get_extra_output_rel(EvalContext* context, Term* term, int frameDis
 TaggedValue* get_output_safe(EvalContext* context, Term* term);
 TaggedValue* get_local(EvalContext* context, int relativeFrame, int index);
 
-Term* get_caller(OpCall* call);
-TaggedValue* get_arg(EvalContext* context, OpCall* call, int index);
-void consume_arg(EvalContext* context, OpCall* call, int index, TaggedValue* dest);
-int count_args(OpCall* call);
-
 Term* get_term_from_local(EvalContext* context, int local);
 
 // Low-level interpreter control
@@ -49,6 +44,6 @@ TaggedValue* get_state_input(EvalContext* cxt);
 
 void error_occurred(EvalContext* context, Term* errorTerm, std::string const& message);
 
-void dump_call(EvalContext* context, OpCall* op);
+void apply(Term* function, List* args);
 
 } // namespace circa

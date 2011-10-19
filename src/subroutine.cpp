@@ -157,6 +157,7 @@ CA_FUNCTION(evaluate_subroutine)
 
 void subroutine_write_calling_bytecode(BytecodeWriter* writer, Term* term)
 {
+#if 0// FIXME
     bool hasState = function_has_inlined_state(term->function);
 
     bc_push_frame(writer, term->function);
@@ -177,6 +178,7 @@ void subroutine_write_calling_bytecode(BytecodeWriter* writer, Term* term)
         bc_write_input(writer, term->owningBranch, term->input(i));
 
     bc_write_output(writer, term);
+#endif
 }
 
 void subroutine_write_nested_bytecode(BytecodeWriter* writer, Term* function)

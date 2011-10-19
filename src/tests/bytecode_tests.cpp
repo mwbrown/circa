@@ -12,7 +12,6 @@ void test_static_assertions()
 {
     test_assert(sizeof(Operation) >= sizeof(OpCall));
     test_assert(sizeof(Operation) >= sizeof(OpPushBranch));
-    test_assert(sizeof(Operation) >= sizeof(OpStackSize));
     test_assert(sizeof(Operation) >= sizeof(OpLocal));
     test_assert(sizeof(Operation) >= sizeof(OpInputGlobal));
     test_assert(sizeof(Operation) >= sizeof(OpInputInt));
@@ -71,9 +70,9 @@ void test_jump_if()
     TaggedValue b;
 
     // Sanity check, write bytecode to call test_spy()
-    bc_call_without_term(&writer, get_global("test_spy"));
-    bc_local_output(&writer, -1);
+    bc_call_manual(&writer, get_global("test_spy"));
     bc_global_input(&writer, &s);
+    bc_local_output(&writer, -1);
     bc_stop(&writer);
 
     set_string(&s, "1");
@@ -87,9 +86,9 @@ void test_jump_if()
     bc_global_input(&writer, &b);
     set_bool(&b, true);
 
-    bc_call_without_term(&writer, get_global("test_spy"));
-    bc_local_output(&writer, -1);
+    bc_call_manual(&writer, get_global("test_spy"));
     bc_global_input(&writer, &s);
+    bc_local_output(&writer, -1);
     bc_jump_to_here(&writer, jump);
     bc_stop(&writer);
 
