@@ -28,10 +28,10 @@
                 _circa_START_FUNCTIONS[i]->_header);\
     }
 
-#define CONTEXT (_context)
-#define NUM_INPUTS (_nargs-1)
-#define INPUT(index) (_args[(index)])
-#define OUTPUT (_args[_nargs-1])
+#define CONTEXT (g_tempEvalContextDeleteThis) // FIXME
+#define NUM_INPUTS (_args->length()-1)
+#define INPUT(index) (_args->get(index))
+#define OUTPUT (_args->get(NUM_INPUTS))
 #define FLOAT_INPUT(index) (circa::to_float(INPUT(index)))
 #define BOOL_INPUT(index) (circa::as_bool(INPUT(index)))
 #define STRING_INPUT(index) (circa::as_string(INPUT(index)).c_str())

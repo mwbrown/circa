@@ -61,13 +61,13 @@ union VariantValue {
     void* ptr;
 };
 
+const int CA_MAX_INPUTS = 20;
 
 // Function-related typedefs:
 
-#define CA_FUNCTION(fname) \
-    void fname(circa::EvalContext* _context, int _nargs, circa::TaggedValue** _args)
+#define CA_FUNCTION(fname) void fname(circa::List* _args)
 
-typedef void (*EvaluateFunc)(EvalContext* cxt, int nargs, TaggedValue** args);
+typedef void (*EvaluateFunc)(circa::List* args);
 typedef Type* (*SpecializeTypeFunc)(Term* caller);
 typedef void (*FormatSource)(StyledSource* source, Term* term);
 typedef bool (*CheckInvariants)(Term* term, std::string* output);
@@ -103,8 +103,5 @@ typedef bool (*CheckInvariants)(Term* term, std::string* output);
 #endif
 
 void ca_assert_function(bool result, const char* expr, int line, const char* file);
-
-// An evaluation function which does nothing
-CA_FUNCTION(empty_evaluate_function);
 
 } // namespace circa

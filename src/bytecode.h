@@ -188,7 +188,7 @@ void dirty_bytecode(Branch* branch);
 // like the function's custom writeBytecode handler.
 void bc_call(BytecodeWriter* writer, Term* term);
 
-void bc_call_manual(BytecodeWriter* writer, Term* function);
+void bc_write_call_op(BytecodeWriter* writer, Term* function);
 
 void bc_reset_writer(BytecodeWriter* writer);
 

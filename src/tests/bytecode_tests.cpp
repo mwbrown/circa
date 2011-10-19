@@ -70,7 +70,7 @@ void test_jump_if()
     TaggedValue b;
 
     // Sanity check, write bytecode to call test_spy()
-    bc_call_manual(&writer, get_global("test_spy"));
+    bc_write_call_op(&writer, get_global("test_spy"));
     bc_global_input(&writer, &s);
     bc_local_output(&writer, -1);
     bc_stop(&writer);
@@ -86,7 +86,7 @@ void test_jump_if()
     bc_global_input(&writer, &b);
     set_bool(&b, true);
 
-    bc_call_manual(&writer, get_global("test_spy"));
+    bc_write_call_op(&writer, get_global("test_spy"));
     bc_global_input(&writer, &s);
     bc_local_output(&writer, -1);
     bc_jump_to_here(&writer, jump);

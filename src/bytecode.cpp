@@ -390,7 +390,7 @@ void bc_assign_local(BytecodeWriter* writer, int local)
 
 void bc_copy(BytecodeWriter* writer)
 {
-    bc_call_manual(writer, COPY_FUNC);
+    bc_write_call_op(writer, COPY_FUNC);
 }
 
 void bc_push_frame(BytecodeWriter* writer, Term* term)
@@ -449,23 +449,22 @@ void bc_call(BytecodeWriter* writer, Term* term)
     if (get_function_attrs(term->function)->evaluate == NULL)
         return;
 
-    // Default: Add an OP_CALL
-    bc_call_manual(writer, term->function);
+    // Default behavior: Write inputs and an OP_CALL
 
-#if 0 // FIXME
+    // Write information for each input
+    for (int i=0; i < term->numInputs(); i++)
+        bc_write_input(writer, term->owningBranch, term->input(i));
+
     // Write output instruction.
     Term* termForOutput = term;
     while (!branch_creates_stack_frame(termForOutput->owningBranch))
         termForOutput = get_parent_term(termForOutput);
     bc_local_output(writer, termForOutput->local);
 
-    // Write information for each input
-    for (int i=0; i < term->numInputs(); i++)
-        bc_write_input(writer, term->owningBranch, term->input(i));
-#endif
+    bc_write_call_op(writer, term->function);
 }
 
-void bc_call_manual(BytecodeWriter* writer, Term* function)
+void bc_write_call_op(BytecodeWriter* writer, Term* function)
 {
     OpCall* op = (OpCall*) bc_append_op(writer);
     op->type = OP_CALL;

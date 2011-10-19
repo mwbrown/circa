@@ -173,6 +173,8 @@ TaggedValue UNKNOWN_SYMBOL;
 
 Type* FILE_SIGNATURE_T;
 
+EvalContext* g_tempEvalContextDeleteThis = NULL;
+
 Term* g_builtinFunctions[NUM_BUILTIN_FUNCTIONS] = {NULL,};
 
 Term* builtin_func(BuiltinFunctionIndex index)

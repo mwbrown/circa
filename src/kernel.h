@@ -119,6 +119,8 @@ extern TaggedValue UNKNOWN_SYMBOL;
 
 extern Type* FILE_SIGNATURE_T;
 
+extern EvalContext* g_tempEvalContextDeleteThis;
+
 // Builtin functions, by index. This is the new-style format, the above Term*s
 // are deprecated.
 enum BuiltinFunctionIndex {
