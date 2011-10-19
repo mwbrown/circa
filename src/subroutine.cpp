@@ -162,6 +162,15 @@ void subroutine_write_calling_bytecode(BytecodeWriter* writer, Term* term)
     bc_push_frame(writer, term->function);
 
     // Implicit state input
+    int stateLocal = -1;
+
+    if (hasState) {
+        ca_assert(writer->data->stateLocal != -1);
+        int stateLocal = bc_reserve_local(writer);
+        bc_call_without_term(writer, GET_STATE_FIELD_FUNC);
+        bc_local_output(writer, stateLocal);
+        //bc_string_input(writer, term);
+    }
 
     // Regular inputs
     for (int i=0; i < term->numInputs(); i++)

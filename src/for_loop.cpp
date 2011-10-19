@@ -139,12 +139,12 @@ void for_block_write_bytecode_contents(BytecodeWriter* writer, Term* caller)
 
     // Start index with 0
     bc_copy(writer);
-    bc_local_output(writer, 0, indexLocal);
+    bc_local_output(writer, indexLocal);
     bc_int_input(writer, 0);
 
     // Fetch list length
     bc_call_without_term(writer, get_global("length"));
-    bc_local_output(writer, 0, lengthLocal);
+    bc_local_output(writer, lengthLocal);
     bc_write_input(writer, contents, caller->input(0));
 
     // Prepare output value.

@@ -100,6 +100,8 @@ struct BytecodeData
     int operationCount;
     int localsCount;
 
+    int stateLocal;
+
     Branch* branch;
     Operation operations[0];
     // 'operations' has a length of at least 'operationCount'.
@@ -169,7 +171,7 @@ void bc_local_input(BytecodeWriter* writer, int index);
 void bc_local_input(BytecodeWriter* writer, Term* term);
 void bc_local_input(BytecodeWriter* writer, int frame, int index);
 void bc_int_input(BytecodeWriter* writer, int value);
-void bc_local_output(BytecodeWriter* writer, int frame, int index);
+void bc_local_output(BytecodeWriter* writer, int index);
 void bc_write_output(BytecodeWriter* writer, Term* term);
 void bc_write_input(BytecodeWriter* writer, Branch* frame, Term* input);
 

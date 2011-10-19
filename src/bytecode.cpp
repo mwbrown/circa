@@ -212,6 +212,7 @@ void bc_reserve_size(BytecodeWriter* writer, int opCount)
                 sizeof(BytecodeData) + sizeof(Operation) * newLength);
         writer->data->operationCount = 0;
         writer->data->localsCount = 0;
+        writer->data->stateLocal = -1;
         writer->data->dirty = false;
         writer->data->localsCount = 0;
         writer->data->branch = NULL;
@@ -341,11 +342,11 @@ void bc_local_input(BytecodeWriter* writer, int frame, int local)
     lop->relativeFrame = frame;
     lop->local = local;
 }
-void bc_local_output(BytecodeWriter* writer, int frame, int local)
+void bc_local_output(BytecodeWriter* writer, int local)
 {
     OpLocal *lop = (OpLocal*) bc_append_op(writer);
     lop->type = OP_OUTPUT_LOCAL;
-    lop->relativeFrame = frame;
+    lop->relativeFrame = 0;
     lop->local = local;
 }
 void bc_write_input(BytecodeWriter* writer, Branch* frame, Term* input)
@@ -476,7 +477,7 @@ void bc_call_manual(BytecodeWriter* writer, Term* term, Term* function)
     Term* termForOutput = term;
     while (!branch_creates_stack_frame(termForOutput->owningBranch))
         termForOutput = get_parent_term(termForOutput);
-    bc_local_output(writer, 0, termForOutput->local);
+    bc_local_output(writer, termForOutput->local);
 
     // Write information for each input
     for (int i=0; i < term->numInputs(); i++)
