@@ -43,9 +43,6 @@ struct Operation {
 struct OpCall {
     OpType type;
     Term* func;
-
-    // An OpCall is typically followed by args, this field allows for convenient access.
-    Operation args[0];
 };
 
 struct OpCheckOutput {

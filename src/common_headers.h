@@ -65,9 +65,9 @@ const int CA_MAX_INPUTS = 20;
 
 // Function-related typedefs:
 
-#define CA_FUNCTION(fname) void fname(circa::List* _args)
+#define CA_FUNCTION(fname) void fname(int _count, circa::TaggedValue** _args);
 
-typedef void (*EvaluateFunc)(circa::List* args);
+typedef void (*EvaluateFunc)(int argCount, TaggedValue** args);
 typedef Type* (*SpecializeTypeFunc)(Term* caller);
 typedef void (*FormatSource)(StyledSource* source, Term* term);
 typedef bool (*CheckInvariants)(Term* term, std::string* output);

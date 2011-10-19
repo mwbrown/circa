@@ -247,8 +247,10 @@ Branch* interpreter_get_current_branch(EvalContext* context)
 
 void interpret(EvalContext* context)
 {
-    List argumentStack;
-    argumentStack.resize(CA_MAX_INPUTS);
+    TaggedValue* rawInputs[CA_MAX_INPUTS];
+    int inputCount = 0;
+
+    List temporaries.resize(CA_MAX_INPUTS);
 
     // Main loop.
     while (true) {
@@ -259,10 +261,24 @@ void interpret(EvalContext* context)
         Operation* op = &bytecode->operations[frame->pc];
 
         switch (op->type) {
-        case OP_INPUT_LOCAL:
+        case OP_INPUT_LOCAL: {
+            OpLocal* lop = (OpLocal*) op;
+            Frame* frame = get_frame(context, lop->relativeFrame);
+            TaggedValue* local = list_get_index(&frame->locals, lop->local);
+            rawInputs[inputCount++] = local;
+            continue;
+        }
+
         case OP_INPUT_GLOBAL:
+            rawInputs[inputCount++] = ((OpInputGlobal*) op)->value;
+            continue;
+
         case OP_INPUT_NULL:
+            rawInputs[inputCount++] = NULL;
+            continue;
+
         case OP_INPUT_INT:
+            TaggedValue* set
         case OP_OUTPUT_LOCAL:
             // ignore these ops
             frame->pc += 1;
@@ -626,7 +642,18 @@ void dump_call(EvalContext* context, OpCall* op)
 
 void apply(Term* function, List* args)
 {
-    get_function_attrs(function)->evaluate(args);
+    const int MAX_INPUTS = 20;
+
+    EvalContext context;
+
+    int count = args->length();
+    ca_assert(count < MAX_INPUTS);
+    TaggedValue* value_pointers[MAX_INPUTS];
+
+    for (int i=0; i < count; i++)
+        value_pointers[i] = args->get(i);
+    
+    get_function_attrs(function)->evaluate(&context, count, value_pointers);
 }
 
 } // namespace circa
