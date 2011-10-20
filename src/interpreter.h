@@ -44,6 +44,8 @@ TaggedValue* get_state_input(EvalContext* cxt);
 
 void error_occurred(EvalContext* context, Term* errorTerm, std::string const& message);
 
+// Latest API:
 void apply(Term* function, List* args);
+void call_single_term(EvalContext* context, Term* term);
 
 } // namespace circa

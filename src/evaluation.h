@@ -53,11 +53,15 @@ struct EvalContext
     Frame* frames;
     int numFrames;
 
+    // Current state of this interpreter
+    bool paused;
+
     EvalContext()
       : preserveLocals(false),
         errorOccurred(false),
         frames(NULL),
-        numFrames(0)
+        numFrames(0),
+        paused(false)
     {}
     ~EvalContext();
 };

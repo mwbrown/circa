@@ -160,35 +160,6 @@ Term* get_term_from_local(EvalContext* context, int local)
     return NULL;
 }
 
-TaggedValue* follow_input_instruction(EvalContext* context, Operation* op)
-{
-    switch (op->type) {
-        case OP_INPUT_GLOBAL: {
-            OpInputGlobal* gop = (OpInputGlobal*) op;
-            return gop->value;
-        }
-        case OP_INPUT_LOCAL: {
-            OpLocal* lop = (OpLocal*) op;
-            Frame* frame = get_frame(context, lop->relativeFrame);
-            return list_get_index(&frame->locals, lop->local);
-        }
-        case OP_INPUT_NULL:
-            return NULL;
-    }
-    return NULL;
-}
-
-void consume_input_instruction(EvalContext* context, Operation* op, TaggedValue* output)
-{
-    switch (op->type) {
-        case OP_INPUT_INT: {
-            set_int(output, ((OpInputInt*) op)->value);
-            break;
-        default:
-            copy(follow_input_instruction(context, op), output);
-        }
-    }
-}
 
 bool top_level_finish_branch(EvalContext* context, int flags)
 {
@@ -250,7 +221,8 @@ void interpret(EvalContext* context)
     TaggedValue* rawInputs[CA_MAX_INPUTS];
     int inputCount = 0;
 
-    List temporaries.resize(CA_MAX_INPUTS);
+    //List temporaries;
+    //temporaries.resize(CA_MAX_INPUTS);
 
     // Main loop.
     while (true) {
@@ -261,29 +233,6 @@ void interpret(EvalContext* context)
         Operation* op = &bytecode->operations[frame->pc];
 
         switch (op->type) {
-        case OP_INPUT_LOCAL: {
-            OpLocal* lop = (OpLocal*) op;
-            Frame* frame = get_frame(context, lop->relativeFrame);
-            TaggedValue* local = list_get_index(&frame->locals, lop->local);
-            rawInputs[inputCount++] = local;
-            continue;
-        }
-
-        case OP_INPUT_GLOBAL:
-            rawInputs[inputCount++] = ((OpInputGlobal*) op)->value;
-            continue;
-
-        case OP_INPUT_NULL:
-            rawInputs[inputCount++] = NULL;
-            continue;
-
-        case OP_INPUT_INT:
-            TaggedValue* set
-        case OP_OUTPUT_LOCAL:
-            // ignore these ops
-            frame->pc += 1;
-            continue;
-
         case OP_CALL: {
 #if 0
 
@@ -640,6 +589,67 @@ void dump_call(EvalContext* context, OpCall* op)
 #endif
 }
 
+TaggedValue* find_local_input(EvalContext* context, OpLocal* op)
+{
+    Frame* frame = get_frame(context, op->relativeFrame);
+    return list_get_index(&frame->locals, op->local);
+}
+
+void consume_input_instruction(EvalContext* context, Operation* op, TaggedValue* output)
+{
+    switch (op->type) {
+        case OP_INPUT_INT: {
+            set_int(output, ((OpInputInt*) op)->value);
+            break;
+        default:
+            copy(follow_input_instruction(context, op), output);
+        }
+    }
+}
+
+void interpreter_step(EvalContext* context)
+{
+    Frame* frame = top_frame(context);
+}
+
+void call_single_term(EvalContext* context, Term* term)
+{
+    BytecodeWriter writer;
+    bc_call(&writer, term);
+
+    int pc = 0;
+    TaggedValue* rawInputs[CA_MAX_INPUTS];
+    int inputCount = 0;
+
+    while (true) {
+        Operation* op = &writer.data->operations[pc];
+
+        switch (op->type) {
+        case OP_INPUT_LOCAL:
+            rawInputs[inputCount++] = find_local_input(context, op);
+            continue;
+        case OP_INPUT_GLOBAL:
+            rawInputs[inputCount] = term->input(inputCount);
+            inputCount++;
+            continue;
+        case OP_INPUT_NULL:
+            rawInputs[inputCount++] = NULL;
+            continue;
+        }
+
+        case OP_CALL: {
+            OpCall* cop = (OpCall*) op;
+            get_function_attrs(cop->func)->evaluate(inputCount, rawInputs);
+            continue;
+        }
+
+        case OP_PAUSE: {
+            return;
+        }
+        }
+    }
+}
+
 void apply(Term* function, List* args)
 {
     const int MAX_INPUTS = 20;
@@ -653,7 +663,7 @@ void apply(Term* function, List* args)
     for (int i=0; i < count; i++)
         value_pointers[i] = args->get(i);
     
-    get_function_attrs(function)->evaluate(&context, count, value_pointers);
+    get_function_attrs(function)->evaluate(count, value_pointers);
 }
 
 } // namespace circa

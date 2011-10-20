@@ -53,10 +53,6 @@ struct OpCheckOutput {
 struct OpPushBranch {
     OpType type;
     Term* term;
-
-    void* padding;
-
-    Operation args[0];
 };
 
 struct OpLocal {

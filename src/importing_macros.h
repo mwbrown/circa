@@ -29,7 +29,7 @@
     }
 
 #define CONTEXT (g_tempEvalContextDeleteThis) // FIXME
-#define NUM_INPUTS (_count)
+#define NUM_INPUTS (_count-1)
 #define INPUT(index) (_args[index])
 #define OUTPUT (_args[NUM_INPUTS])
 #define FLOAT_INPUT(index) (circa::to_float(INPUT(index)))

@@ -16,19 +16,6 @@ void test_static_assertions()
     test_assert(sizeof(Operation) >= sizeof(OpInputGlobal));
     test_assert(sizeof(Operation) >= sizeof(OpInputInt));
     test_assert(sizeof(Operation) >= sizeof(OpJump));
-
-    // Verify that the OpCall.args field is properly aligned with neighboring
-    // operations.
-    Branch branch;
-    Term* a = branch.compile("a = 1");
-    Term* b = branch.compile("add(a a)");
-    BytecodeWriter writer;
-    bc_call(&writer, b);
-
-    OpCall* opCall = (OpCall*) writer.data->operations;
-    test_assert(opCall->args[0].type == OP_OUTPUT_LOCAL);
-    test_assert(((OpInputGlobal*) &opCall->args[1])->value == a);
-    test_assert(((OpInputGlobal*) &opCall->args[2])->value == a);
 }
 
 void test_simple_write()
